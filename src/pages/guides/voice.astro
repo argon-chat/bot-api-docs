@@ -1,0 +1,340 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
+---
+
+<DocsLayout title="Voice Streaming — Argon Bot API" current="/guides/voice/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Voice Streaming</h1>
+    <p class="text-text-secondary text-lg">Stream audio directly into voice channels via WebSocket. Music bots, TTS, live audio relay — no WebRTC needed.</p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Overview -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Mic class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">How It Works</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Argon bots don't use WebRTC. Instead, they stream audio directly to a <strong class="text-text-primary">WebSocket ingress endpoint</strong>.
+          The server handles mixing and distribution to all participants in the voice channel.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-center justify-between gap-4 text-sm">
+            <div class="flex flex-col items-center gap-2">
+              <div class="h-10 w-10 rounded-xl bg-accent-subtle flex items-center justify-center">
+                <Headphones class="size-5 text-accent" />
+              </div>
+              <span class="text-text-secondary text-xs">Your Bot</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full h-px bg-gradient-to-r from-accent/40 via-accent to-accent/40"></div>
+              <span class="text-[10px] text-text-muted">Opus over WebSocket</span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <div class="h-10 w-10 rounded-xl bg-accent-subtle flex items-center justify-center">
+                <span class="text-accent font-bold text-xs">SFU</span>
+              </div>
+              <span class="text-text-secondary text-xs">Ingress</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full h-px bg-gradient-to-r from-accent/40 via-accent to-accent/40"></div>
+              <span class="text-[10px] text-text-muted">WebRTC</span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <div class="h-10 w-10 rounded-xl bg-accent-subtle flex items-center justify-center">
+                <Mic class="size-5 text-accent" />
+              </div>
+              <span class="text-text-secondary text-xs">Listeners</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step-by-Step Flow -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Step-by-Step Flow</h2>
+
+      <div class="space-y-6">
+        <!-- Step 1: Get Token -->
+        <div class="flex items-start gap-4">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">1</div>
+          <div class="flex-1 space-y-3">
+            <h3 class="font-semibold">Request a Stream Token</h3>
+            <p class="text-sm text-text-secondary">Call the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">StreamToken</code> endpoint with the target space and channel:</p>
+
+            <div class="code-block text-[12px]">
+              <div class="text-text-muted mb-2 text-[11px]">Request</div>
+              <pre set:html={`<span class="text-accent-hover">POST</span> /api/bot/IVoice/v1/StreamToken
+Authorization: Bot YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "spaceId": "550e8400-e29b-41d4-a716-446655440000",
+  "channelId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+}`} />
+            </div>
+
+            <div class="code-block text-[12px]">
+              <div class="text-text-muted mb-2 text-[11px]">Response</div>
+              <pre set:html={`{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "ingressUrl": "ws://ingress.argon.gl:12880",
+  "roomName": "550e8400-.../6ba7b810-..."
+}`} />
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Connect WebSocket -->
+        <div class="flex items-start gap-4">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">2</div>
+          <div class="flex-1 space-y-3">
+            <h3 class="font-semibold">Connect to the WebSocket Ingress</h3>
+            <p class="text-sm text-text-secondary">Open a WebSocket connection to the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">ingressUrl</code> with your token and audio configuration as query parameters:</p>
+
+            <div class="code-block text-[12px]">
+              <pre set:html={`<span class="text-text-muted">// Full connection URL with all parameters</span>
+ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&stereo=<span class="text-accent-2">false</span>&frame_duration_ms=<span class="text-accent-2">20</span>&track_name=<span class="text-accent-2">audio</span>&track_source=<span class="text-accent-2">microphone</span>`} />
+            </div>
+
+            <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">Connection Parameters</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-oled-border-subtle">
+                    <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                    <th class="text-left py-2 px-3 text-text-muted font-medium">Type</th>
+                    <th class="text-left py-2 px-3 text-text-muted font-medium">Default</th>
+                    <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody class="text-text-secondary">
+                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">token</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 text-text-muted">—</td><td class="py-2 px-3"><strong class="text-text-primary">Required.</strong> The JWT token from <code class="bg-oled-elevated px-1 rounded text-[11px]">StreamToken</code>.</td></tr>
+                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">stereo</td><td class="py-2 px-3 font-mono text-accent-2">boolean</td><td class="py-2 px-3 font-mono">false</td><td class="py-2 px-3">Set to <code class="bg-oled-elevated px-1 rounded text-[11px]">true</code> for stereo audio (2 channels). Mono by default.</td></tr>
+                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">channels</td><td class="py-2 px-3 font-mono text-accent-2">number</td><td class="py-2 px-3 font-mono">1</td><td class="py-2 px-3">Alternative to <code class="bg-oled-elevated px-1 rounded text-[11px]">stereo</code>. Set to <code class="bg-oled-elevated px-1 rounded text-[11px]">2</code> for stereo.</td></tr>
+                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">frame_duration_ms</td><td class="py-2 px-3 font-mono text-accent-2">number</td><td class="py-2 px-3 font-mono">20</td><td class="py-2 px-3">Opus frame duration in milliseconds. Valid values: <code class="bg-oled-elevated px-1 rounded text-[11px]">10</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">20</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">40</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">60</code>.</td></tr>
+                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_name</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 font-mono">""</td><td class="py-2 px-3">Display name for the audio track (visible to other participants).</td></tr>
+                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_source</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 font-mono">""</td><td class="py-2 px-3">Track source type, e.g. <code class="bg-oled-elevated px-1 rounded text-[11px]">microphone</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">screen_share_audio</code>.</td></tr>
+                  <tr><td class="py-2 px-3 font-mono text-text-primary">metadata</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 font-mono">""</td><td class="py-2 px-3">Arbitrary metadata string attached to the track participant.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="code-block text-[12px] mt-3">
+              <div class="text-text-muted mb-2 text-[11px]">Music bot (stereo, 20ms frames)</div>
+              <pre set:html={`ws://ingress.argon.gl:12880?token=<span class="text-accent">TOKEN</span>&stereo=<span class="text-accent-2">true</span>&frame_duration_ms=<span class="text-accent-2">20</span>&track_name=<span class="text-accent-2">music</span>&track_source=<span class="text-accent-2">microphone</span>`} />
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Stream Audio -->
+        <div class="flex items-start gap-4">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">3</div>
+          <div class="flex-1 space-y-3">
+            <h3 class="font-semibold">Stream Opus Audio Frames</h3>
+            <p class="text-sm text-text-secondary">Send binary WebSocket frames containing Opus-encoded audio data. Each frame should be a single Opus packet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audio Requirements -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Audio Requirements</h2>
+
+      <div class="space-y-4">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Value</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Codec</td><td class="py-2 px-3">Opus</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Sample Rate</td><td class="py-2 px-3">48,000 Hz</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Channels</td><td class="py-2 px-3">Mono (1) or Stereo (2) — configured via <code class="bg-oled-elevated px-1 rounded text-[11px]">stereo</code> or <code class="bg-oled-elevated px-1 rounded text-[11px]">channels</code> query param</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Frame Duration</td><td class="py-2 px-3">10, 20 (default), 40, or 60 ms — configured via <code class="bg-oled-elevated px-1 rounded text-[11px]">frame_duration_ms</code> query param</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-text-primary">Transport</td><td class="py-2 px-3">Binary WebSocket frames (one Opus packet per frame)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-oled-border bg-oled-surface/50 p-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <p class="text-sm text-text-secondary">
+            Do <strong class="text-text-primary">not</strong> send raw PCM. The ingress expects Opus-encoded packets. Use a library like <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">opusenc</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ffmpeg</code>, or your language's Opus bindings to encode before sending.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Room & Token Details -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Room &amp; Token Details</h2>
+
+      <div class="space-y-4">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Property</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Details</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Room Name Format</td><td class="py-2 px-3 font-mono">{'{spaceId}/{channelId}'}</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Token Type</td><td class="py-2 px-3">LiveKit JWT (HS256)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Token TTL</td><td class="py-2 px-3">2 hours — request a new one before it expires</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-text-primary">Bot Permissions</td><td class="py-2 px-3">Publish audio/video, subscribe to tracks, send data, update own metadata</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Prerequisites -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Lock class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Prerequisites &amp; Validation</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">The <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">StreamToken</code> endpoint validates the following before issuing a token:</p>
+
+        <ul class="list-disc list-inside space-y-1.5 text-text-secondary">
+          <li>The bot must be a <strong class="text-text-primary">member</strong> of the space — returns <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">403</code> otherwise.</li>
+          <li>The channel must <strong class="text-text-primary">exist</strong> — returns <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">404</code> if not found.</li>
+          <li>The channel must be a <strong class="text-text-primary">voice channel</strong> — returns <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">400</code> for text channels.</li>
+          <li>Rate limited to <strong class="text-text-primary">5 requests per minute</strong>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Code Example -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Code Example</h2>
+
+      <div class="space-y-6">
+        <div>
+          <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">TypeScript (Bun / Node.js)</h3>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="text-accent-2">import</span> { spawn } <span class="text-accent-2">from</span> <span class="text-accent-2">"child_process"</span>;
+
+<span class="text-text-muted">// 1. Get stream token</span>
+<span class="text-accent-hover">const</span> resp = <span class="text-accent-hover">await</span> fetch(<span class="text-accent-2">"https://api.argon.gl/api/bot/IVoice/v1/StreamToken"</span>, {
+  method: <span class="text-accent-2">"POST"</span>,
+  headers: {
+    <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">"Bot YOUR_TOKEN"</span>,
+    <span class="text-accent-2">"Content-Type"</span>: <span class="text-accent-2">"application/json"</span>,
+  },
+  body: JSON.stringify({ spaceId: <span class="text-accent-2">"..."</span>, channelId: <span class="text-accent-2">"..."</span> }),
+});
+<span class="text-accent-hover">const</span> { token, ingressUrl } = <span class="text-accent-hover">await</span> resp.json();
+
+<span class="text-text-muted">// 2. Encode audio to Opus with ffmpeg (stereo, 48kHz)</span>
+<span class="text-accent-hover">const</span> ffmpeg = spawn(<span class="text-accent-2">"ffmpeg"</span>, [
+  <span class="text-accent-2">"-i"</span>, <span class="text-accent-2">"music.mp3"</span>,
+  <span class="text-accent-2">"-f"</span>, <span class="text-accent-2">"opus"</span>, <span class="text-accent-2">"-ar"</span>, <span class="text-accent-2">"48000"</span>, <span class="text-accent-2">"-ac"</span>, <span class="text-accent-2">"2"</span>,
+  <span class="text-accent-2">"-frame_duration"</span>, <span class="text-accent-2">"20"</span>, <span class="text-accent-2">"pipe:1"</span>,
+]);
+
+<span class="text-text-muted">// 3. Stream to ingress (stereo, 20ms frames)</span>
+<span class="text-accent-hover">const</span> wsUrl = \`\${ingressUrl}?token=\${token}&stereo=true&frame_duration_ms=20&track_name=music\`;
+<span class="text-accent-hover">const</span> ws = <span class="text-accent-hover">new</span> WebSocket(wsUrl);
+
+ws.addEventListener(<span class="text-accent-2">"open"</span>, () => {
+  ffmpeg.stdout.on(<span class="text-accent-2">"data"</span>, (chunk) => {
+    ws.send(chunk);
+  });
+});
+
+ffmpeg.on(<span class="text-accent-2">"close"</span>, () => ws.close());`} />
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">C# (.NET)</h3>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="text-accent-hover">using</span> System.Diagnostics;
+<span class="text-accent-hover">using</span> System.Net.Http.Json;
+<span class="text-accent-hover">using</span> System.Net.WebSockets;
+
+<span class="text-text-muted">// 1. Get stream token</span>
+<span class="text-accent-hover">using var</span> http = <span class="text-accent-hover">new</span> HttpClient();
+http.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</span>, <span class="text-accent-2">"Bot YOUR_TOKEN"</span>);
+
+<span class="text-accent-hover">var</span> resp = <span class="text-accent-hover">await</span> http.PostAsJsonAsync(
+    <span class="text-accent-2">"https://api.argon.gl/api/bot/IVoice/v1/StreamToken"</span>,
+    <span class="text-accent-hover">new</span> { spaceId = <span class="text-accent-2">"..."</span>, channelId = <span class="text-accent-2">"..."</span> });
+<span class="text-accent-hover">var</span> data = <span class="text-accent-hover">await</span> resp.Content.ReadFromJsonAsync&lt;JsonElement&gt;();
+<span class="text-accent-hover">var</span> token = data.GetProperty(<span class="text-accent-2">"token"</span>).GetString()!;
+<span class="text-accent-hover">var</span> url = data.GetProperty(<span class="text-accent-2">"ingressUrl"</span>).GetString()!;
+
+<span class="text-text-muted">// 2. Encode audio with ffmpeg</span>
+<span class="text-accent-hover">var</span> ffmpeg = Process.Start(<span class="text-accent-hover">new</span> ProcessStartInfo {
+    FileName = <span class="text-accent-2">"ffmpeg"</span>,
+    Arguments = <span class="text-accent-2">"-i music.mp3 -f opus -ar 48000 -ac 2 -frame_duration 20 pipe:1"</span>,
+    RedirectStandardOutput = <span class="type-keyword">true</span>,
+    UseShellExecute = <span class="type-keyword">false</span>
+})!;
+
+<span class="text-text-muted">// 3. Stream to ingress</span>
+<span class="text-accent-hover">using var</span> ws = <span class="text-accent-hover">new</span> ClientWebSocket();
+<span class="text-accent-hover">await</span> ws.ConnectAsync(
+    <span class="text-accent-hover">new</span> Uri($<span class="text-accent-2">"{url}?token={token}&stereo=true&frame_duration_ms=20&track_name=music"</span>),
+    CancellationToken.None);
+
+<span class="text-accent-hover">var</span> buf = <span class="text-accent-hover">new byte</span>[960];
+<span class="text-accent-hover">int</span> read;
+<span class="text-accent-hover">while</span> ((read = <span class="text-accent-hover">await</span> ffmpeg.StandardOutput.BaseStream.ReadAsync(buf)) > 0)
+    <span class="text-accent-hover">await</span> ws.SendAsync(buf.AsMemory(0, read), WebSocketMessageType.Binary, <span class="type-keyword">true</span>, CancellationToken.None);`} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Use Cases</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-semibold mb-1 text-sm">Music Bot</h3>
+          <p class="text-xs text-text-secondary">Stream audio from local files or your own media library. Encode to Opus and push to the channel.</p>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-semibold mb-1 text-sm">TTS Bot</h3>
+          <p class="text-xs text-text-secondary">Convert text to speech (e.g., via Google TTS or Coqui), encode to Opus, and stream the result.</p>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-semibold mb-1 text-sm">Live Audio Relay</h3>
+          <p class="text-xs text-text-secondary">Relay audio from an external source (radio stream, microphone, podcast feed) into the channel.</p>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-semibold mb-1 text-sm">Audio Notifications</h3>
+          <p class="text-xs text-text-secondary">Play short audio clips for alerts, announcements, or sound effects triggered by events.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section class="glass rounded-2xl p-6">
+      <h3 class="font-semibold mb-3">Next Steps</h3>
+      <div class="flex flex-col gap-2">
+        <a href="/docs/IVoice/" class="text-sm text-accent hover:underline">→ IVoice API Reference — endpoint details and types</a>
+        <a href="/guides/events/" class="text-sm text-accent hover:underline">→ Real-time Events — listen for VoiceJoin/VoiceLeave events</a>
+        <a href="/docs/" class="text-sm text-accent hover:underline">→ API Reference — all interfaces</a>
+      </div>
+    </section>
+  </div>
+</DocsLayout>

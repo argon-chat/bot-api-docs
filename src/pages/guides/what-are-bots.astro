@@ -1,0 +1,214 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight } from 'lucide-astro';
+---
+
+<DocsLayout title="What Are Bots? — Argon Bot API" current="/guides/what-are-bots/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">What Are Bots?</h1>
+    <p class="text-text-secondary text-lg">Automated users that interact with spaces, channels, and members via the Argon Bot API.</p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Overview -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Bot class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Overview</h2>
+      </div>
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Bots are special Argon accounts controlled by code instead of a human. They can send messages, moderate channels,
+          stream audio, respond to slash commands, and react to real-time events — all through a simple REST + SSE API.
+        </p>
+        <p class="text-text-secondary">
+          Every bot has a linked user account (with a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">_bot</code> username suffix)
+          and appears in member lists like any other user. Under the hood, bot requests are authenticated with a secret token
+          and processed through the same permission system as regular users.
+        </p>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Cpu class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Architecture</h2>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-sm">
+          <div class="flex flex-col items-center gap-2 text-center">
+            <div class="h-12 w-12 rounded-xl bg-accent-subtle flex items-center justify-center">
+              <Bot class="size-6 text-accent" />
+            </div>
+            <span class="font-medium">Your Bot</span>
+            <span class="text-text-muted text-xs">Any language/runtime</span>
+          </div>
+          <ArrowRight class="size-5 text-text-faint hidden md:block" />
+          <div class="flex flex-col items-center gap-2 text-center">
+            <div class="h-12 w-12 rounded-xl bg-oled-elevated flex items-center justify-center">
+              <Shield class="size-6 text-text-secondary" />
+            </div>
+            <span class="font-medium">REST API</span>
+            <span class="text-text-muted text-xs">Authenticated requests</span>
+          </div>
+          <ArrowRight class="size-5 text-text-faint hidden md:block" />
+          <div class="flex flex-col items-center gap-2 text-center">
+            <div class="h-12 w-12 rounded-xl bg-oled-elevated flex items-center justify-center">
+              <Zap class="size-6 text-text-secondary" />
+            </div>
+            <span class="font-medium">SSE Events</span>
+            <span class="text-text-muted text-xs">Real-time stream</span>
+          </div>
+          <ArrowRight class="size-5 text-text-faint hidden md:block" />
+          <div class="flex flex-col items-center gap-2 text-center">
+            <div class="h-12 w-12 rounded-xl bg-oled-elevated flex items-center justify-center">
+              <Users class="size-6 text-text-secondary" />
+            </div>
+            <span class="font-medium">Spaces & Channels</span>
+            <span class="text-text-muted text-xs">Users see bot actions</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 space-y-3 text-sm text-text-secondary">
+        <p><strong class="text-text-primary">REST API</strong> — Send messages, manage channels, query members, register commands. All endpoints require <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Authorization: Bot &lt;token&gt;</code>.</p>
+        <p><strong class="text-text-primary">SSE Stream</strong> — Open a single persistent connection to receive events in real time. Filter events by intent bitmask. Automatically replay missed events on reconnection.</p>
+        <p><strong class="text-text-primary">Voice WebSocket</strong> — Stream Opus audio directly to voice channels via a WebSocket ingress endpoint. No WebRTC needed.</p>
+      </div>
+    </section>
+
+    <!-- Bot vs User -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Users class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Bot vs. User</h2>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="type-grid">
+          <div class="type-grid-header">
+            <span>Feature</span>
+            <span>Bot</span>
+            <span>User</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="text-[12px]">Authentication</span>
+            <span class="text-[12px] text-text-secondary">Token (secret string)</span>
+            <span class="text-[12px] text-text-secondary">JWT (login session)</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="text-[12px]">Username</span>
+            <span class="text-[12px] text-text-secondary">Ends with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">_bot</code></span>
+            <span class="text-[12px] text-text-secondary">Free choice</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="text-[12px]">Rate limits</span>
+            <span class="text-[12px] text-text-secondary">Per-interface token buckets</span>
+            <span class="text-[12px] text-text-secondary">Standard user limits</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="text-[12px]">Real-time events</span>
+            <span class="text-[12px] text-text-secondary">SSE with intent filtering</span>
+            <span class="text-[12px] text-text-secondary">Ion RPC (binary)</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="text-[12px]">Voice</span>
+            <span class="text-[12px] text-text-secondary">WebSocket audio ingress</span>
+            <span class="text-[12px] text-text-secondary">WebRTC (browser/app)</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="text-[12px]">Slash commands</span>
+            <span class="text-[12px] text-text-secondary">Register and handle</span>
+            <span class="text-[12px] text-text-secondary">Invoke only</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lifecycle -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Workflow class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Bot Lifecycle</h2>
+      </div>
+
+      <ol class="space-y-4">
+        <li class="flex gap-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-accent-subtle text-accent text-sm font-bold flex items-center justify-center">1</span>
+          <div>
+            <p class="text-sm font-medium">Create</p>
+            <p class="text-sm text-text-secondary">Register a bot application at <a href="https://console.argon.gl" target="_blank" rel="noopener" class="text-accent hover:underline">console.argon.gl</a>. Get your bot token.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-accent-subtle text-accent text-sm font-bold flex items-center justify-center">2</span>
+          <div>
+            <p class="text-sm font-medium">Install</p>
+            <p class="text-sm text-text-secondary">Add the bot to a space. The bot appears as a member and can interact with channels.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-accent-subtle text-accent text-sm font-bold flex items-center justify-center">3</span>
+          <div>
+            <p class="text-sm font-medium">Connect</p>
+            <p class="text-sm text-text-secondary">Open an SSE stream with your desired intents. Receive a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Ready</code> event with your active spaces.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-accent-subtle text-accent text-sm font-bold flex items-center justify-center">4</span>
+          <div>
+            <p class="text-sm font-medium">React</p>
+            <p class="text-sm text-text-secondary">Handle incoming events (messages, commands, member changes) and respond via REST API calls.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-accent-subtle text-accent text-sm font-bold flex items-center justify-center">5</span>
+          <div>
+            <p class="text-sm font-medium">Scale</p>
+            <p class="text-sm text-text-secondary">Apply for verification to unlock privileged intents, higher rate limits, and advanced APIs like voice egress and calls.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Verified bots -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Shield class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Verified Bots</h2>
+      </div>
+
+      <div class="glass rounded-2xl p-5 space-y-3">
+        <p class="text-sm text-text-secondary">
+          Verified bots have been reviewed by the Argon team and gain access to:
+        </p>
+        <ul class="text-sm text-text-secondary space-y-1.5 list-disc pl-5">
+          <li><strong class="text-text-primary">Privileged intents</strong> — Members, Presence, and other sensitive event categories</li>
+          <li><strong class="text-text-primary">Higher rate limits</strong> — Increased token buckets for all interfaces</li>
+          <li><strong class="text-text-primary">Voice egress</strong> — Listen to individual audio tracks from voice channels</li>
+          <li><strong class="text-text-primary">Calls API</strong> — Accept incoming calls from users</li>
+          <li><strong class="text-text-primary">Verified badge</strong> — Displayed next to the bot name in member lists</li>
+        </ul>
+        <p class="text-sm text-text-secondary">
+          Apply for verification through the <a href="https://console.argon.gl" target="_blank" rel="noopener" class="text-accent hover:underline">Developer Console</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Next steps -->
+    <section>
+      <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+        <h4 class="text-sm font-semibold mb-2">Next Steps</h4>
+        <div class="flex flex-col gap-2">
+          <a href="/guides/getting-started/" class="text-sm text-accent hover:underline">→ Getting Started — create your first bot</a>
+          <a href="/guides/events/" class="text-sm text-accent hover:underline">→ Real-time Events — subscribe to SSE</a>
+          <a href="/guides/glossary/" class="text-sm text-accent hover:underline">→ Glossary — key terms explained</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</DocsLayout>

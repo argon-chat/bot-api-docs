@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+@theme {
+  /* OLED backgrounds — deeper layering */
+  --color-oled-black: #000000;
+  --color-oled-bg: #020202;
+  --color-oled-surface: #080808;
+  --color-oled-elevated: #0e0e0e;
+  --color-oled-card: #141414;
+  --color-oled-hover: #1a1a1a;
+  --color-oled-border: #222222;
+  --color-oled-border-subtle: #181818;
+
+  /* Text — better contrast ladder */
+  --color-text-primary: #ebebeb;
+  --color-text-secondary: #9a9a9a;
+  --color-text-muted: #555555;
+  --color-text-faint: #333333;
+
+  /* Accent — Argon Violet */
+  --color-accent: #8b5cf6;
+  --color-accent-hover: #a78bfa;
+  --color-accent-muted: #7c3aed;
+  --color-accent-subtle: rgba(139, 92, 246, 0.12);
+  --color-accent-glow: rgba(139, 92, 246, 0.35);
+
+  --color-accent-2: #06b6d4;
+  --color-accent-3: #c084fc;
+
+  /* Status */
+  --color-status-up: #34d399;
+  --color-status-up-subtle: rgba(52, 211, 153, 0.10);
+  --color-status-up-glow: rgba(52, 211, 153, 0.20);
+  --color-status-degraded: #fbbf24;
+  --color-status-degraded-subtle: rgba(251, 191, 36, 0.10);
+  --color-status-degraded-glow: rgba(251, 191, 36, 0.20);
+  --color-status-down: #f87171;
+  --color-status-down-subtle: rgba(248, 113, 113, 0.10);
+  --color-status-down-glow: rgba(248, 113, 113, 0.20);
+  --color-status-unknown: #6b7280;
+  --color-status-unknown-subtle: rgba(107, 114, 128, 0.10);
+  --color-status-unknown-glow: rgba(107, 114, 128, 0.15);
+
+  /* Success (alias) */
+  --color-success: #34d399;
+  --color-success-subtle: rgba(52, 211, 153, 0.10);
+
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-oled-black);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--color-oled-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+}
+
+/* ── Animations ── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0; transform: scale(2.5); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.04; }
+  50% { opacity: 0.07; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fade-in-up-delay-1 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+.animate-fade-in-up-delay-2 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
+}
+.animate-fade-in-up-delay-3 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+}
+.animate-fade-in-up-delay-4 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.03) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* ── Glass card ── */
+.glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%);
+  border: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+}
+
+.glass:hover {
+  border-color: rgba(255,255,255,0.07);
+}
+
+/* ── Section label ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ── HTTP Method Badges ── */
+.method-get    { color: #34d399; background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.2); }
+.method-post   { color: #60a5fa; background: rgba(96, 165, 250, 0.1); border-color: rgba(96, 165, 250, 0.2); }
+.method-put    { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2); }
+.method-patch  { color: #fb923c; background: rgba(251, 146, 60, 0.1); border-color: rgba(251, 146, 60, 0.2); }
+.method-delete { color: #f87171; background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.2); }
+
+/* ── Code blocks ── */
+.code-block {
+  background: var(--color-oled-surface);
+  border: 1px solid var(--color-oled-border-subtle);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+/* ── Status badges ── */
+.badge-stable     { color: #34d399; background: rgba(52, 211, 153, 0.1); }
+.badge-draft      { color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+.badge-deprecated { color: #f87171; background: rgba(248, 113, 113, 0.1); }
+
+/* ── Type shape rendering ── */
+.type-keyword  { color: #c084fc; }
+.type-name     { color: #60a5fa; }
+.type-property { color: #e2e8f0; }
+.type-punct    { color: var(--color-text-muted); }
+.type-enum     { color: #4ade80; }
+
+/* ── Type grids ── */
+.type-grid {
+  border: 1px solid var(--color-oled-border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-oled-surface);
+}
+.type-grid-header {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--color-oled-border-subtle);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-faint);
+}
+.type-grid-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  align-items: baseline;
+}
+.type-grid-row:last-child {
+  border-bottom: none;
+}
+.type-grid-nested {
+  background: rgba(255, 255, 255, 0.01);
+}

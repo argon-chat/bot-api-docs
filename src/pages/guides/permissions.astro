@@ -1,0 +1,219 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import fullManifest from '../../data/api-manifest.json';
+import { Shield, ShieldAlert, Key, Eye } from 'lucide-astro';
+
+const intents = fullManifest.intents;
+const privilegedIntents = intents.filter((i: any) => i.isPrivileged);
+const normalIntents = intents.filter((i: any) => !i.isPrivileged);
+---
+
+<DocsLayout title="Permissions & Intents — Argon Bot API" current="/guides/permissions/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Permissions & Intents</h1>
+    <p class="text-text-secondary text-lg">Understand how endpoint permissions and event intents control what your bot can do.</p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Permissions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Shield class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Endpoint Permissions</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Some Bot API endpoints require a <strong class="text-text-primary">permission</strong>. The permission is checked against the
+          bot's archetype (role) in the target space. If the bot's role does not include the required permission, the request
+          returns <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">403</code>.
+        </p>
+        <p class="text-text-secondary">
+          Permissions are shown on each endpoint's documentation page as a badge. Endpoints without a permission badge
+          are accessible to any authenticated bot.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-sm font-semibold text-text-primary mb-3">Common Permissions</h3>
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 2fr">
+              <span>Permission</span>
+              <span>Grants Access To</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px] text-amber-400">SendMessages</span>
+              <span class="text-[12px] text-text-secondary">Sending messages in channels</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px] text-amber-400">ReadMessages</span>
+              <span class="text-[12px] text-text-secondary">Reading message history from channels</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px] text-amber-400">ManageChannels</span>
+              <span class="text-[12px] text-text-secondary">Creating and deleting channels</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px] text-amber-400">KickMembers</span>
+              <span class="text-[12px] text-text-secondary">Kicking users from channels</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px] text-amber-400">ViewMembers</span>
+              <span class="text-[12px] text-text-secondary">Viewing member details and listing members</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px] text-amber-400">ConnectVoice</span>
+              <span class="text-[12px] text-text-secondary">Joining voice channels and streaming audio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Privileged endpoints -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <ShieldAlert class="size-5 text-red-400" />
+        <h2 class="text-xl font-semibold">Privileged Endpoints</h2>
+      </div>
+
+      <p class="text-text-secondary mb-4">
+        Endpoints marked <span class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-500/10 text-red-400 border border-red-500/20">Privileged</span>
+        require the bot to be <a href="/guides/glossary/" class="text-accent hover:underline">verified</a>.
+        These endpoints access sensitive data or perform actions that require higher trust.
+      </p>
+
+      <div class="glass rounded-xl p-4">
+        <p class="text-sm text-text-secondary">
+          Unverified bots calling a privileged endpoint receive <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">403</code>
+          with error code <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px] text-red-300">not_verified</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Intents -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Eye class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Event Intents</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          When connecting to the <a href="/guides/events/" class="text-accent hover:underline">SSE event stream</a>,
+          you specify which event categories to receive via a bitmask. Each bit corresponds to an <strong class="text-text-primary">intent</strong>.
+        </p>
+        <p class="text-text-secondary">
+          Pass the intent bitmask as the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">intents</code> query parameter
+          when connecting to <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">/api/bot/IEvents/v1/Stream</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Non-privileged intents -->
+    <section>
+      <h3 class="text-lg font-semibold mb-4">Standard Intents</h3>
+      <p class="text-text-secondary mb-4">Available to all bots.</p>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="type-grid">
+          <div class="type-grid-header" style="grid-template-columns: 1.5fr 80px 2fr">
+            <span>Intent</span>
+            <span>Bit</span>
+            <span>Events</span>
+          </div>
+          {normalIntents.map((intent: any) => (
+            <div class="type-grid-row" style="grid-template-columns: 1.5fr 80px 2fr">
+              <span class="font-mono text-[12px] text-accent">{intent.name}</span>
+              <span class="font-mono text-[12px] text-text-muted">1 &lt;&lt; {intent.bit}</span>
+              <span class="text-[12px] text-text-secondary">
+                {intent.events.length > 0 ? intent.events.join(', ') : <em class="text-text-faint">none yet</em>}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Privileged intents -->
+    <section>
+      <h3 class="text-lg font-semibold mb-4">Privileged Intents</h3>
+      <p class="text-text-secondary mb-4">Require bot verification. Unverified bots requesting these intents will not receive the corresponding events.</p>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="type-grid">
+          <div class="type-grid-header" style="grid-template-columns: 1.5fr 80px 2fr">
+            <span>Intent</span>
+            <span>Bit</span>
+            <span>Events</span>
+          </div>
+          {privilegedIntents.map((intent: any) => (
+            <div class="type-grid-row" style="grid-template-columns: 1.5fr 80px 2fr">
+              <span class="font-mono text-[12px] text-red-400">{intent.name}</span>
+              <span class="font-mono text-[12px] text-text-muted">1 &lt;&lt; {intent.bit}</span>
+              <span class="text-[12px] text-text-secondary">
+                {intent.events.length > 0 ? intent.events.join(', ') : <em class="text-text-faint">none yet</em>}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Calculating bitmask -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Calculating the Bitmask</h2>
+
+      <p class="text-text-secondary mb-4">
+        Combine intents using bitwise OR. For example, to subscribe to Messages + Channels + Voice:
+      </p>
+
+      <div class="code-block text-[12px]">
+        <pre>{`Messages  = 1 << 0  =     1
+Channels  = 1 << 1  =     2
+Voice     = 1 << 11 =  2048
+─────────────────────────
+intents   =            2051`}</pre>
+      </div>
+
+      <div class="glass rounded-xl p-4 mt-4">
+        <p class="text-sm text-text-secondary">
+          <strong class="text-text-primary">Tip:</strong> Use <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">intents=0</code> to receive
+          only connection lifecycle events (Ready, Heartbeat, Resumed) without any space events.
+        </p>
+      </div>
+    </section>
+
+    <!-- Key -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Key class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Quick Reference</h2>
+      </div>
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="type-grid">
+          <div class="type-grid-header" style="grid-template-columns: 1fr 1fr 1fr">
+            <span>Preset</span>
+            <span>Value</span>
+            <span>Description</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1fr 1fr 1fr">
+            <span class="font-mono text-[12px] text-accent">AllNonPrivileged</span>
+            <span class="font-mono text-[12px] text-text-secondary">{normalIntents.reduce((acc: number, i: any) => acc | i.value, 0)}</span>
+            <span class="text-[12px] text-text-secondary">All standard intents combined</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1fr 1fr 1fr">
+            <span class="font-mono text-[12px] text-red-400">AllPrivileged</span>
+            <span class="font-mono text-[12px] text-text-secondary">{privilegedIntents.reduce((acc: number, i: any) => acc | i.value, 0)}</span>
+            <span class="text-[12px] text-text-secondary">All privileged intents combined</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1fr 1fr 1fr">
+            <span class="font-mono text-[12px] text-text-primary">All</span>
+            <span class="font-mono text-[12px] text-text-secondary">{intents.reduce((acc: number, i: any) => acc | i.value, 0)}</span>
+            <span class="text-[12px] text-text-secondary">Every intent (requires verification)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</DocsLayout>

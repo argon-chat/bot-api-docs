@@ -1,0 +1,261 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { Bot, Key, Terminal, AlertTriangle, ExternalLink } from 'lucide-astro';
+import fullManifest from '../../data/api-manifest.json';
+
+const rateLimits = fullManifest.rateLimits;
+---
+
+<DocsLayout title="Getting Started — Argon Bot API" current="/guides/getting-started/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Getting Started</h1>
+    <p class="text-text-secondary text-lg">Create your bot, get a token, and send your first API request.</p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Step 1: Create a Bot -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">1</div>
+        <h2 class="text-xl font-semibold">Create a Bot Application</h2>
+      </div>
+
+      <div class="ml-11 space-y-4">
+        <p class="text-text-secondary">Bots are created through the <strong class="text-text-primary">Argon Developer Console</strong>.</p>
+
+        <ol class="list-decimal list-inside space-y-2 text-text-secondary">
+          <li>Go to <a href="https://console.argon.gl" target="_blank" rel="noopener" class="text-accent hover:underline">console.argon.gl <ExternalLink class="inline size-3" /></a> and sign in with your Argon account.</li>
+          <li>Select your team (or create one).</li>
+          <li>Navigate to <strong class="text-text-primary">Apps</strong> and click <strong class="text-text-primary">Create Application</strong>.</li>
+          <li>Choose the <strong class="text-text-primary">Bot App</strong> tab.</li>
+          <li>Enter an <strong class="text-text-primary">App Name</strong> (e.g., "My Music Bot") and a <strong class="text-text-primary">Bot Username</strong>.</li>
+        </ol>
+
+        <div class="flex items-start gap-3 rounded-xl border border-status-degraded/20 bg-status-degraded-subtle p-4 mt-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <p class="text-sm text-text-secondary">
+            Bot usernames <strong class="text-text-primary">must end with <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">_bot</code></strong> (e.g., <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">music_bot</code>). The system will validate this.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: Get Your Token -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">2</div>
+        <h2 class="text-xl font-semibold">Get Your Bot Token</h2>
+      </div>
+
+      <div class="ml-11 space-y-4">
+        <p class="text-text-secondary">
+          After creating the bot, you'll be taken to the <strong class="text-text-primary">App Details</strong> page. Find the <strong class="text-text-primary">Authentication &amp; Keys</strong> section.
+        </p>
+
+        <p class="text-text-secondary">
+          Your bot token looks like this:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`<span class="text-text-muted">Bot Token:</span>
+<span class="text-accent-2">a1b2c3d4e5f6...</span><span class="text-text-muted">:</span><span class="text-accent">aBC-_DeF_GhIjKlMnOpQr...</span>`} />
+        </div>
+
+        <p class="text-sm text-text-muted">
+          Format: <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">{'{hex}:{base64url}'}</code> — the first part identifies the bot, the second is the secret.
+        </p>
+
+        <div class="flex items-start gap-3 rounded-xl border border-status-down/20 bg-status-down-subtle p-4">
+          <Key class="size-4 text-status-down mt-0.5 shrink-0" />
+          <div>
+            <p class="text-sm font-medium text-text-primary">Keep your token secret</p>
+            <p class="text-sm text-text-secondary mt-1">Never commit tokens to source control or share them publicly. If compromised, regenerate immediately from the Developer Console.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: Authentication -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">3</div>
+        <h2 class="text-xl font-semibold">Authenticate Your Requests</h2>
+      </div>
+
+      <div class="ml-11 space-y-4">
+        <p class="text-text-secondary">
+          Include your token in the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">Authorization</code> header on every request:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre>Authorization: Bot YOUR_TOKEN_HERE</pre>
+        </div>
+
+        <p class="text-text-secondary">All API endpoints require this header. Requests without it receive a <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">401 Unauthorized</code> response.</p>
+      </div>
+    </section>
+
+    <!-- Step 4: Base URL -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">4</div>
+        <h2 class="text-xl font-semibold">API Structure</h2>
+      </div>
+
+      <div class="ml-11 space-y-4">
+        <p class="text-text-secondary">
+          The Bot API is organized into <strong class="text-text-primary">interfaces</strong>, each independently versioned. Every endpoint follows this pattern:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`<span class="text-text-muted">Base URL:</span>
+https://api.argon.gl/api/bot/<span class="text-accent">{Interface}</span>/v<span class="text-accent-2">{Version}</span>/<span class="text-accent-3">{Method}</span>
+
+<span class="text-text-muted">Example:</span>
+https://api.argon.gl/api/bot/<span class="text-accent">IBotSelf</span>/v<span class="text-accent-2">1</span>/<span class="text-accent-3">GetMe</span>`} />
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Segment</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-accent">Interface</td><td class="py-2 px-3">The API group name, e.g. <code class="bg-oled-elevated px-1 rounded text-[11px]">IBotSelf</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">IMessages</code></td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-accent-2">Version</td><td class="py-2 px-3">Interface version, starting at <code class="bg-oled-elevated px-1 rounded text-[11px]">1</code></td></tr>
+              <tr><td class="py-2 px-3 font-mono text-accent-3">Method</td><td class="py-2 px-3">The specific endpoint, e.g. <code class="bg-oled-elevated px-1 rounded text-[11px]">GetMe</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">Send</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 5: First Request -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">5</div>
+        <h2 class="text-xl font-semibold">Your First Request</h2>
+      </div>
+
+      <div class="ml-11 space-y-4">
+        <p class="text-text-secondary">
+          Verify your bot is authenticated by calling <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">GetMe</code>:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <div class="text-text-muted mb-2 text-[11px]">Request</div>
+          <pre set:html={`<span class="text-text-muted">$</span> <span class="text-accent-hover">curl</span> <span class="text-text-secondary">-H</span> <span class="text-accent-2">"Authorization: Bot YOUR_TOKEN"</span> \\
+     https://api.argon.gl/api/bot/IBotSelf/v1/GetMe`} />
+        </div>
+
+        <div class="code-block text-[12px]">
+          <div class="text-text-muted mb-2 text-[11px]">Response</div>
+          <pre set:html={`{
+  "botId": "550e8400-e29b-41d4-a716-446655440000",
+  "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "username": "music_bot",
+  "displayName": "Music Bot",
+  "avatarUrl": null,
+  "email": "550e8400...+music_bot@noreply.argon.gl"
+}`} />
+        </div>
+
+        <p class="text-text-secondary">
+          If you receive a <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">200 OK</code> with your bot info, you're all set.
+        </p>
+      </div>
+    </section>
+
+    <!-- Rate Limits -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Terminal class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Rate Limits</h2>
+      </div>
+
+      <div class="ml-8 space-y-4">
+        <p class="text-text-secondary">
+          Each interface has its own <strong class="text-text-primary">token bucket</strong> rate limit. When you hit the limit, the API returns <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">429 Too Many Requests</code> with a <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">Retry-After</code> header indicating how many seconds to wait.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Interface</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Limit</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              {rateLimits.map((rl: any, idx: number) => (
+                <tr class:list={[idx < rateLimits.length - 1 && "border-b border-oled-border-subtle"]}>
+                  <td class="py-2 px-3 font-mono">{rl.interfaceName === '*' ? 'Others (default)' : rl.interfaceName}</td>
+                  <td class="py-2 px-3">{rl.tokensPerPeriod} requests / {rl.replenishmentPeriod === '1s' ? 'second' : rl.replenishmentPeriod === '1m' ? 'minute' : rl.replenishmentPeriod}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p class="text-text-secondary text-sm mt-2">
+          These are <strong class="text-text-primary">default limits</strong>.
+          <strong class="text-text-primary">Verified bots</strong> receive higher rate limits automatically.
+          If you need a further increase, contact <a href="mailto:support@argon.gl" class="text-accent hover:underline">support</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Error Format -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <AlertTriangle class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Error Responses</h2>
+      </div>
+
+      <div class="ml-8 space-y-4">
+        <p class="text-text-secondary">
+          All errors follow this format:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`{
+  "code": "not_found",
+  "message": "The requested resource was not found."
+}`} />
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">HTTP Status</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Meaning</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono">400</td><td class="py-2 px-3">Bad request — invalid parameters or body</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono">401</td><td class="py-2 px-3">Missing or invalid bot token</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono">403</td><td class="py-2 px-3">Bot lacks permission (e.g., not a member of the space)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono">404</td><td class="py-2 px-3">Resource not found</td></tr>
+              <tr><td class="py-2 px-3 font-mono">429</td><td class="py-2 px-3">Rate limited — check <code class="bg-oled-elevated px-1 rounded text-[11px]">Retry-After</code> header</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section class="glass rounded-2xl p-6">
+      <h3 class="font-semibold mb-3">Next Steps</h3>
+      <div class="flex flex-col gap-2">
+        <a href="/guides/events/" class="text-sm text-accent hover:underline">→ Real-time Events (SSE) — listen for messages, members, and more</a>
+        <a href="/guides/voice/" class="text-sm text-accent hover:underline">→ Voice Streaming — stream audio into voice channels</a>
+        <a href="/docs/" class="text-sm text-accent hover:underline">→ API Reference — all interfaces and endpoints</a>
+      </div>
+    </section>
+  </div>
+</DocsLayout>

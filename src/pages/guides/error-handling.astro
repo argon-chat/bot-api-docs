@@ -1,0 +1,166 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
+---
+
+<DocsLayout title="Error Handling — Argon Bot API" current="/guides/error-handling/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Error Handling</h1>
+    <p class="text-text-secondary text-lg">Every error response follows a consistent JSON shape. Use the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[13px]">error</code> field to branch your logic.</p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Error shape -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <FileJson class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Response Shape</h2>
+      </div>
+
+      <p class="text-text-secondary mb-4">
+        All error responses return a JSON object with two fields:
+      </p>
+
+      <div class="type-grid">
+        <div class="type-grid-header">
+          <span>Field</span>
+          <span>Type</span>
+        </div>
+        <div class="type-grid-row">
+          <span class="type-property font-mono text-[12px]">error</span>
+          <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+        </div>
+        <div class="type-grid-row">
+          <span class="type-property font-mono text-[12px]">message</span>
+          <span class="font-mono text-[12px]"><span class="type-keyword">string</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+        </div>
+      </div>
+
+      <p class="text-text-secondary text-sm mt-3">
+        The <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">error</code> field is always present and is a machine-readable snake_case code.
+        The <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">message</code> field is optional and may contain a human-readable explanation.
+      </p>
+
+      <div class="code-block text-[12px] mt-4">
+        <pre>{`{
+  "error": "not_a_member",
+  "message": "Bot is not a member of this space."
+}`}</pre>
+      </div>
+    </section>
+
+    <!-- HTTP status codes -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <AlertTriangle class="size-5 text-amber-400" />
+        <h2 class="text-xl font-semibold">HTTP Status Codes</h2>
+      </div>
+
+      <div class="type-grid">
+        <div class="type-grid-header" style="grid-template-columns: 80px 1fr">
+          <span>Status</span>
+          <span>Meaning</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-green-400 font-semibold">200</span>
+          <span class="text-[12px] text-text-secondary">Success. Response body contains the result.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">400</span>
+          <span class="text-[12px] text-text-secondary">Bad request — invalid input, validation failure, or precondition not met.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">401</span>
+          <span class="text-[12px] text-text-secondary">Unauthorized — missing, invalid, or expired bot token.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">403</span>
+          <span class="text-[12px] text-text-secondary">Forbidden — bot lacks the required permission or verification status.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">404</span>
+          <span class="text-[12px] text-text-secondary">Not found — the resource does not exist or is not accessible.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">409</span>
+          <span class="text-[12px] text-text-secondary">Conflict — resource already exists (e.g. bot already installed).</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-red-400 font-semibold">429</span>
+          <span class="text-[12px] text-text-secondary">Rate limited — too many requests. Back off and retry after the indicated period.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-red-400 font-semibold">500</span>
+          <span class="text-[12px] text-text-secondary">Internal server error — something went wrong on our end. Retry with backoff.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Common error codes -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <ArrowRight class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Common Error Codes</h2>
+      </div>
+
+      <p class="text-text-secondary mb-4">
+        These error codes appear across multiple endpoints. Each API reference page lists the specific
+        errors that endpoint can return.
+      </p>
+
+      <div class="type-grid">
+        <div class="type-grid-header" style="grid-template-columns: 1fr 2fr">
+          <span>Code</span>
+          <span>Description</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">not_a_member</span>
+          <span class="text-[12px] text-text-secondary">Bot is not a member of the target space. The space membership filter blocked the request.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">not_verified</span>
+          <span class="text-[12px] text-text-secondary">Endpoint requires a verified bot. Apply for verification through the Developer Console.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">not_found</span>
+          <span class="text-[12px] text-text-secondary">The requested resource (channel, command, member, etc.) does not exist.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">channel_not_found</span>
+          <span class="text-[12px] text-text-secondary">The specified channel does not exist in the target space.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">not_voice_channel</span>
+          <span class="text-[12px] text-text-secondary">The channel exists but is not a voice channel. Voice operations require voice-type channels.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Best practices -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Best Practices</h2>
+      <div class="space-y-3">
+        <div class="glass rounded-xl p-4">
+          <p class="text-sm text-text-secondary">
+            <strong class="text-text-primary">Match on <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">error</code>, not <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">message</code></strong> —
+            the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">message</code> text may change between versions. The <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">error</code> code is part of the stable contract.
+          </p>
+        </div>
+        <div class="glass rounded-xl p-4">
+          <p class="text-sm text-text-secondary">
+            <strong class="text-text-primary">Handle unknown error codes gracefully</strong> —
+            new codes may be introduced in future versions. Fall back to the HTTP status code for unrecognized errors.
+          </p>
+        </div>
+        <div class="glass rounded-xl p-4">
+          <p class="text-sm text-text-secondary">
+            <strong class="text-text-primary">429 responses include rate limit info</strong> —
+            check <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Retry-After</code> header for how long to wait before retrying.
+            See <a href="/guides/rate-limits/" class="text-accent hover:underline">Rate Limits</a> for details.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</DocsLayout>

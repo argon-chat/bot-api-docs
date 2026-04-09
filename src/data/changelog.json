@@ -1,0 +1,17 @@
+[
+  {
+    "version": "1.0.0",
+    "date": "2026-04-09",
+    "title": "Initial Bot API Release",
+    "changes": [
+      { "type": "added", "interface": "IBotSelf", "description": "Bot identity endpoints: GetMe, GetSpaces" },
+      { "type": "added", "interface": "IMessages", "description": "Send messages and query message history" },
+      { "type": "added", "interface": "IChannels", "description": "List, create, and delete channels" },
+      { "type": "added", "interface": "ISpaces", "description": "Get space info, list and get members" },
+      { "type": "added", "interface": "IMembers", "description": "Kick members, manage archetypes" },
+      { "type": "added", "interface": "IEvents", "description": "SSE event stream with intent filtering and resume" },
+      { "type": "added", "interface": "ICommands", "description": "Slash command registration and management" },
+      { "type": "added", "interface": "IVoice", "description": "Voice channel streaming token generation" }
+    ]
+  }
+]

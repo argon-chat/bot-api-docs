@@ -1,0 +1,2491 @@
+{
+  "interfaces": [
+    {
+      "name": "IBotSelf",
+      "version": 1,
+      "computedHash": "726c17f46ebb46e0aa9ad0106b01c40949f06eb90c2526e3f2f184c28e2df242",
+      "declaredHash": "726c17f46ebb46e0aa9ad0106b01c40949f06eb90c2526e3f2f184c28e2df242",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Get information about the authenticated bot and its spaces.",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/GetMe",
+          "description": "Returns the bot's own profile: user ID, username, display name, avatar, and email.",
+          "requestTypeName": null,
+          "responseTypeName": "BotSelfResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "botId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "displayName",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "userId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "username",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": null
+        },
+        {
+          "method": "GET",
+          "path": "/GetSpaces",
+          "description": "Lists all spaces the bot has been added to.",
+          "requestTypeName": null,
+          "responseTypeName": "BotSpacesResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "spaces",
+              "type": "BotSpaceBase",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "description",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "spaceId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": null
+        }
+      ]
+    },
+    {
+      "name": "ICalls",
+      "version": 20260401,
+      "computedHash": "940267e2ff33279204af84f341f926893975cdaf283c0b50a321c246fd512465",
+      "declaredHash": null,
+      "isStable": false,
+      "isDeprecated": false,
+      "description": "Receive and manage incoming calls. Verified bots only.",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/Accept",
+          "description": "Accepts an incoming call. Returns a LiveKit room token for joining the call audio. The bot must be the callee.",
+          "requestTypeName": "AcceptCallRequest",
+          "responseTypeName": "AcceptCallResponse",
+          "requestTypeShape": [
+            {
+              "name": "callId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "roomName",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "token",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ConnectVoice",
+          "isPrivileged": true,
+          "errors": [
+            {
+              "status": 400,
+              "code": "accept_failed",
+              "description": "Failed to accept call."
+            },
+            {
+              "status": 400,
+              "code": "not_ringing",
+              "description": "Call is not in ringing state."
+            },
+            {
+              "status": 403,
+              "code": "not_callee",
+              "description": "This call is not directed at this bot."
+            },
+            {
+              "status": 403,
+              "code": "not_verified",
+              "description": "This endpoint requires a verified bot."
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/Reject",
+          "description": "Rejects an incoming call with an optional reason.",
+          "requestTypeName": "RejectCallRequest",
+          "responseTypeName": "RejectCallResponse",
+          "requestTypeShape": [
+            {
+              "name": "callId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "rejected",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ConnectVoice",
+          "isPrivileged": true,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_callee",
+              "description": "This call is not directed at this bot."
+            },
+            {
+              "status": 403,
+              "code": "not_verified",
+              "description": "This endpoint requires a verified bot."
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/Ringing",
+          "description": "Lists all currently ringing calls for the bot.",
+          "requestTypeName": null,
+          "responseTypeName": "RingingCallsResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "calls",
+              "type": "RingingCall",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "callId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "callerId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "permission": "ConnectVoice",
+          "isPrivileged": true,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_verified",
+              "description": "This endpoint requires a verified bot."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IChannels",
+      "version": 1,
+      "computedHash": "072a7e2baab2176a9838758f8f0176e124771a334710a4c4668378a7ed24576e",
+      "declaredHash": "072a7e2baab2176a9838758f8f0176e124771a334710a4c4668378a7ed24576e",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Create, list, and delete channels within a space.",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/Create",
+          "description": "Creates a new channel in a space. Specify name, type (text or voice), and optionally a channel group.",
+          "requestTypeName": "CreateChannelRequest",
+          "responseTypeName": "BotChannel",
+          "requestTypeShape": [
+            {
+              "name": "channelType",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": [
+                "text",
+                "voice",
+                "announcement"
+              ]
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "groupId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "channelType",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "groupId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ManageChannels",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        },
+        {
+          "method": "DELETE",
+          "path": "/Delete",
+          "description": "Deletes a channel. Pass spaceId and channelId as query parameters.",
+          "requestTypeName": null,
+          "responseTypeName": "DeletedResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "deleted",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ManageChannels",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/List",
+          "description": "Lists all channels in a space. Pass spaceId as a query parameter.",
+          "requestTypeName": null,
+          "responseTypeName": "ChannelListResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "channels",
+              "type": "BotChannel",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "channelId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "channelType",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "description",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "groupId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": true,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "spaceId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ICommands",
+      "version": 1,
+      "computedHash": "0c93ed62652e9b973dd2f36606148bf1131cff23d3eb5b4199d64af5138e016b",
+      "declaredHash": "0c93ed62652e9b973dd2f36606148bf1131cff23d3eb5b4199d64af5138e016b",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Register, update, list, and delete slash commands for your bot.",
+      "routes": [
+        {
+          "method": "DELETE",
+          "path": "/Delete",
+          "description": "Deletes a slash command by its commandId (query parameter).",
+          "requestTypeName": null,
+          "responseTypeName": "DeletedResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "deleted",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 404,
+              "code": "not_found",
+              "description": "Command does not exist or is not owned by this bot."
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/List",
+          "description": "Lists all commands registered by this bot across all scopes.",
+          "requestTypeName": null,
+          "responseTypeName": "CommandListResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "commands",
+              "type": "BotCommand",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "commandId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "defaultPermission",
+                  "type": "boolean",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "description",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "options",
+                  "type": "BotCommandOption",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "choices",
+                      "type": "CommandChoice",
+                      "isArray": true,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": [
+                        {
+                          "name": "name",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null
+                        },
+                        {
+                          "name": "value",
+                          "type": "any",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null
+                        }
+                      ],
+                      "enumValues": null
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "subOptions",
+                      "type": "BotCommandOption",
+                      "isArray": true,
+                      "isNullable": false,
+                      "isCircular": true,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": [
+                        "string",
+                        "integer",
+                        "boolean",
+                        "user",
+                        "channel",
+                        "role",
+                        "number"
+                      ]
+                    }
+                  ],
+                  "enumValues": null
+                },
+                {
+                  "name": "spaceId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": true,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": null
+        },
+        {
+          "method": "GET",
+          "path": "/ListForSpace",
+          "description": "Lists commands available in a specific space (global + space-scoped). Pass spaceId as a query parameter.",
+          "requestTypeName": null,
+          "responseTypeName": "CommandListResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "commands",
+              "type": "BotCommand",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "commandId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "defaultPermission",
+                  "type": "boolean",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "description",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "options",
+                  "type": "BotCommandOption",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "choices",
+                      "type": "CommandChoice",
+                      "isArray": true,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": [
+                        {
+                          "name": "name",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null
+                        },
+                        {
+                          "name": "value",
+                          "type": "any",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null
+                        }
+                      ],
+                      "enumValues": null
+                    },
+                    {
+                      "name": "description",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "required",
+                      "type": "boolean",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "subOptions",
+                      "type": "BotCommandOption",
+                      "isArray": true,
+                      "isNullable": false,
+                      "isCircular": true,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": [
+                        "string",
+                        "integer",
+                        "boolean",
+                        "user",
+                        "channel",
+                        "role",
+                        "number"
+                      ]
+                    }
+                  ],
+                  "enumValues": null
+                },
+                {
+                  "name": "spaceId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": true,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": null
+        },
+        {
+          "method": "POST",
+          "path": "/Register",
+          "description": "Registers a new slash command. Commands can be global or scoped to a specific space. Max 50 commands per scope.",
+          "requestTypeName": "RegisterCommandRequest",
+          "responseTypeName": "CommandRegisteredResponse",
+          "requestTypeShape": [
+            {
+              "name": "defaultPermission",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "options",
+              "type": "BotCommandOption",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "choices",
+                  "type": "CommandChoice",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "value",
+                      "type": "any",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    }
+                  ],
+                  "enumValues": null
+                },
+                {
+                  "name": "description",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "required",
+                  "type": "boolean",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "subOptions",
+                  "type": "BotCommandOption",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": true,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "type",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": [
+                    "string",
+                    "integer",
+                    "boolean",
+                    "user",
+                    "channel",
+                    "role",
+                    "number"
+                  ]
+                }
+              ],
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "commandId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 400,
+              "code": "command_limit",
+              "description": "Maximum 50 commands per scope."
+            },
+            {
+              "status": 400,
+              "code": "invalid_description",
+              "description": "Description must be max 100 characters."
+            },
+            {
+              "status": 400,
+              "code": "invalid_name",
+              "description": "Name must be 1-32 lowercase alphanumeric characters."
+            }
+          ]
+        },
+        {
+          "method": "PATCH",
+          "path": "/Update",
+          "description": "Updates an existing slash command's description, options, or default permission.",
+          "requestTypeName": "UpdateCommandRequest",
+          "responseTypeName": "BotCommand",
+          "requestTypeShape": [
+            {
+              "name": "commandId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "defaultPermission",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "options",
+              "type": "BotCommandOption",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "choices",
+                  "type": "CommandChoice",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "value",
+                      "type": "any",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    }
+                  ],
+                  "enumValues": null
+                },
+                {
+                  "name": "description",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "required",
+                  "type": "boolean",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "subOptions",
+                  "type": "BotCommandOption",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": true,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "type",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": [
+                    "string",
+                    "integer",
+                    "boolean",
+                    "user",
+                    "channel",
+                    "role",
+                    "number"
+                  ]
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "commandId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "defaultPermission",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "options",
+              "type": "BotCommandOption",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "choices",
+                  "type": "CommandChoice",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "name",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "value",
+                      "type": "any",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    }
+                  ],
+                  "enumValues": null
+                },
+                {
+                  "name": "description",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "required",
+                  "type": "boolean",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "subOptions",
+                  "type": "BotCommandOption",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": true,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "type",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": [
+                    "string",
+                    "integer",
+                    "boolean",
+                    "user",
+                    "channel",
+                    "role",
+                    "number"
+                  ]
+                }
+              ],
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 404,
+              "code": "not_found",
+              "description": "Command does not exist or is not owned by this bot."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IEvents",
+      "version": 1,
+      "computedHash": "35629fed73f8ce99daf60846978838db329a2caf9bb3bfe661449a755941aba4",
+      "declaredHash": "35629fed73f8ce99daf60846978838db329a2caf9bb3bfe661449a755941aba4",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Subscribe to real-time events via Server-Sent Events (SSE). Receive messages, member changes, voice activity, and more.",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/Stream",
+          "description": "Opens a persistent SSE connection. Pass intents as a bitmask to filter events. Supports reconnection via Last-Event-ID header or lastEventId query parameter.",
+          "requestTypeName": null,
+          "responseTypeName": "BotSseEvent",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "data",
+              "type": "any",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": [
+                "ready",
+                "heartbeat",
+                "resumed",
+                "messageCreate",
+                "messageUpdate",
+                "messageDelete",
+                "memberJoin",
+                "memberLeave",
+                "memberUpdate",
+                "channelCreate",
+                "channelUpdate",
+                "channelDelete",
+                "typingStart",
+                "typingStop",
+                "presenceUpdate",
+                "commandInteraction",
+                "directMessageCreate",
+                "memberKicked",
+                "memberBanned",
+                "archetypeChanged",
+                "archetypeCreated",
+                "spaceModified",
+                "voiceJoin",
+                "voiceLeave",
+                "voiceMute",
+                "voiceUnmute",
+                "voiceStreamStart",
+                "voiceStreamStop",
+                "callIncoming",
+                "callEnded"
+              ]
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "missing_intents",
+              "description": "No valid intents specified."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IMembers",
+      "version": 1,
+      "computedHash": "e85612a0075706b6e95ec6e72c405938fab1eaa83f51607c0f1642d80f03b3fb",
+      "declaredHash": "e85612a0075706b6e95ec6e72c405938fab1eaa83f51607c0f1642d80f03b3fb",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Manage space members: kick users from channels.",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/Kick",
+          "description": "Kicks a user from a channel. Pass spaceId, channelId, and userId as query parameters.",
+          "requestTypeName": null,
+          "responseTypeName": "KickResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "kicked",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "KickMembers",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 400,
+              "code": "kick_failed",
+              "description": "Failed to kick user — they may not be in the channel."
+            },
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IMessages",
+      "version": 1,
+      "computedHash": "f67be823cf6cb77a6ae683a1cf9a6bf37b8b298c0198316c4de6c9f8e90dd58a",
+      "declaredHash": "f67be823cf6cb77a6ae683a1cf9a6bf37b8b298c0198316c4de6c9f8e90dd58a",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Send messages and retrieve message history from channels.",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/History",
+          "description": "Gets message history for a channel. Pass channelId as a query parameter. Supports pagination via from (message ID) and limit (1–100, default 50).",
+          "requestTypeName": null,
+          "responseTypeName": "MessageHistoryResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "messages",
+              "type": "MessageDto",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "channelId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "createdAt",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "creatorId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "entities",
+                  "type": "IMessageEntity",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "unionIndex",
+                      "type": "uint32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    },
+                    {
+                      "name": "unionKey",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null
+                    }
+                  ],
+                  "enumValues": null
+                },
+                {
+                  "name": "messageId",
+                  "type": "int64",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "replyTo",
+                  "type": "int64",
+                  "isArray": false,
+                  "isNullable": true,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "spaceId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "text",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "permission": "ReadMessages",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/Send",
+          "description": "Sends a text message to a channel. Include a unique randomId for deduplication. Optionally reply to another message via replyTo.",
+          "requestTypeName": "SendMessageRequest",
+          "responseTypeName": "SendMessageResponse",
+          "requestTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "entities",
+              "type": "IMessageEntity",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "unionIndex",
+                  "type": "uint32",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "unionKey",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            },
+            {
+              "name": "randomId",
+              "type": "int64",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "replyTo",
+              "type": "int64",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "messageId",
+              "type": "int64",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "SendMessages",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ISpaces",
+      "version": 1,
+      "computedHash": "c099d60612ab11b399753dab7e69d5a0b4581e8697890f6bc247d5cea6d1b8f2",
+      "declaredHash": "c099d60612ab11b399753dab7e69d5a0b4581e8697890f6bc247d5cea6d1b8f2",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Get space details and member information.",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/Get",
+          "description": "Gets space details — name, description, and community flag. Pass spaceId as a query parameter.",
+          "requestTypeName": null,
+          "responseTypeName": "BotSpaceDetail",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "description",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "isCommunity",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/GetMember",
+          "description": "Gets a single member's details. Pass spaceId and userId as query parameters.",
+          "requestTypeName": null,
+          "responseTypeName": "BotMember",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "archetypeIds",
+              "type": "string",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "displayName",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "userId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "username",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ViewMembers",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/ListMembers",
+          "description": "Lists all members of a space with their username, display name, and roles. Pass spaceId as a query parameter. Requires privileged intent.",
+          "requestTypeName": null,
+          "responseTypeName": "MemberListResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "members",
+              "type": "BotMember",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "archetypeIds",
+                  "type": "string",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "displayName",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "spaceId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "userId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                },
+                {
+                  "name": "username",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null
+                }
+              ],
+              "enumValues": null
+            }
+          ],
+          "permission": "ViewMembers",
+          "isPrivileged": true,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IVoice",
+      "version": 1,
+      "computedHash": "31906fba806393345abaa611bacc5c0d7f86b3a06c9ef9023845bf1f89ca1b53",
+      "declaredHash": "31906fba806393345abaa611bacc5c0d7f86b3a06c9ef9023845bf1f89ca1b53",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Get voice streaming tokens for audio ingress. Bots stream Opus audio directly to a WebSocket endpoint — no WebRTC needed.",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/StreamToken",
+          "description": "Gets a LiveKit JWT token and WebSocket ingress URL for streaming audio into a voice channel. The bot must be a member of the space, and the channel must be a voice channel.",
+          "requestTypeName": "VoiceStreamTokenRequest",
+          "responseTypeName": "VoiceStreamTokenResponse",
+          "requestTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "ingressUrl",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "roomName",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "token",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ConnectVoice",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 400,
+              "code": "not_voice_channel",
+              "description": "Channel is not a voice channel."
+            },
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            },
+            {
+              "status": 404,
+              "code": "channel_not_found",
+              "description": "Channel does not exist in this space."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IVoiceEgress",
+      "version": 20260401,
+      "computedHash": "84acd5090b7e9ca5b25d7b87d4c7bd819ebf7bfe1070d80760c9e9a19f9d94ef",
+      "declaredHash": null,
+      "isStable": false,
+      "isDeprecated": false,
+      "description": "Subscribe to individual voice tracks for audio egress. Verified bots only.",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/SubscribeTrack",
+          "description": "Subscribes to a user's audio track in a voice channel. Returns a LiveKit token and WebSocket URL for receiving the audio stream. The bot must be a verified bot and a member of the space.",
+          "requestTypeName": "SubscribeTrackRequest",
+          "responseTypeName": "SubscribeTrackResponse",
+          "requestTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "spaceId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "userId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "roomName",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "token",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "trackId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            },
+            {
+              "name": "wsUrl",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ConnectVoice",
+          "isPrivileged": true,
+          "errors": [
+            {
+              "status": 400,
+              "code": "not_voice_channel",
+              "description": "Channel is not a voice channel."
+            },
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            },
+            {
+              "status": 403,
+              "code": "not_verified",
+              "description": "This endpoint requires a verified bot."
+            },
+            {
+              "status": 404,
+              "code": "channel_not_found",
+              "description": "Channel does not exist in this space."
+            }
+          ]
+        },
+        {
+          "method": "DELETE",
+          "path": "/UnsubscribeTrack",
+          "description": "Unsubscribes from a previously subscribed audio track.",
+          "requestTypeName": "UnsubscribeTrackRequest",
+          "responseTypeName": "DeletedResponse",
+          "requestTypeShape": [
+            {
+              "name": "trackId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "deleted",
+              "type": "boolean",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null
+            }
+          ],
+          "permission": "ConnectVoice",
+          "isPrivileged": true,
+          "errors": [
+            {
+              "status": 403,
+              "code": "not_verified",
+              "description": "This endpoint requires a verified bot."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "name": "Messages",
+      "bit": 0,
+      "value": 1,
+      "isPrivileged": false,
+      "events": [
+        "MessageCreate",
+        "MessageDelete",
+        "MessageUpdate"
+      ]
+    },
+    {
+      "name": "Members",
+      "bit": 1,
+      "value": 2,
+      "isPrivileged": true,
+      "events": [
+        "MemberJoin",
+        "MemberLeave",
+        "MemberUpdate"
+      ]
+    },
+    {
+      "name": "Channels",
+      "bit": 2,
+      "value": 4,
+      "isPrivileged": false,
+      "events": [
+        "ChannelCreate",
+        "ChannelDelete",
+        "ChannelUpdate"
+      ]
+    },
+    {
+      "name": "Reactions",
+      "bit": 3,
+      "value": 8,
+      "isPrivileged": false,
+      "events": []
+    },
+    {
+      "name": "Typing",
+      "bit": 4,
+      "value": 16,
+      "isPrivileged": false,
+      "events": [
+        "TypingStart",
+        "TypingStop"
+      ]
+    },
+    {
+      "name": "Presence",
+      "bit": 5,
+      "value": 32,
+      "isPrivileged": true,
+      "events": [
+        "PresenceUpdate"
+      ]
+    },
+    {
+      "name": "Commands",
+      "bit": 6,
+      "value": 64,
+      "isPrivileged": false,
+      "events": [
+        "CommandInteraction"
+      ]
+    },
+    {
+      "name": "DirectMessages",
+      "bit": 7,
+      "value": 128,
+      "isPrivileged": false,
+      "events": [
+        "DirectMessageCreate"
+      ]
+    },
+    {
+      "name": "Moderation",
+      "bit": 8,
+      "value": 256,
+      "isPrivileged": false,
+      "events": [
+        "MemberBanned",
+        "MemberKicked"
+      ]
+    },
+    {
+      "name": "Archetypes",
+      "bit": 9,
+      "value": 512,
+      "isPrivileged": false,
+      "events": [
+        "ArchetypeChanged",
+        "ArchetypeCreated"
+      ]
+    },
+    {
+      "name": "SpaceUpdates",
+      "bit": 10,
+      "value": 1024,
+      "isPrivileged": false,
+      "events": [
+        "SpaceModified"
+      ]
+    },
+    {
+      "name": "Voice",
+      "bit": 11,
+      "value": 2048,
+      "isPrivileged": false,
+      "events": [
+        "VoiceJoin",
+        "VoiceLeave",
+        "VoiceMute",
+        "VoiceStreamStart",
+        "VoiceStreamStop",
+        "VoiceUnmute"
+      ]
+    },
+    {
+      "name": "Calls",
+      "bit": 12,
+      "value": 4096,
+      "isPrivileged": true,
+      "events": [
+        "CallEnded",
+        "CallIncoming"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "Ready",
+      "intent": null,
+      "description": "Sent on connection. Contains active intents and space IDs.",
+      "category": "Connection"
+    },
+    {
+      "name": "Heartbeat",
+      "intent": null,
+      "description": "Keep-alive ping, sent every 30 seconds.",
+      "category": "Connection"
+    },
+    {
+      "name": "Resumed",
+      "intent": null,
+      "description": "Sent after replaying missed events on reconnection.",
+      "category": "Connection"
+    },
+    {
+      "name": "MessageCreate",
+      "intent": "Messages",
+      "description": "A new message was sent in a channel.",
+      "category": "Messages"
+    },
+    {
+      "name": "MessageUpdate",
+      "intent": "Messages",
+      "description": "A message was edited.",
+      "category": "Messages"
+    },
+    {
+      "name": "MessageDelete",
+      "intent": "Messages",
+      "description": "A message was deleted.",
+      "category": "Messages"
+    },
+    {
+      "name": "MemberJoin",
+      "intent": "Members",
+      "description": "A user joined a space.",
+      "category": "Members"
+    },
+    {
+      "name": "MemberLeave",
+      "intent": "Members",
+      "description": "A user left a space.",
+      "category": "Members"
+    },
+    {
+      "name": "MemberUpdate",
+      "intent": "Members",
+      "description": "A member's profile or roles changed.",
+      "category": "Members"
+    },
+    {
+      "name": "ChannelCreate",
+      "intent": "Channels",
+      "description": "A new channel was created.",
+      "category": "Channels"
+    },
+    {
+      "name": "ChannelUpdate",
+      "intent": "Channels",
+      "description": "A channel's settings were modified.",
+      "category": "Channels"
+    },
+    {
+      "name": "ChannelDelete",
+      "intent": "Channels",
+      "description": "A channel was deleted.",
+      "category": "Channels"
+    },
+    {
+      "name": "TypingStart",
+      "intent": "Typing",
+      "description": "A user started typing in a channel.",
+      "category": "Typing"
+    },
+    {
+      "name": "TypingStop",
+      "intent": "Typing",
+      "description": "A user stopped typing.",
+      "category": "Typing"
+    },
+    {
+      "name": "PresenceUpdate",
+      "intent": "Presence",
+      "description": "A user's online status or activity changed.",
+      "category": "Presence"
+    },
+    {
+      "name": "CommandInteraction",
+      "intent": "Commands",
+      "description": "A user invoked a slash command registered by the bot.",
+      "category": "Commands"
+    },
+    {
+      "name": "DirectMessageCreate",
+      "intent": "DirectMessages",
+      "description": "A direct message was sent to the bot.",
+      "category": "DirectMessages"
+    },
+    {
+      "name": "MemberKicked",
+      "intent": "Moderation",
+      "description": "A member was kicked from a space.",
+      "category": "Moderation"
+    },
+    {
+      "name": "MemberBanned",
+      "intent": "Moderation",
+      "description": "A member was banned from a space.",
+      "category": "Moderation"
+    },
+    {
+      "name": "ArchetypeChanged",
+      "intent": "Archetypes",
+      "description": "An archetype (role) was modified.",
+      "category": "Archetypes"
+    },
+    {
+      "name": "ArchetypeCreated",
+      "intent": "Archetypes",
+      "description": "A new archetype (role) was created.",
+      "category": "Archetypes"
+    },
+    {
+      "name": "SpaceModified",
+      "intent": "SpaceUpdates",
+      "description": "Space settings or details were updated.",
+      "category": "SpaceUpdates"
+    },
+    {
+      "name": "VoiceJoin",
+      "intent": "Voice",
+      "description": "A user joined a voice channel.",
+      "category": "Voice"
+    },
+    {
+      "name": "VoiceLeave",
+      "intent": "Voice",
+      "description": "A user left a voice channel.",
+      "category": "Voice"
+    },
+    {
+      "name": "VoiceMute",
+      "intent": "Voice",
+      "description": "A user muted themselves in a voice channel.",
+      "category": "Voice"
+    },
+    {
+      "name": "VoiceUnmute",
+      "intent": "Voice",
+      "description": "A user unmuted themselves in a voice channel.",
+      "category": "Voice"
+    },
+    {
+      "name": "VoiceStreamStart",
+      "intent": "Voice",
+      "description": "A user started streaming (screen share or camera).",
+      "category": "Voice"
+    },
+    {
+      "name": "VoiceStreamStop",
+      "intent": "Voice",
+      "description": "A user stopped streaming.",
+      "category": "Voice"
+    },
+    {
+      "name": "CallIncoming",
+      "intent": "Calls",
+      "description": "An incoming call is ringing for the bot.",
+      "category": "Calls"
+    },
+    {
+      "name": "CallEnded",
+      "intent": "Calls",
+      "description": "A call the bot was involved in has ended.",
+      "category": "Calls"
+    }
+  ],
+  "rateLimits": [
+    {
+      "interfaceName": "*",
+      "tokenLimit": 30,
+      "tokensPerPeriod": 30,
+      "replenishmentPeriod": "1s"
+    },
+    {
+      "interfaceName": "IMessages",
+      "tokenLimit": 20,
+      "tokensPerPeriod": 20,
+      "replenishmentPeriod": "1m"
+    },
+    {
+      "interfaceName": "ISpaces",
+      "tokenLimit": 5,
+      "tokensPerPeriod": 5,
+      "replenishmentPeriod": "1m"
+    }
+  ]
+}

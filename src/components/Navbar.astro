@@ -1,0 +1,45 @@
+---
+import { Bot, BookOpen, History, Github, Compass } from 'lucide-astro';
+
+interface Props {
+  current?: string;
+}
+const { current = '/' } = Astro.props;
+const isGuides = current.startsWith('/guides/');
+const isDocs = current.startsWith('/docs/');
+---
+
+<nav class="fixed top-0 left-0 right-0 z-50">
+  <div class="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-oled-border/50 to-transparent"></div>
+  <div class="bg-oled-black/70 backdrop-blur-2xl backdrop-saturate-150">
+    <div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="relative flex h-8 w-8 items-center justify-center rounded-xl bg-accent/8 border border-accent/10 group-hover:bg-accent/12 group-hover:border-accent/20 transition-all duration-300">
+          <Bot class="size-4 text-accent" />
+        </div>
+        <span class="text-[15px] font-semibold tracking-tight text-text-primary">
+          Bot API
+        </span>
+      </a>
+
+      <div class="flex items-center gap-1">
+        <a href="/guides/getting-started/" class:list={["flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors", isGuides ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}>
+          <Compass class="size-3.5" />
+          Guides
+        </a>
+        <a href="/docs/" class:list={["flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors", isDocs ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}>
+          <BookOpen class="size-3.5" />
+          Reference
+        </a>
+        <a href="/changelog/" class:list={["flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors", current === '/changelog/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}>
+          <History class="size-3.5" />
+          Changelog
+        </a>
+        <a href="https://github.com/argon-chat/server" target="_blank" rel="noopener" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-oled-hover transition-colors">
+          <Github class="size-3.5" />
+          GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,353 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { Radio, Zap, AlertTriangle, RefreshCw } from 'lucide-astro';
+import fullManifest from '../../data/api-manifest.json';
+
+const intents = fullManifest.intents;
+const events = fullManifest.events;
+
+// Group events by category for the table
+const categories = [...new Set(events.map((e: any) => e.category))];
+
+// Compute common intent combinations
+const allNonPriv = intents.filter((i: any) => !i.isPrivileged).reduce((sum: number, i: any) => sum | i.value, 0);
+const allIntents = intents.reduce((sum: number, i: any) => sum | i.value, 0);
+---
+
+<DocsLayout title="Real-time Events (SSE) — Argon Bot API" current="/guides/events/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Real-time Events</h1>
+    <p class="text-text-secondary text-lg">Subscribe to live events via Server-Sent Events (SSE) — messages, member activity, voice state, and more.</p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Connecting -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Radio class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Connecting to the Event Stream</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Open a persistent HTTP connection to the SSE endpoint. Events will be pushed to you in real time:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`<span class="type-property">GET</span> /api/bot/IEvents/v1/Stream?intents=<span class="text-accent">{bitmask}</span>
+
+<span class="text-text-muted">Headers:</span>
+  Authorization: Bot YOUR_TOKEN
+  Accept: text/event-stream`} />
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Type</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle">
+                <td class="py-2 px-3 font-mono">intents</td>
+                <td class="py-2 px-3 font-mono text-accent-2">number</td>
+                <td class="py-2 px-3">Bitmask of event categories to receive. Defaults to all non-privileged intents if omitted.</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-mono">lastEventId</td>
+                <td class="py-2 px-3 font-mono text-accent-2">string</td>
+                <td class="py-2 px-3">Resume from a previous event ID. Can also be sent as the <code class="bg-oled-elevated px-1 rounded text-[11px]">Last-Event-ID</code> header.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Intents -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Zap class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Intents</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Intents are a bitmask that controls which events you receive. Combine flags with bitwise OR.
+          For example, <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">intents=5</code> subscribes to Messages (1) + Channels (4).
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Intent</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Bit</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Value</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Events</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              {intents.map((intent: any, idx: number) => (
+                <tr class:list={[
+                  idx < intents.length - 1 && "border-b border-oled-border-subtle",
+                  intent.isPrivileged && "bg-status-degraded-subtle/30"
+                ]}>
+                  <td class="py-2 px-3 font-mono">
+                    {intent.name}
+                    {intent.isPrivileged && <span class="text-[10px] text-status-degraded ml-1">(privileged)</span>}
+                  </td>
+                  <td class="py-2 px-3 font-mono">{intent.bit}</td>
+                  <td class="py-2 px-3 font-mono text-accent">{intent.value}</td>
+                  <td class="py-2 px-3">{intent.events.join(', ') || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-status-degraded/20 bg-status-degraded-subtle p-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <p class="text-sm text-text-secondary">
+            <strong class="text-text-primary">Privileged intents</strong> (Members, Presence) require your bot to be verified. Requesting privileged intents without verification will result in an error.
+          </p>
+        </div>
+
+        <div class="code-block text-[12px]">
+          <div class="text-text-muted mb-2 text-[11px]">Common combinations</div>
+          <pre set:html={`<span class="text-text-muted">// Messages + Commands + Voice</span>
+intents = 1 | 64 | 2048 = <span class="text-accent">2113</span>
+
+<span class="text-text-muted">// All non-privileged (default)</span>
+intents = <span class="text-accent">${allNonPriv}</span>
+
+<span class="text-text-muted">// Everything (requires verification)</span>
+intents = <span class="text-accent">${allIntents}</span>`} />
+        </div>
+      </div>
+    </section>
+
+    <!-- Event Format -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Event Format</h2>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Events follow the standard <a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events" target="_blank" rel="noopener" class="text-accent hover:underline">SSE specification</a>.
+          Each event has <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">id</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">event</code>, and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">data</code> fields:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`id: 42
+event: MessageCreate
+data: {"id":"42","type":"MessageCreate","spaceId":"...","channelId":"...","data":{"messageId":12345,"text":"Hello!","creatorId":"..."}}`} />
+        </div>
+
+        <p class="text-text-secondary">The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">data</code> field is a JSON object with this structure:</p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`{
+  "id":        "42",               <span class="text-text-muted">// sequential event ID</span>
+  "type":      "MessageCreate",    <span class="text-text-muted">// event type enum</span>
+  "spaceId":   "...",              <span class="text-text-muted">// space UUID (if applicable)</span>
+  "channelId": "...",              <span class="text-text-muted">// channel UUID (if applicable)</span>
+  "data":      { ... }             <span class="text-text-muted">// event-specific payload</span>
+}`} />
+        </div>
+      </div>
+    </section>
+
+    <!-- Connection Lifecycle -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Connection Lifecycle</h2>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">When you connect, the server sends events in this order:</p>
+
+        <div class="space-y-3">
+          <div class="flex items-start gap-3">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">1</span>
+            <div>
+              <p class="text-sm font-medium">Ready</p>
+              <p class="text-sm text-text-secondary">Sent immediately. Contains your active intents and the list of space IDs the bot belongs to.</p>
+              <div class="code-block text-[11px] mt-2">
+                <pre set:html={`{
+  "id": "0", "type": "Ready",
+  "data": { "intents": 4045, "spaceIds": ["uuid-1", "uuid-2"] }
+}`} />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">2</span>
+            <div>
+              <p class="text-sm font-medium">Live Events</p>
+              <p class="text-sm text-text-secondary">Events matching your intents are pushed as they occur.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">3</span>
+            <div>
+              <p class="text-sm font-medium">Heartbeat</p>
+              <p class="text-sm text-text-secondary">A <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">Heartbeat</code> event is sent every <strong class="text-text-primary">30 seconds</strong> to keep the connection alive.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reconnection -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <RefreshCw class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Reconnection &amp; Replay</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          If your connection drops, you can resume without missing events. The server maintains a ring buffer of the last <strong class="text-text-primary">500 events per bot</strong>.
+        </p>
+
+        <p class="text-text-secondary">
+          To resume, pass the last event ID you received:
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`<span class="text-text-muted">Option 1: Query parameter</span>
+GET /api/bot/IEvents/v1/Stream?intents=4045&lastEventId=<span class="text-accent">42</span>
+
+<span class="text-text-muted">Option 2: Standard SSE header</span>
+Last-Event-ID: <span class="text-accent">42</span>`} />
+        </div>
+
+        <p class="text-text-secondary">
+          The server will replay missed events, then send a <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">Resumed</code> event with the count of replayed events before switching to live:
+        </p>
+
+        <div class="code-block text-[11px]">
+          <pre set:html={`<span class="text-text-muted">// Replayed events arrive first...</span>
+{ "id": "43", "type": "MessageCreate", "data": { ... } }
+{ "id": "44", "type": "MemberJoin", "data": { ... } }
+
+<span class="text-text-muted">// Then the Resumed marker</span>
+{ "id": "resumed", "type": "Resumed", "data": { "replayed": 2 } }
+
+<span class="text-text-muted">// Then live events continue</span>`} />
+        </div>
+      </div>
+    </section>
+
+    <!-- Code Examples -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Code Examples</h2>
+
+      <div class="space-y-6">
+        <div>
+          <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">TypeScript (Bun / Node.js)</h3>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="text-accent-3">import</span> EventSource <span class="text-accent-3">from</span> <span class="text-accent-2">"eventsource"</span>;
+
+<span class="text-accent-3">const</span> es = <span class="text-accent-3">new</span> <span class="type-name">EventSource</span>(
+  <span class="text-accent-2">"https://api.argon.gl/api/bot/IEvents/v1/Stream?intents=2113"</span>,
+  { headers: { <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">"Bot YOUR_TOKEN"</span> } }
+);
+
+es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"Ready"</span>, (e) => {
+  <span class="text-accent-3">const</span> data = <span class="type-name">JSON</span>.parse(e.data);
+  console.log(<span class="text-accent-2">"Connected, spaces:"</span>, data.data.spaceIds);
+});
+
+es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"MessageCreate"</span>, (e) => {
+  <span class="text-accent-3">const</span> data = <span class="type-name">JSON</span>.parse(e.data);
+  console.log(<span class="text-accent-2">\`[\${data.channelId}] \${data.data.text}\`</span>);
+});
+
+es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"Heartbeat"</span>, () => {
+  <span class="text-text-muted">// Connection is alive</span>
+});
+
+es.<span class="type-property">onerror</span> = () => {
+  <span class="text-text-muted">// EventSource auto-reconnects with Last-Event-ID</span>
+};`} />
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">C# (.NET)</h3>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="text-accent-3">using var</span> client = <span class="text-accent-3">new</span> <span class="type-name">HttpClient</span>();
+client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</span>, <span class="text-accent-2">"Bot YOUR_TOKEN"</span>);
+
+<span class="text-accent-3">using var</span> stream = <span class="text-accent-3">await</span> client.GetStreamAsync(
+    <span class="text-accent-2">"https://api.argon.gl/api/bot/IEvents/v1/Stream?intents=2113"</span>);
+<span class="text-accent-3">using var</span> reader = <span class="text-accent-3">new</span> <span class="type-name">StreamReader</span>(stream);
+
+<span class="type-name">string</span>? eventType = <span class="text-accent-3">null</span>;
+<span class="text-accent-3">while</span> (<span class="text-accent-3">await</span> reader.ReadLineAsync() <span class="text-accent-3">is</span> { } line)
+{
+    <span class="text-accent-3">if</span> (line.StartsWith(<span class="text-accent-2">"event: "</span>))
+        eventType = line[<span class="text-accent-2">7</span>..];
+    <span class="text-accent-3">else if</span> (line.StartsWith(<span class="text-accent-2">"data: "</span>))
+    {
+        <span class="text-accent-3">var</span> payload = <span class="type-name">JsonDocument</span>.Parse(line[<span class="text-accent-2">6</span>..]);
+        <span class="type-name">Console</span>.WriteLine(<span class="text-accent-2">$"[{eventType}] {payload.RootElement}"</span>);
+    }
+}`} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- All Event Types -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">All Event Types</h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-oled-border-subtle">
+              <th class="text-left py-2 px-3 text-text-muted font-medium">Event Type</th>
+              <th class="text-left py-2 px-3 text-text-muted font-medium">Intent</th>
+              <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+            </tr>
+          </thead>
+          <tbody class="text-text-secondary">
+            {categories.map((cat: string) => {
+              const catEvents = events.filter((e: any) => e.category === cat);
+              return (
+                <>
+                  <tr class="border-b border-oled-border-subtle bg-oled-surface/30">
+                    <td class="py-2 px-3 font-mono text-text-muted" colspan="3">{cat}</td>
+                  </tr>
+                  {catEvents.map((evt: any) => (
+                    <tr class="border-b border-oled-border-subtle">
+                      <td class="py-2 px-3 font-mono">{evt.name}</td>
+                      <td class="py-2 px-3 font-mono">{evt.intent ?? '—'}</td>
+                      <td class="py-2 px-3">{evt.description ?? ''}</td>
+                    </tr>
+                  ))}
+                </>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section class="glass rounded-2xl p-6">
+      <h3 class="font-semibold mb-3">Next Steps</h3>
+      <div class="flex flex-col gap-2">
+        <a href="/guides/voice/" class="text-sm text-accent hover:underline">→ Voice Streaming — stream audio into voice channels</a>
+        <a href="/docs/IEvents/" class="text-sm text-accent hover:underline">→ IEvents API Reference — endpoint details and types</a>
+        <a href="/docs/IMessages/" class="text-sm text-accent hover:underline">→ IMessages API Reference — send and query messages</a>
+      </div>
+    </section>
+  </div>
+</DocsLayout>

@@ -1,0 +1,62 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import fullManifest from '../../data/api-manifest.json';
+const manifest = fullManifest.interfaces;
+import { Shield, Route } from 'lucide-astro';
+---
+
+<DocsLayout title="API Reference — Argon Bot API" current="/docs/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">API Reference</h1>
+    <p class="text-text-secondary mb-8">
+      All Bot API interfaces with their routes, request/response types, and versioning status.
+      Every request requires <code class="text-xs bg-oled-surface px-1.5 py-0.5 rounded font-mono">Authorization: Bot &lt;token&gt;</code> header.
+    </p>
+
+    <div class="mb-6 flex items-center gap-4 text-sm text-text-muted">
+      <span>{manifest.length} interfaces</span>
+      <span>·</span>
+      <span>{manifest.reduce((sum: number, i: any) => sum + i.routes.length, 0)} routes</span>
+      <span>·</span>
+      <span>Base path: <code class="font-mono text-text-secondary">/api/bot/</code></span>
+    </div>
+  </div>
+
+  <div class="grid gap-4 animate-fade-in-up-delay-1">
+    {manifest.map((iface: any) => {
+      const statusClass = iface.isDeprecated ? 'badge-deprecated' : iface.isStable ? 'badge-stable' : 'badge-draft';
+      const statusText = iface.isDeprecated ? 'deprecated' : iface.isStable ? 'stable' : 'draft';
+
+      return (
+        <a href={`/docs/${iface.name}/`} class="glass rounded-2xl p-5 block group hover:border-accent/20 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <h2 class="text-lg font-semibold group-hover:text-accent transition-colors">{iface.name}</h2>
+              <span class="text-xs font-mono text-text-muted">v{iface.version}</span>
+              <span class:list={["text-[10px] px-2 py-0.5 rounded-full font-medium", statusClass]}>
+                {statusText}
+              </span>
+            </div>
+            <span class="text-xs text-text-muted">{iface.routes.length} route{iface.routes.length !== 1 ? 's' : ''}</span>
+          </div>
+
+          {iface.description && (
+            <p class="text-sm text-text-secondary mb-3">{iface.description}</p>
+          )}
+
+          <div class="flex flex-wrap gap-2">
+            {iface.routes.map((route: any) => {
+              const methodClass = `method-${route.method.toLowerCase()}`;
+              return (
+                <span class:list={["inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-md border font-mono", methodClass]}>
+                  <span class="font-semibold">{route.method}</span>
+                  <span class="opacity-70">{route.path}</span>
+                </span>
+              );
+            })}
+          </div>
+        </a>
+      );
+    })}
+  </div>
+</DocsLayout>

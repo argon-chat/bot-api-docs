@@ -1,0 +1,85 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { BookOpen, Server, Shield, Radio, Hash, Key, Star, Crown, Zap } from 'lucide-astro';
+
+const terms = [
+  {
+    group: 'Core Concepts',
+    icon: 'Server',
+    items: [
+      { term: 'Space', definition: 'A server or community in Argon. Equivalent to a "guild" or "server" in other platforms. Contains channels, members, and archetypes. Every bot is added to one or more spaces.' },
+      { term: 'Channel', definition: 'A communication endpoint within a space. Types: <strong>text</strong> (messages), <strong>voice</strong> (audio streaming), <strong>announcement</strong> (broadcast-only). Each channel has a unique ID and belongs to a space.' },
+      { term: 'Archetype', definition: 'A role assigned to space members. Controls permissions, display color, and mentionability. Members can have multiple archetypes. Equivalent to "roles" in other platforms.' },
+      { term: 'Member', definition: 'A user (or bot) who has joined a space. Has a userId, display name, username, and a list of assigned archetype IDs.' },
+    ]
+  },
+  {
+    group: 'Authentication & Security',
+    icon: 'Key',
+    items: [
+      { term: 'Bot Token', definition: 'A secret string used to authenticate API requests. Passed via <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Authorization: Bot &lt;token&gt;</code> header or as a path segment: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">/api/bot/&lt;token&gt;/...</code>. Never share your token publicly.' },
+      { term: 'Verified Bot', definition: 'A bot reviewed and approved by Argon. Gets higher rate limits, access to privileged APIs (calls, voice egress), and a verified badge. Apply through the Developer Console.' },
+      { term: 'Permission', definition: 'A capability required to call certain endpoints. Examples: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">SendMessages</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ManageChannels</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">KickMembers</code>. Permissions are granted via archetypes assigned to the bot.' },
+    ]
+  },
+  {
+    group: 'Real-time',
+    icon: 'Radio',
+    items: [
+      { term: 'SSE (Server-Sent Events)', definition: 'A unidirectional streaming protocol over HTTP. Bots open a persistent <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IEvents/v1/Stream</code> connection and receive JSON events in real time. Supports automatic reconnection via <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Last-Event-ID</code>.' },
+      { term: 'Intent', definition: 'A bitmask filter that controls which events a bot receives on its SSE connection. Each intent enables a category of events (e.g., Messages, Voice, Members). Some intents are <strong>privileged</strong> and require verification.' },
+      { term: 'Privileged Intent', definition: 'An intent that requires explicit approval. Examples: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Members</code> (member join/leave/update) and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Presence</code> (online status changes). Requested during bot verification.' },
+    ]
+  },
+  {
+    group: 'Data & IDs',
+    icon: 'Hash',
+    items: [
+      { term: 'File ID', definition: 'A UUID referencing an uploaded file (image, audio, document). Used in message entity attachments. File IDs are opaque — use the file API to upload and retrieve content.' },
+      { term: 'Message ID', definition: 'A monotonically increasing <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">int64</code> (snowflake) identifying a message within a channel. In JavaScript, use <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">BigInt</code> since these values exceed <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Number.MAX_SAFE_INTEGER</code>.' },
+      { term: 'Random ID', definition: 'A client-generated <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">int64</code> used for message deduplication. If the server receives a message with the same random ID from the same bot, it returns the existing message instead of creating a duplicate.' },
+    ]
+  },
+  {
+    group: 'API Versioning',
+    icon: 'Star',
+    items: [
+      { term: 'Stable Contract', definition: 'An API interface version whose surface (routes, types, fields) is guaranteed not to change. Protected by a SHA-256 contract hash. Breaking changes require a new version number.' },
+      { term: 'Draft Contract', definition: 'An experimental API interface version subject to change without notice. Identified by a date-based version number (e.g., <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">v20260401</code>). No contract hash — may be modified or removed.' },
+      { term: 'Contract Hash', definition: 'A SHA-256 digest of an interface\'s complete API surface (routes, HTTP methods, request/response types and their fields). The server verifies the hash at startup and refuses to start if the surface has changed unexpectedly.' },
+    ]
+  },
+];
+
+const iconMap: Record<string, any> = { Server, Key, Radio, Hash, Star };
+---
+
+<DocsLayout title="Glossary — Argon Bot API" current="/guides/glossary/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Glossary</h1>
+    <p class="text-text-secondary text-lg">Key terms and concepts used throughout the Argon Bot API.</p>
+  </div>
+
+  <div class="mt-10 space-y-10 animate-fade-in-up-delay-1">
+    {terms.map(group => {
+      const Icon = iconMap[group.icon];
+      return (
+        <section>
+          <div class="flex items-center gap-3 mb-4">
+            <Icon class="size-5 text-accent" />
+            <h2 class="text-xl font-semibold">{group.group}</h2>
+          </div>
+
+          <div class="space-y-3">
+            {group.items.map(item => (
+              <div class="glass rounded-xl p-4">
+                <dt class="text-sm font-semibold text-text-primary mb-1">{item.term}</dt>
+                <dd class="text-sm text-text-secondary" set:html={item.definition} />
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    })}
+  </div>
+</DocsLayout>

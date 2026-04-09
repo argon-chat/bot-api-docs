@@ -1,0 +1,171 @@
+---
+import Layout from './Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import fullManifest from '../data/api-manifest.json';
+const manifest = fullManifest.interfaces;
+
+interface Props {
+  title?: string;
+  current?: string;
+}
+
+const { title = 'Docs — Argon Bot API', current = '/docs/' } = Astro.props;
+
+const stableInterfaces = manifest.filter((i: any) => i.isStable && !i.isDeprecated);
+const draftInterfaces = manifest.filter((i: any) => !i.isStable && !i.isDeprecated);
+const deprecatedInterfaces = manifest.filter((i: any) => i.isDeprecated);
+
+function formatVersion(v: number): string {
+  if (v > 1000) {
+    const s = v.toString();
+    return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`;
+  }
+  return `v${v}`;
+}
+---
+
+<Layout title={title}>
+  <Navbar current="/docs/" />
+  <div class="flex pt-14 min-h-screen">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex w-64 flex-col fixed top-14 bottom-0 border-r border-oled-border-subtle bg-oled-bg/50 overflow-y-auto">
+      <nav class="flex flex-col gap-1 p-4">
+        <div class="mb-1">
+          <span class="section-label px-3">Guides</span>
+        </div>
+        <a
+          href="/guides/what-are-bots/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/what-are-bots/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          What Are Bots?
+        </a>
+        <a
+          href="/guides/getting-started/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/getting-started/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Getting Started
+        </a>
+        <a
+          href="/guides/events/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/events/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Real-time Events (SSE)
+        </a>
+        <a
+          href="/guides/voice/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/voice/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Voice Streaming
+        </a>
+        <a
+          href="/guides/message-entities/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/message-entities/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Message Entities
+        </a>
+        <a
+          href="/guides/permissions/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/permissions/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Permissions & Intents
+        </a>
+        <a
+          href="/guides/rate-limits/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/rate-limits/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Rate Limits
+        </a>
+        <a
+          href="/guides/error-handling/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/error-handling/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Error Handling
+        </a>
+        <a
+          href="/guides/glossary/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/glossary/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Glossary
+        </a>
+
+        <div class="mt-4 mb-1">
+          <span class="section-label px-3">API Reference</span>
+        </div>
+        <a
+          href="/docs/"
+          class:list={["px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+            current === '/docs/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Overview
+        </a>
+
+        {stableInterfaces.length > 0 && (
+          <div class="mt-4 mb-1">
+            <span class="section-label px-3">Stable</span>
+          </div>
+        )}
+        {stableInterfaces.map((iface: any) => (
+          <a
+            href={`/docs/${iface.name}/`}
+            class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-between",
+              current === `/docs/${iface.name}/` ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+          >
+            <span>{iface.name}</span>
+            <span class="text-[10px] text-text-muted font-mono">{formatVersion(iface.version)}</span>
+          </a>
+        ))}
+
+        {draftInterfaces.length > 0 && (
+          <div class="mt-4 mb-1">
+            <span class="section-label px-3">Draft</span>
+          </div>
+        )}
+        {draftInterfaces.map((iface: any) => (
+          <a
+            href={`/docs/${iface.name}/`}
+            class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-between",
+              current === `/docs/${iface.name}/` ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+          >
+            <span>{iface.name}</span>
+            <span class="text-[10px] text-status-degraded font-mono">draft</span>
+          </a>
+        ))}
+
+        {deprecatedInterfaces.length > 0 && (
+          <div class="mt-4 mb-1">
+            <span class="section-label px-3">Deprecated</span>
+          </div>
+        )}
+        {deprecatedInterfaces.map((iface: any) => (
+          <a
+            href={`/docs/${iface.name}/`}
+            class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors line-through opacity-60",
+              current === `/docs/${iface.name}/` ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+          >
+            {iface.name}
+          </a>
+        ))}
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 lg:ml-64 pb-16">
+      <div class="max-w-4xl mx-auto px-6 py-10">
+        <slot />
+      </div>
+    </main>
+  </div>
+  <div class="lg:ml-64">
+    <Footer />
+  </div>
+</Layout>
