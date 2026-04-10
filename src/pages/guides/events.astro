@@ -143,20 +143,16 @@ intents = <span class="text-accent">${allIntents}</span>`} />
 
         <div class="code-block text-[12px]">
           <pre set:html={`id: 42
-event: MessageCreate
-data: {"id":"42","type":"MessageCreate","spaceId":"...","channelId":"...","data":{"messageId":12345,"text":"Hello!","creatorId":"..."}}`} />
+event: messageCreate
+data: {"messageId":12345,"text":"Hello!","creatorId":"...","channelId":"...","spaceId":"..."}`} />
         </div>
 
-        <p class="text-text-secondary">The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">data</code> field is a JSON object with this structure:</p>
+        <p class="text-text-secondary">The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">data</code> field is the event payload — serialized directly as JSON (no wrapper object). The SSE <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">event</code> field is the event type in camelCase:</p>
 
         <div class="code-block text-[12px]">
-          <pre set:html={`{
-  "id":        "42",               <span class="text-text-muted">// sequential event ID</span>
-  "type":      "MessageCreate",    <span class="text-text-muted">// event type enum</span>
-  "spaceId":   "...",              <span class="text-text-muted">// space UUID (if applicable)</span>
-  "channelId": "...",              <span class="text-text-muted">// channel UUID (if applicable)</span>
-  "data":      { ... }             <span class="text-text-muted">// event-specific payload</span>
-}`} />
+          <pre set:html={`id: abc123def456_42
+event: messageCreate
+data: {"messageId":12345,"text":"Hello!","spaceId":"...","channelId":"...","creatorId":"..."}`} />
         </div>
       </div>
     </section>
@@ -172,13 +168,12 @@ data: {"id":"42","type":"MessageCreate","spaceId":"...","channelId":"...","data"
           <div class="flex items-start gap-3">
             <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">1</span>
             <div>
-              <p class="text-sm font-medium">Ready</p>
-              <p class="text-sm text-text-secondary">Sent immediately. Contains your active intents and the list of space IDs the bot belongs to.</p>
+              <p class="text-sm font-medium">Ready + Bot goes Online</p>
+              <p class="text-sm text-text-secondary">Sent immediately. Contains your active intents and the list of space IDs the bot belongs to. The bot's status is set to <strong class="text-text-primary">Online</strong> in all its spaces upon connection.</p>
               <div class="code-block text-[11px] mt-2">
-                <pre set:html={`{
-  "id": "0", "type": "Ready",
-  "data": { "intents": 4045, "spaceIds": ["uuid-1", "uuid-2"] }
-}`} />
+                <pre set:html={`id: ready
+event: ready
+data: {"intents":4045,"spaceIds":["uuid-1","uuid-2"]}`} />
               </div>
             </div>
           </div>
@@ -195,7 +190,27 @@ data: {"id":"42","type":"MessageCreate","spaceId":"...","channelId":"...","data"
             <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">3</span>
             <div>
               <p class="text-sm font-medium">Heartbeat</p>
-              <p class="text-sm text-text-secondary">A <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">Heartbeat</code> event is sent every <strong class="text-text-primary">30 seconds</strong> to keep the connection alive.</p>
+              <p class="text-sm text-text-secondary">
+                A <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">heartbeat</code> event is sent every <strong class="text-text-primary">30 seconds</strong> of inactivity to keep the connection alive.
+                The heartbeat resets after each batch of events, so you'll only see it during idle periods.
+              </p>
+              <p class="text-sm text-text-secondary mt-2">
+                The heartbeat <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">id</code> is a <strong class="text-text-primary">cursor</strong> encoding the bot's position in each space's event stream.
+                The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">timestamp</code> is milliseconds since the <strong class="text-text-primary">Argon Epoch</strong> (January 1, 2025 00:00:00 UTC).
+              </p>
+              <div class="code-block text-[11px] mt-2">
+                <pre set:html={`id: a1b2c3d4....:42,e5f6a7b8....:17
+event: heartbeat
+data: {"timestamp":40953660000}`} />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-status-degraded-subtle text-[11px] font-bold text-status-degraded mt-0.5">✕</span>
+            <div>
+              <p class="text-sm font-medium">Disconnect → Bot goes Offline</p>
+              <p class="text-sm text-text-secondary">When the SSE connection closes (client disconnect, network drop, etc.), the bot's status is set to <strong class="text-text-primary">Offline</strong> in all its spaces. NATS consumers are preserved — reconnecting will resume from where you left off.</p>
             </div>
           </div>
         </div>
@@ -211,11 +226,11 @@ data: {"id":"42","type":"MessageCreate","spaceId":"...","channelId":"...","data"
 
       <div class="space-y-4">
         <p class="text-text-secondary">
-          If your connection drops, you can resume without missing events. The server maintains a ring buffer of the last <strong class="text-text-primary">500 events per bot</strong>.
+          If your connection drops, you can resume without missing events. The server uses <strong class="text-text-primary">durable NATS consumers</strong> that persist across reconnects — your position in each space's event stream is tracked automatically.
         </p>
 
         <p class="text-text-secondary">
-          To resume, pass the last event ID you received:
+          Simply reconnect to the same endpoint. Events will be delivered from where you left off. Durable consumers are kept for <strong class="text-text-primary">10 minutes</strong> after disconnect — if you reconnect within that window, no events are lost.
         </p>
 
         <div class="code-block text-[12px]">
@@ -258,17 +273,17 @@ Last-Event-ID: <span class="text-accent">42</span>`} />
   { headers: { <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">"Bot YOUR_TOKEN"</span> } }
 );
 
-es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"Ready"</span>, (e) => {
+es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"ready"</span>, (e) => {
   <span class="text-accent-3">const</span> data = <span class="type-name">JSON</span>.parse(e.data);
-  console.log(<span class="text-accent-2">"Connected, spaces:"</span>, data.data.spaceIds);
+  console.log(<span class="text-accent-2">"Connected, spaces:"</span>, data.spaceIds);
 });
 
-es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"MessageCreate"</span>, (e) => {
+es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"messageCreate"</span>, (e) => {
   <span class="text-accent-3">const</span> data = <span class="type-name">JSON</span>.parse(e.data);
-  console.log(<span class="text-accent-2">\`[\${data.channelId}] \${data.data.text}\`</span>);
+  console.log(<span class="text-accent-2">\`[\${data.channelId}] \${data.text}\`</span>);
 });
 
-es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"Heartbeat"</span>, () => {
+es.<span class="type-property">addEventListener</span>(<span class="text-accent-2">"heartbeat"</span>, () => {
   <span class="text-text-muted">// Connection is alive</span>
 });
 
@@ -292,7 +307,7 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
 <span class="text-accent-3">while</span> (<span class="text-accent-3">await</span> reader.ReadLineAsync() <span class="text-accent-3">is</span> { } line)
 {
     <span class="text-accent-3">if</span> (line.StartsWith(<span class="text-accent-2">"event: "</span>))
-        eventType = line[<span class="text-accent-2">7</span>..];
+        eventType = line[<span class="text-accent-2">7</span>..];  <span class="text-text-muted">// e.g. "messageCreate", "heartbeat"</span>
     <span class="text-accent-3">else if</span> (line.StartsWith(<span class="text-accent-2">"data: "</span>))
     {
         <span class="text-accent-3">var</span> payload = <span class="type-name">JsonDocument</span>.Parse(line[<span class="text-accent-2">6</span>..]);

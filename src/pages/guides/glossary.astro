@@ -38,6 +38,7 @@ const terms = [
       { term: 'File ID', definition: 'A UUID referencing an uploaded file (image, audio, document). Used in message entity attachments. File IDs are opaque — use the file API to upload and retrieve content.' },
       { term: 'Message ID', definition: 'A monotonically increasing <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">int64</code> (snowflake) identifying a message within a channel. In JavaScript, use <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">BigInt</code> since these values exceed <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Number.MAX_SAFE_INTEGER</code>.' },
       { term: 'Random ID', definition: 'A client-generated <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">int64</code> used for message deduplication. If the server receives a message with the same random ID from the same bot, it returns the existing message instead of creating a duplicate.' },
+      { term: 'Argon Epoch', definition: 'The reference point for all Argon timestamps: <strong>January 1, 2025 00:00:00 UTC</strong>. Heartbeat timestamps and other time values are expressed as milliseconds since this epoch. To convert to a standard timestamp: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">new Date(argonMs + 1735689600000)</code> where <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">1735689600000</code> is the Unix timestamp of the Argon Epoch.' },
     ]
   },
   {
