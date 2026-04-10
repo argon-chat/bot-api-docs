@@ -1,6 +1,6 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
-import { Radio, Zap, AlertTriangle, RefreshCw } from 'lucide-astro';
+import { Radio, Zap, AlertTriangle, RefreshCw, Database } from 'lucide-astro';
 import fullManifest from '../../data/api-manifest.json';
 
 const intents = fullManifest.intents;
@@ -12,6 +12,94 @@ const categories = [...new Set(events.map((e: any) => e.category))];
 // Compute common intent combinations
 const allNonPriv = intents.filter((i: any) => !i.isPrivileged).reduce((sum: number, i: any) => sum | i.value, 0);
 const allIntents = intents.reduce((sum: number, i: any) => sum | i.value, 0);
+
+// --- Type shape rendering (reused from [interface].astro) ---
+interface TypeProperty {
+  name: string;
+  type: string;
+  isArray: boolean;
+  isNullable: boolean;
+  isCircular: boolean;
+  properties?: TypeProperty[] | null;
+  enumValues?: string[] | null;
+  isUnion?: boolean;
+  discriminatorField?: string | null;
+  discriminatorType?: string | null;
+  variants?: UnionVariant[] | null;
+}
+
+interface UnionVariant {
+  name: string;
+  discriminatorValue: string | null;
+  properties: TypeProperty[];
+}
+
+interface TypeField {
+  name: string;
+  type: string;
+  isArray: boolean;
+  isNullable: boolean;
+  isCircular: boolean;
+  enumValues?: string[] | null;
+  depth: number;
+  isNested: boolean;
+}
+
+function flattenProperties(props: TypeProperty[] | null | undefined, depth = 0): TypeField[] {
+  if (!props) return [];
+  const result: TypeField[] = [];
+  for (const prop of props) {
+    // Skip expanding union variants inline — those are rendered separately
+    if (prop.isUnion) {
+      result.push({
+        name: prop.name,
+        type: prop.type,
+        isArray: prop.isArray,
+        isNullable: prop.isNullable,
+        isCircular: prop.isCircular,
+        enumValues: prop.enumValues,
+        depth,
+        isNested: depth > 0,
+      });
+      continue;
+    }
+    result.push({
+      name: prop.name,
+      type: prop.type,
+      isArray: prop.isArray,
+      isNullable: prop.isNullable,
+      isCircular: prop.isCircular,
+      enumValues: prop.enumValues,
+      depth,
+      isNested: depth > 0,
+    });
+    if (prop.properties) {
+      result.push(...flattenProperties(prop.properties, depth + 1));
+    }
+  }
+  return result;
+}
+
+function formatType(field: TypeField): string {
+  let t = field.type;
+  if (field.enumValues?.length) {
+    t = field.enumValues
+      .map(v => `<span class="type-enum">&quot;${v}&quot;</span>`)
+      .join(' <span class="type-punct">|</span> ');
+  } else {
+    const allPrimitives = /\b(string|boolean|any|int32|uint32|int64|uint64|int16|uint8|float|double|decimal)\b/g;
+    t = t.replace(allPrimitives, (m: string) => `<span class="type-keyword">${m}</span>`);
+    t = t.replace(/\b([A-Z]\w+)/g, '<span class="type-name">$1</span>');
+  }
+  if (field.isArray) t += '<span class="type-punct">[]</span>';
+  if (field.isNullable) t += ' <span class="type-punct">|</span> <span class="type-keyword">null</span>';
+  if (field.isCircular) t += ' <span class="text-text-faint">(circular)</span>';
+  return t;
+}
+
+function toCamelCase(s: string): string {
+  return s[0].toLowerCase() + s.slice(1);
+}
 ---
 
 <DocsLayout title="Real-time Events (SSE) — Argon Bot API" current="/guides/events/">
@@ -321,38 +409,183 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
 
     <!-- All Event Types -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">All Event Types</h2>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-oled-border-subtle">
-              <th class="text-left py-2 px-3 text-text-muted font-medium">Event Type</th>
-              <th class="text-left py-2 px-3 text-text-muted font-medium">Intent</th>
-              <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
-            </tr>
-          </thead>
-          <tbody class="text-text-secondary">
-            {categories.map((cat: string) => {
-              const catEvents = events.filter((e: any) => e.category === cat);
-              return (
-                <>
-                  <tr class="border-b border-oled-border-subtle bg-oled-surface/30">
-                    <td class="py-2 px-3 font-mono text-text-muted" colspan="3">{cat}</td>
-                  </tr>
-                  {catEvents.map((evt: any) => (
-                    <tr class="border-b border-oled-border-subtle">
-                      <td class="py-2 px-3 font-mono">{evt.name}</td>
-                      <td class="py-2 px-3 font-mono">{evt.intent ?? '—'}</td>
-                      <td class="py-2 px-3">{evt.description ?? ''}</td>
-                    </tr>
-                  ))}
-                </>
-              );
-            })}
-          </tbody>
-        </table>
+      <div class="flex items-center gap-3 mb-4">
+        <Database class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">All Event Types</h2>
       </div>
+
+      <p class="text-text-secondary mb-6">
+        Each event is delivered as an SSE <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">event:</code> with the type name in camelCase.
+        The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">data:</code> field contains the JSON payload described below.
+      </p>
+
+      <!-- Quick nav by category -->
+      <div class="flex flex-wrap gap-2 mb-8">
+        {categories.map((cat: string) => (
+          <a href={`#cat-${cat.toLowerCase()}`} class="text-xs px-3 py-1.5 rounded-lg bg-oled-surface border border-oled-border-subtle text-text-secondary hover:text-accent hover:border-accent/30 transition-colors">
+            {cat}
+          </a>
+        ))}
+      </div>
+
+      {categories.map((cat: string) => {
+        const catEvents = events.filter((e: any) => e.category === cat);
+        return (
+          <div class="mb-10" id={`cat-${cat.toLowerCase()}`}>
+            <h3 class="text-lg font-semibold mb-4 text-text-muted">{cat}</h3>
+            <div class="space-y-6">
+              {catEvents.map((evt: any) => {
+                const eventAnchor = toCamelCase(evt.name);
+                const hasPayload = evt.payloadTypeShape || evt.payloadVariants;
+                const flatFields = flattenProperties(evt.payloadTypeShape);
+                const unionFields = (evt.payloadTypeShape || []).filter((p: any) => p.isUnion);
+
+                return (
+                  <section class="glass rounded-2xl overflow-hidden" id={eventAnchor}>
+                    {/* Event header */}
+                    <div class="flex items-center gap-3 px-5 py-3 border-b border-oled-border-subtle">
+                      <code class="text-sm font-mono font-bold text-accent">{eventAnchor}</code>
+                      {evt.intent && (
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-accent-subtle text-accent border border-accent/20">
+                          {evt.intent}
+                        </span>
+                      )}
+                      {evt.payloadTypeName && (
+                        <span class="ml-auto text-[10px] font-mono text-text-faint">{evt.payloadTypeName}</span>
+                      )}
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                      {/* Description */}
+                      {evt.description && (
+                        <p class="text-sm text-text-secondary">{evt.description}</p>
+                      )}
+
+                      {/* Single payload type shape */}
+                      {evt.payloadTypeShape && flatFields.length > 0 && (
+                        <div>
+                          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+                            Payload
+                          </h4>
+                          <div class="type-grid">
+                            <div class="type-grid-header">
+                              <span>Field</span>
+                              <span>Type</span>
+                            </div>
+                            {flatFields.map((field: TypeField) => (
+                              <div class:list={["type-grid-row", field.isNested && "type-grid-nested"]} style={field.depth > 0 ? `padding-left: ${field.depth * 20 + 12}px` : undefined}>
+                                <span class="type-property font-mono text-[12px]">
+                                  {field.depth > 0 && <span class="text-text-faint mr-1">↳</span>}
+                                  {field.name}
+                                </span>
+                                <span class="font-mono text-[12px]" set:html={formatType(field)} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Union type variants (e.g. IMessageEntity inside payload) */}
+                      {unionFields.map((uf: any) => uf.variants?.length > 0 && (
+                        <div>
+                          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+                            {uf.name} variants
+                            {uf.discriminatorField && (
+                              <span class="text-[10px] font-mono font-normal text-text-faint ml-2">
+                                discriminator: {uf.discriminatorField}
+                                {uf.discriminatorType && ` (${uf.discriminatorType})`}
+                              </span>
+                            )}
+                          </h4>
+                          {uf.type === 'IMessageEntity' && (
+                            <p class="text-sm text-text-secondary mb-3">
+                              See the <a href="/guides/message-entities/" class="text-accent hover:underline">Message Entities guide</a> for detailed documentation on all entity types, formatting rules, and examples.
+                            </p>
+                          )}
+                          <div class="space-y-3">
+                            {uf.variants.map((variant: UnionVariant) => {
+                              const variantFields = flattenProperties(variant.properties);
+                              return variantFields.length > 0 && (
+                                <details class="group">
+                                  <summary class="cursor-pointer text-sm font-mono text-text-secondary hover:text-accent transition-colors py-1">
+                                    <span class="ml-1">{variant.name}</span>
+                                    {variant.discriminatorValue && (
+                                      <span class="text-[10px] text-text-faint ml-2">= "{variant.discriminatorValue}"</span>
+                                    )}
+                                  </summary>
+                                  <div class="type-grid mt-2 ml-4">
+                                    <div class="type-grid-header">
+                                      <span>Field</span>
+                                      <span>Type</span>
+                                    </div>
+                                    {variantFields.map((field: TypeField) => (
+                                      <div class:list={["type-grid-row", field.isNested && "type-grid-nested"]} style={field.depth > 0 ? `padding-left: ${field.depth * 20 + 12}px` : undefined}>
+                                        <span class="type-property font-mono text-[12px]">
+                                          {field.depth > 0 && <span class="text-text-faint mr-1">↳</span>}
+                                          {field.name}
+                                        </span>
+                                        <span class="font-mono text-[12px]" set:html={formatType(field)} />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </details>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* N:1 payload variants (e.g. PresenceUpdate ← multiple IArgonEvent types) */}
+                      {evt.payloadVariants && (
+                        <div>
+                          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+                            Payload Variants
+                            <span class="text-[10px] font-normal text-text-faint ml-2">
+                              This event can carry different payload shapes depending on the source
+                            </span>
+                          </h4>
+                          <div class="space-y-4">
+                            {evt.payloadVariants.map((pv: any) => {
+                              const pvFields = flattenProperties(pv.shape);
+                              return (
+                                <div>
+                                  <h5 class="text-sm font-mono text-text-secondary mb-2">{pv.typeName}</h5>
+                                  {pvFields.length > 0 && (
+                                    <div class="type-grid">
+                                      <div class="type-grid-header">
+                                        <span>Field</span>
+                                        <span>Type</span>
+                                      </div>
+                                      {pvFields.map((field: TypeField) => (
+                                        <div class:list={["type-grid-row", field.isNested && "type-grid-nested"]} style={field.depth > 0 ? `padding-left: ${field.depth * 20 + 12}px` : undefined}>
+                                          <span class="type-property font-mono text-[12px]">
+                                            {field.depth > 0 && <span class="text-text-faint mr-1">↳</span>}
+                                            {field.name}
+                                          </span>
+                                          <span class="font-mono text-[12px]" set:html={formatType(field)} />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* No payload info */}
+                      {!hasPayload && !['Ready', 'Heartbeat', 'Resumed'].includes(evt.name) && (
+                        <p class="text-xs text-text-faint italic">Payload type not yet mapped</p>
+                      )}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </section>
 
     <!-- Next Steps -->
