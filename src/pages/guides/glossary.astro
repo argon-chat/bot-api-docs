@@ -17,7 +17,7 @@ const terms = [
     group: 'Authentication & Security',
     icon: 'Key',
     items: [
-      { term: 'Bot Token', definition: 'A secret string used to authenticate API requests. Passed via <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Authorization: Bot &lt;token&gt;</code> header or as a path segment: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">/api/bot/&lt;token&gt;/...</code>. Never share your token publicly.' },
+      { term: 'Bot Token', definition: 'A secret string used to authenticate API requests. Passed via <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Authorization: Bot &lt;token&gt;</code> header or as a path segment: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">/&lt;token&gt;/...</code>. Never share your token publicly.' },
       { term: 'Verified Bot', definition: 'A bot reviewed and approved by Argon. Gets higher rate limits, access to privileged APIs (calls, voice egress), and a verified badge. Apply through the Developer Console.' },
       { term: 'Permission', definition: 'A capability required to call certain endpoints. Examples: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">SendMessages</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ManageChannels</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">KickMembers</code>. Permissions are granted via archetypes assigned to the bot.' },
     ]

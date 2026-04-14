@@ -15,7 +15,7 @@ export function getStaticPaths() {
 const { iface } = Astro.props;
 const statusClass = iface.isDeprecated ? 'badge-deprecated' : iface.isStable ? 'badge-stable' : 'badge-draft';
 const statusText = iface.isDeprecated ? 'deprecated' : iface.isStable ? 'stable' : 'draft';
-const basePath = `/api/bot/${iface.name}/v${iface.version}`;
+const basePath = `/${iface.name}/v${iface.version}`;
 const versionLabel = iface.version > 1000
   ? `${iface.version.toString().slice(0, 4)}-${iface.version.toString().slice(4, 6)}-${iface.version.toString().slice(6, 8)}`
   : `v${iface.version}`;
@@ -92,7 +92,7 @@ function buildCurlExample(route: any, fullPath: string): string {
     const body = buildExampleJson(route.requestTypeShape);
     parts.push(`     -d <span class="text-accent-2">'${body}'</span>`);
   }
-  parts.push(`     <span class="text-text-secondary">https://api.argon.gl${fullPath}</span>`);
+  parts.push(`     <span class="text-text-secondary">https://gateway.argon.zone${fullPath}</span>`);
   return parts.join(' \\\n');
 }
 
@@ -119,17 +119,15 @@ function exampleValue(prop: TypeProperty): any {
 <DocsLayout title={`${iface.name} — Argon Bot API`} current={`/docs/${iface.name}/`}>
   <div class="animate-fade-in-up">
     <!-- Header -->
-    <div class="flex items-start justify-between mb-2">
-      <div>
-        <div class="flex items-center gap-3 mb-1">
-          <h1 class="text-3xl font-bold tracking-tight">{iface.name}</h1>
-          <span class="text-sm font-mono text-text-muted">{versionLabel}</span>
-          <span class:list={["text-[10px] px-2 py-0.5 rounded-full font-medium", statusClass]}>
-            {statusText}
-          </span>
-        </div>
-        <p class="text-sm text-text-muted font-mono">{basePath}/</p>
+    <div class="mb-2">
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">{iface.name}</h1>
+        <span class="text-sm font-mono text-text-muted">{versionLabel}</span>
+        <span class:list={["text-[10px] px-2 py-0.5 rounded-full font-medium", statusClass]}>
+          {statusText}
+        </span>
       </div>
+      <p class="text-xs sm:text-sm text-text-muted font-mono break-all">{basePath}/</p>
     </div>
 
     <!-- Description -->
@@ -168,19 +166,19 @@ function exampleValue(prop: TypeProperty): any {
       return (
         <section class="glass rounded-2xl overflow-hidden" id={route.path.replace('/', '')}>
           <!-- Route header -->
-          <div class="flex items-center gap-3 px-5 py-3 border-b border-oled-border-subtle">
-            <span class:list={["text-xs px-2.5 py-1 rounded-md border font-mono font-bold", methodClass]}>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 border-b border-oled-border-subtle">
+            <span class:list={["text-xs px-2.5 py-1 rounded-md border font-mono font-bold shrink-0", methodClass]}>
               {route.method}
             </span>
-            <code class="text-sm font-mono text-text-secondary">{fullPath}</code>
+            <code class="text-xs sm:text-sm font-mono text-text-secondary break-all">{fullPath}</code>
             {route.isPrivileged && (
-              <span class="ml-auto flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+              <span class="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-500/10 text-red-400 border border-red-500/20 sm:ml-auto">
                 <ShieldAlert class="size-3" />
                 Privileged
               </span>
             )}
             {route.permission && !route.isPrivileged && (
-              <span class="ml-auto flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span class="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 sm:ml-auto">
                 <Shield class="size-3" />
                 {route.permission}
               </span>
@@ -193,7 +191,7 @@ function exampleValue(prop: TypeProperty): any {
             )}
           </div>
 
-          <div class="p-5 space-y-5">
+          <div class="p-4 sm:p-5 space-y-5">
             {/* Route description */}
             {route.description && (
               <p class="text-sm text-text-secondary">{route.description}</p>
@@ -260,7 +258,7 @@ function exampleValue(prop: TypeProperty): any {
                     <span>Description</span>
                   </div>
                   {route.errors.map((err: any) => (
-                    <div class="type-grid-row" style="grid-template-columns: 60px 1fr 2fr">
+                    <div class="type-grid-row error-grid-row">
                       <span class:list={["font-mono text-[12px] font-semibold",
                         err.status >= 500 ? "text-red-400" : err.status >= 400 ? "text-amber-400" : "text-text-secondary"
                       ]}>{err.status}</span>

@@ -23,6 +23,27 @@ const stableInterfaces = manifest.filter((i: any) => i.isStable && !i.isDeprecat
 const draftInterfaces = manifest.filter((i: any) => !i.isStable && !i.isDeprecated);
 const deprecatedInterfaces = manifest.filter((i: any) => i.isDeprecated);
 
+// Page ordering for prev/next navigation
+const pageOrder = [
+  { href: '/guides/what-are-bots/', label: 'What Are Bots?' },
+  { href: '/guides/getting-started/', label: 'Getting Started' },
+  { href: '/guides/events/', label: 'Real-time Events (SSE)' },
+  { href: '/guides/voice/', label: 'Voice Streaming' },
+  { href: '/guides/message-entities/', label: 'Message Entities' },
+  { href: '/guides/controls/', label: 'Interactive Controls' },
+  { href: '/guides/message-constructor/', label: 'Message Constructor' },
+  { href: '/guides/permissions/', label: 'Permissions & Intents' },
+  { href: '/guides/rate-limits/', label: 'Rate Limits' },
+  { href: '/guides/error-handling/', label: 'Error Handling' },
+  { href: '/guides/glossary/', label: 'Glossary' },
+  { href: '/docs/', label: 'API Overview' },
+  ...stableInterfaces.map((i: any) => ({ href: `/docs/${i.name}/`, label: i.name })),
+  ...draftInterfaces.map((i: any) => ({ href: `/docs/${i.name}/`, label: i.name })),
+];
+const currentIdx = pageOrder.findIndex(p => p.href === current);
+const prevPage = currentIdx > 0 ? pageOrder[currentIdx - 1] : null;
+const nextPage = currentIdx >= 0 && currentIdx < pageOrder.length - 1 ? pageOrder[currentIdx + 1] : null;
+
 function formatVersion(v: number): string {
   if (v > 1000) {
     const s = v.toString();
@@ -180,10 +201,28 @@ function formatVersion(v: number): string {
     </aside>
 
     <!-- Main content -->
-    <main class="flex-1 lg:ml-64 pb-16">
-      <div class="max-w-4xl mx-auto px-6 py-10">
+    <main id="main-content" class="flex-1 lg:ml-64 pb-16 min-w-0 overflow-x-hidden">
+      <article class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 min-w-0">
         <slot />
-      </div>
+
+        <!-- Prev / Next navigation -->
+        {(prevPage || nextPage) && (
+          <nav class="mt-16 pt-8 border-t border-oled-border-subtle flex items-stretch justify-between gap-4">
+            {prevPage ? (
+              <a href={prevPage.href} class="group flex-1 flex flex-col items-start gap-1 px-4 py-3 rounded-xl border border-oled-border-subtle hover:border-accent/30 hover:bg-oled-hover/50 transition-all">
+                <span class="text-[11px] text-text-muted uppercase tracking-wider">Previous</span>
+                <span class="text-sm font-medium text-text-secondary group-hover:text-accent transition-colors">← {prevPage.label}</span>
+              </a>
+            ) : <div class="flex-1" />}
+            {nextPage ? (
+              <a href={nextPage.href} class="group flex-1 flex flex-col items-end gap-1 px-4 py-3 rounded-xl border border-oled-border-subtle hover:border-accent/30 hover:bg-oled-hover/50 transition-all text-right">
+                <span class="text-[11px] text-text-muted uppercase tracking-wider">Next</span>
+                <span class="text-sm font-medium text-text-secondary group-hover:text-accent transition-colors">{nextPage.label} →</span>
+              </a>
+            ) : <div class="flex-1" />}
+          </nav>
+        )}
+      </article>
     </main>
 
     {toc.length > 0 && (
@@ -209,41 +248,67 @@ function formatVersion(v: number): string {
   </div>
 </Layout>
 
-{toc.length > 0 && (
-  <script>
-    function initScrollSpy() {
-      const links = document.querySelectorAll<HTMLAnchorElement>('.toc-link');
-      if (!links.length) return;
+<script>
+  function initScrollSpy() {
+    const links = document.querySelectorAll<HTMLAnchorElement>('.toc-link');
+    if (!links.length) return;
 
-      const ids = Array.from(links).map(l => l.dataset.tocId!);
-      const sections = ids.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-      if (!sections.length) return;
+    const ids = Array.from(links).map(l => l.dataset.tocId!);
+    const sections = ids.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    if (!sections.length) return;
 
-      const OFFSET = 80;
-      let active = '';
+    const OFFSET = 80;
+    let active = '';
 
-      function update() {
-        let current = ids[0];
-        for (let i = 0; i < sections.length; i++) {
-          if (sections[i].getBoundingClientRect().top <= OFFSET) {
-            current = ids[i];
-          }
-        }
-        if (current !== active) {
-          active = current;
-          links.forEach(l => {
-            const isActive = l.dataset.tocId === active;
-            l.classList.toggle('text-accent', isActive);
-            l.classList.toggle('!border-accent', isActive);
-            l.classList.toggle('text-text-muted', !isActive);
-          });
+    function update() {
+      let current = ids[0];
+      for (let i = 0; i < sections.length; i++) {
+        if (sections[i].getBoundingClientRect().top <= OFFSET) {
+          current = ids[i];
         }
       }
-
-      window.addEventListener('scroll', update, { passive: true });
-      update();
+      if (current !== active) {
+        active = current;
+        links.forEach(l => {
+          const isActive = l.dataset.tocId === active;
+          l.classList.toggle('text-accent', isActive);
+          l.classList.toggle('!border-accent', isActive);
+          l.classList.toggle('text-text-muted', !isActive);
+        });
+      }
     }
-    document.addEventListener('astro:page-load', initScrollSpy);
-    initScrollSpy();
-  </script>
-)}
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+  document.addEventListener('astro:page-load', initScrollSpy);
+  initScrollSpy();
+</script>
+
+<script>
+  function initReadingTime() {
+    const article = document.querySelector('article');
+    if (!article) return;
+    if (article.querySelector('.reading-time')) return;
+
+    const text = article.textContent || '';
+    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const minutes = Math.max(1, Math.round(words / 220));
+
+    const h1 = article.querySelector('h1');
+    if (!h1) return;
+
+    // Find the subtitle paragraph right after h1
+    const subtitle = h1.nextElementSibling;
+    const target = subtitle && subtitle.tagName === 'P' ? subtitle : h1;
+
+    const el = document.createElement('div');
+    el.className = 'reading-time flex items-center gap-2 mt-3 text-[13px] text-text-muted';
+    el.innerHTML = `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${minutes} min read`;
+
+    target.insertAdjacentElement('afterend', el);
+  }
+
+  document.addEventListener('astro:page-load', initReadingTime);
+  initReadingTime();
+</script>

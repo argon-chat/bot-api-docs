@@ -79,7 +79,7 @@ import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
 
             <div class="code-block text-[12px]">
               <div class="text-text-muted mb-2 text-[11px]">Request</div>
-              <pre set:html={`<span class="text-accent-hover">POST</span> /api/bot/IVoice/v1/StreamToken
+              <pre set:html={`<span class="text-accent-hover">POST</span> /IVoice/v1/StreamToken
 Authorization: Bot YOUR_TOKEN
 Content-Type: application/json
 
@@ -239,7 +239,7 @@ ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&s
             <pre set:html={`<span class="text-accent-2">import</span> { spawn } <span class="text-accent-2">from</span> <span class="text-accent-2">"child_process"</span>;
 
 <span class="text-text-muted">// 1. Get stream token</span>
-<span class="text-accent-hover">const</span> resp = <span class="text-accent-hover">await</span> fetch(<span class="text-accent-2">"https://api.argon.gl/api/bot/IVoice/v1/StreamToken"</span>, {
+<span class="text-accent-hover">const</span> resp = <span class="text-accent-hover">await</span> fetch(<span class="text-accent-2">"https://gateway.argon.zone/IVoice/v1/StreamToken"</span>, {
   method: <span class="text-accent-2">"POST"</span>,
   headers: {
     <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">"Bot YOUR_TOKEN"</span>,
@@ -282,7 +282,7 @@ ffmpeg.on(<span class="text-accent-2">"close"</span>, () => ws.close());`} />
 http.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</span>, <span class="text-accent-2">"Bot YOUR_TOKEN"</span>);
 
 <span class="text-accent-hover">var</span> resp = <span class="text-accent-hover">await</span> http.PostAsJsonAsync(
-    <span class="text-accent-2">"https://api.argon.gl/api/bot/IVoice/v1/StreamToken"</span>,
+    <span class="text-accent-2">"https://gateway.argon.zone/IVoice/v1/StreamToken"</span>,
     <span class="text-accent-hover">new</span> { spaceId = <span class="text-accent-2">"..."</span>, channelId = <span class="text-accent-2">"..."</span> });
 <span class="text-accent-hover">var</span> data = <span class="text-accent-hover">await</span> resp.Content.ReadFromJsonAsync&lt;JsonElement&gt;();
 <span class="text-accent-hover">var</span> token = data.GetProperty(<span class="text-accent-2">"token"</span>).GetString()!;

@@ -16,12 +16,12 @@ const curlCode = `<span class="text-text-muted">$</span> <span class="text-accen
   <span class="text-text-secondary">-H</span> <span class="text-accent-2">"Authorization: Bot YOUR_TOKEN"</span> \\
   <span class="text-text-secondary">-H</span> <span class="text-accent-2">"Content-Type: application/json"</span> \\
   <span class="text-text-secondary">-d</span> <span class="text-accent-2">'{"channelId":"...","text":"Hello!","randomId":1}'</span> \\
-  <span class="text-text-secondary">https://api.argon.gl/api/bot/IMessages/v1/Send</span>
+  <span class="text-text-secondary">https://gateway.argon.zone/IMessages/v1/Send</span>
 
 <span class="text-text-muted">→ {"messageId": 42}</span>`;
 
 const tsCode = `<span class="text-accent-3">const</span> res = <span class="text-accent-3">await</span> <span class="type-name">fetch</span>(
-  <span class="text-accent-2">"https://api.argon.gl/api/bot/IMessages/v1/Send"</span>,
+  <span class="text-accent-2">"https://gateway.argon.zone/IMessages/v1/Send"</span>,
   {
     method: <span class="text-accent-2">"POST"</span>,
     headers: {
@@ -44,7 +44,7 @@ client.DefaultRequestHeaders.Add(
     <span class="text-accent-2">"Authorization"</span>, <span class="text-accent-2">$"Bot {token}"</span>);
 
 <span class="text-accent-3">var</span> resp = <span class="text-accent-3">await</span> client.PostAsJsonAsync(
-    <span class="text-accent-2">"https://api.argon.gl/api/bot/IMessages/v1/Send"</span>,
+    <span class="text-accent-2">"https://gateway.argon.zone/IMessages/v1/Send"</span>,
     <span class="text-accent-3">new</span> {
         channelId = <span class="text-accent-2">"d3f1a2b4-..."</span>,
         text = <span class="text-accent-2">"Hello!"</span>,
@@ -57,7 +57,7 @@ client.DefaultRequestHeaders.Add(
 const sseCode = `<span class="text-accent-3">import</span> EventSource <span class="text-accent-3">from</span> <span class="text-accent-2">"eventsource"</span>;
 
 <span class="text-accent-3">const</span> es = <span class="text-accent-3">new</span> <span class="type-name">EventSource</span>(
-  <span class="text-accent-2">"https://api.argon.gl/api/bot/IEvents/v1/Stream"</span>
+  <span class="text-accent-2">"https://gateway.argon.zone/IEvents/v1/Stream"</span>
   + <span class="text-accent-2">"?intents=12269"</span>,
   { headers: { Authorization: <span class="text-accent-2">\`Bot \${TOKEN}\`</span> } }
 );
@@ -77,33 +77,33 @@ es.addEventListener(<span class="text-accent-2">"commandInteraction"</span>, (e)
 	<Navbar current="/" />
 
 	<!-- Hero -->
-	<section class="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 sm:px-6 pt-16">
+	<section id="main-content" class="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 sm:px-6 pt-16">
 		<div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
 		<div class="absolute left-1/2 top-1/4 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-[120px]"></div>
 		<div class="absolute right-1/4 top-1/2 h-80 w-80 rounded-full bg-accent-2/5 blur-[100px]"></div>
 
 		<div class="relative z-10 mx-auto max-w-4xl text-center">
-			<div class="animate-fade-in-up mb-8 inline-flex items-center gap-2 rounded-full border border-oled-border bg-oled-surface/50 px-4 py-1.5 backdrop-blur-sm">
-				<span class="h-2 w-2 rounded-full bg-accent animate-pulse"></span>
-				<span class="text-xs font-medium text-text-secondary">{manifest.length} interfaces · {totalRoutes} routes · {events.length} event types · REST + SSE</span>
+			<div class="animate-fade-in-up mb-8 inline-flex items-center gap-2 rounded-full border border-oled-border bg-oled-surface/50 px-3 sm:px-4 py-1.5 backdrop-blur-sm">
+				<span class="h-2 w-2 rounded-full bg-accent animate-pulse shrink-0"></span>
+				<span class="text-[10px] sm:text-xs font-medium text-text-secondary">{manifest.length} interfaces · {totalRoutes} routes · {events.length} events · REST + SSE</span>
 			</div>
 
-			<h1 class="animate-fade-in-up-delay-1 text-4xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
+			<h1 class="animate-fade-in-up-delay-1 text-3xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
 				Build Bots for<br />
 				<span class="bg-linear-to-r from-accent via-accent-3 to-accent-2 bg-clip-text text-transparent">Argon</span>
 			</h1>
 
-			<p class="animate-fade-in-up-delay-2 mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-text-secondary sm:text-xl">
+			<p class="animate-fade-in-up-delay-2 mx-auto mt-5 sm:mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-text-secondary sm:text-xl">
 				Send messages, manage roles, stream voice, handle slash commands, and react to events in real-time.
 				A developer-first API with typed contracts, per-interface versioning, and hash-verified stability.
 			</p>
 
-			<div class="animate-fade-in-up-delay-3 mt-10 flex flex-wrap items-center justify-center gap-4">
-				<a href="/guides/getting-started/" class="inline-flex items-center gap-3 rounded-xl bg-linear-to-r from-accent to-accent-3 px-8 py-3.5 text-base font-bold text-white transition-all hover:brightness-110">
+			<div class="animate-fade-in-up-delay-3 mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+				<a href="/guides/getting-started/" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-xl bg-linear-to-r from-accent to-accent-3 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-white transition-all hover:brightness-110">
 					<Bot class="size-5" />
 					Get Started
 				</a>
-				<a href="/docs/" class="inline-flex items-center gap-2 rounded-xl border border-oled-border bg-oled-surface/50 px-8 py-3.5 text-base font-semibold text-text-primary backdrop-blur-sm transition-all hover:border-oled-border hover:bg-oled-hover">
+				<a href="/docs/" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-oled-border bg-oled-surface/50 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-text-primary backdrop-blur-sm transition-all hover:border-oled-border hover:bg-oled-hover">
 					<BookOpen class="size-4" />
 					API Reference
 				</a>
@@ -111,7 +111,7 @@ es.addEventListener(<span class="text-accent-2">"commandInteraction"</span>, (e)
 		</div>
 
 		<!-- Code preview -->
-		<div class="animate-fade-in-up-delay-4 relative mx-auto mt-16 max-w-2xl w-full">
+		<div class="animate-fade-in-up-delay-4 relative mx-auto mt-12 sm:mt-16 max-w-2xl w-full">
 			<div class="code-block">
 				<div class="flex items-center gap-2 mb-4 pb-3 border-b border-oled-border-subtle">
 					<div class="h-3 w-3 rounded-full bg-accent/40"></div>
@@ -119,7 +119,7 @@ es.addEventListener(<span class="text-accent-2">"commandInteraction"</span>, (e)
 					<div class="h-3 w-3 rounded-full bg-accent-2/40"></div>
 					<span class="ml-2 text-[11px] text-text-muted">Send a message with a button</span>
 				</div>
-				<pre class="text-[13px] leading-relaxed" set:html={`<span class="text-accent-hover">POST</span> <span class="text-text-secondary">/api/bot/IMessages/v1/Send</span>
+				<pre class="text-[13px] leading-relaxed" set:html={`<span class="text-accent-hover">POST</span> <span class="text-text-secondary">/IMessages/v1/Send</span>
 
 ${"{"} <span class="text-accent-2">"channelId"</span>: <span class="text-text-secondary">"d3f1a2b4-..."</span>,
   <span class="text-accent-2">"text"</span>: <span class="text-text-secondary">"Hello from my bot!"</span>,
@@ -154,12 +154,12 @@ ${"}"}`} />
 	</section>
 
 	<!-- Capabilities grid -->
-	<section class="py-24 px-4 sm:px-6">
+	<section class="py-16 sm:py-24 px-4 sm:px-6">
 		<div class="mx-auto max-w-5xl">
-			<div class="text-center mb-16">
+			<div class="text-center mb-10 sm:mb-16">
 				<span class="section-label">Capabilities</span>
-				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Everything you need to build</h2>
-				<p class="text-text-secondary mt-3 max-w-2xl mx-auto">From simple message bots to full-featured applications with voice, interactive controls, and role management.</p>
+				<h2 class="mt-3 text-2xl sm:text-3xl font-bold tracking-tight sm:text-4xl">Everything you need to build</h2>
+				<p class="text-text-secondary mt-3 max-w-2xl mx-auto text-sm sm:text-base">From simple message bots to full-featured applications with voice, interactive controls, and role management.</p>
 			</div>
 
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -248,12 +248,12 @@ ${"}"}`} />
 	</section>
 
 	<!-- Interface overview table -->
-	<section class="py-24 px-4 sm:px-6 bg-oled-surface/30">
+	<section class="py-16 sm:py-24 px-4 sm:px-6 bg-oled-surface/30">
 		<div class="mx-auto max-w-5xl">
-			<div class="text-center mb-12">
+			<div class="text-center mb-8 sm:mb-12">
 				<span class="section-label">API Surface</span>
-				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">All Interfaces at a Glance</h2>
-				<p class="text-text-secondary mt-3">{stableCount} stable, {manifest.length - stableCount} draft — each versioned and documented independently.</p>
+				<h2 class="mt-3 text-2xl sm:text-3xl font-bold tracking-tight sm:text-4xl">All Interfaces at a Glance</h2>
+				<p class="text-text-secondary mt-3 text-sm sm:text-base">{stableCount} stable, {manifest.length - stableCount} draft — each versioned and documented independently.</p>
 			</div>
 
 			<div class="glass rounded-2xl overflow-hidden">
@@ -261,10 +261,10 @@ ${"}"}`} />
 					<table class="w-full text-sm">
 						<thead>
 							<tr class="border-b border-oled-border-subtle">
-								<th class="text-left py-3 px-4 text-text-muted font-medium">Interface</th>
-								<th class="text-left py-3 px-4 text-text-muted font-medium">Description</th>
-								<th class="text-center py-3 px-4 text-text-muted font-medium">Routes</th>
-								<th class="text-center py-3 px-4 text-text-muted font-medium">Status</th>
+								<th class="text-left py-3 px-3 sm:px-4 text-text-muted font-medium">Interface</th>
+								<th class="text-left py-3 px-4 text-text-muted font-medium hidden md:table-cell">Description</th>
+								<th class="text-center py-3 px-3 sm:px-4 text-text-muted font-medium">Routes</th>
+								<th class="text-center py-3 px-3 sm:px-4 text-text-muted font-medium">Status</th>
 							</tr>
 						</thead>
 						<tbody class="text-text-secondary">
@@ -273,12 +273,12 @@ ${"}"}`} />
 								const statusText = iface.isStable ? 'stable' : 'draft';
 								return (
 									<tr class:list={[idx < manifest.length - 1 && "border-b border-oled-border-subtle"]}>
-										<td class="py-2.5 px-4">
-											<a href={`/docs/${iface.name}/`} class="font-mono font-medium text-accent hover:underline">{iface.name}<span class="text-text-faint">/v{iface.version}</span></a>
+										<td class="py-2.5 px-3 sm:px-4">
+											<a href={`/docs/${iface.name}/`} class="font-mono text-xs sm:text-sm font-medium text-accent hover:underline">{iface.name}<span class="text-text-faint hidden sm:inline">/v{iface.version}</span></a>
 										</td>
-										<td class="py-2.5 px-4 text-xs max-w-xs">{iface.description?.split('.')[0]}.</td>
-										<td class="py-2.5 px-4 text-center font-mono">{iface.routes.length}</td>
-										<td class="py-2.5 px-4 text-center">
+										<td class="py-2.5 px-4 text-xs max-w-xs hidden md:table-cell">{iface.description?.split('.')[0]}.</td>
+										<td class="py-2.5 px-3 sm:px-4 text-center font-mono">{iface.routes.length}</td>
+										<td class="py-2.5 px-3 sm:px-4 text-center">
 											<span class:list={["text-[10px] px-2 py-0.5 rounded-full font-medium border", statusClass]}>{statusText}</span>
 										</td>
 									</tr>
@@ -292,12 +292,12 @@ ${"}"}`} />
 	</section>
 
 	<!-- Event Stream Preview -->
-	<section class="py-24 px-4 sm:px-6">
+	<section class="py-16 sm:py-24 px-4 sm:px-6">
 		<div class="mx-auto max-w-5xl">
-			<div class="grid lg:grid-cols-2 gap-12 items-center">
+			<div class="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
 				<div>
 					<span class="section-label">Real-time</span>
-					<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Live Event Stream</h2>
+					<h2 class="mt-3 text-2xl sm:text-3xl font-bold tracking-tight sm:text-4xl">Live Event Stream</h2>
 					<p class="text-text-secondary mt-4 leading-relaxed">Open a single SSE connection with an intent bitmask and receive events as they happen. Messages, member joins, typing indicators, voice activity, role changes — all in one stream.</p>
 
 					<div class="mt-6 space-y-3">
@@ -357,18 +357,18 @@ ${"}"}`} />
 	</section>
 
 	<!-- Quick Start -->
-	<section id="quickstart" class="py-24 px-4 sm:px-6 bg-oled-surface/30 scroll-mt-16">
+	<section id="quickstart" class="py-16 sm:py-24 px-4 sm:px-6 bg-oled-surface/30 scroll-mt-16">
 		<div class="mx-auto max-w-3xl">
-			<div class="text-center mb-12">
+			<div class="text-center mb-8 sm:mb-12">
 				<span class="section-label">Get Started</span>
-				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Three steps to your first bot</h2>
+				<h2 class="mt-3 text-2xl sm:text-3xl font-bold tracking-tight sm:text-4xl">Three steps to your first bot</h2>
 			</div>
 
 			<div class="space-y-8">
 				<!-- Step 1 -->
 				<div class="flex gap-4">
 					<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">1</div>
-					<div class="flex-1">
+					<div class="flex-1 min-w-0">
 						<h3 class="font-semibold mb-2">Create a Bot Application</h3>
 						<p class="text-sm text-text-secondary mb-3">Go to <a href="https://console.argon.gl" target="_blank" rel="noopener" class="text-accent hover:underline">console.argon.gl</a> → Apps → Create Application → choose <strong>Bot App</strong> → pick a username ending in <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">_bot</code>.</p>
 					</div>
@@ -377,7 +377,7 @@ ${"}"}`} />
 				<!-- Step 2 -->
 				<div class="flex gap-4">
 					<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">2</div>
-					<div class="flex-1">
+					<div class="flex-1 min-w-0">
 						<h3 class="font-semibold mb-2">Authenticate</h3>
 						<p class="text-sm text-text-secondary mb-3">Copy your bot token and include it in every request:</p>
 						<div class="code-block text-[12px]">
@@ -389,7 +389,7 @@ ${"}"}`} />
 				<!-- Step 3 -->
 				<div class="flex gap-4">
 					<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">3</div>
-					<div class="flex-1">
+					<div class="flex-1 min-w-0">
 						<h3 class="font-semibold mb-2">Send your first message</h3>
 						<p class="text-sm text-text-secondary mb-3">POST to the Messages interface:</p>
 						<div class="code-block text-[12px]">
@@ -408,30 +408,30 @@ ${"}"}`} />
 	</section>
 
 	<!-- Code examples -->
-	<section class="py-24 px-4 sm:px-6">
-		<div class="mx-auto max-w-5xl">
-			<div class="text-center mb-12">
+	<section class="py-16 sm:py-24 px-4 sm:px-6 overflow-hidden">
+		<div class="mx-auto max-w-5xl min-w-0">
+			<div class="text-center mb-8 sm:mb-12">
 				<span class="section-label">Any Language</span>
-				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">No SDK required</h2>
-				<p class="text-text-secondary mt-3">Plain HTTP — use whatever language and runtime you prefer.</p>
+				<h2 class="mt-3 text-2xl sm:text-3xl font-bold tracking-tight sm:text-4xl">No SDK required</h2>
+				<p class="text-text-secondary mt-3 text-sm sm:text-base">Plain HTTP — use whatever language and runtime you prefer.</p>
 			</div>
 
-			<div class="grid lg:grid-cols-2 gap-4">
-				<div>
+			<div class="grid lg:grid-cols-2 gap-4 min-w-0">
+				<div class="min-w-0 overflow-hidden">
 					<div class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">TypeScript / Bun</div>
 					<div class="code-block text-[12px]">
 						<pre set:html={tsCode} />
 					</div>
 				</div>
 
-				<div>
+				<div class="min-w-0 overflow-hidden">
 					<div class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">C# / .NET</div>
 					<div class="code-block text-[12px]">
 						<pre set:html={csCode} />
 					</div>
 				</div>
 
-				<div>
+				<div class="min-w-0 overflow-hidden">
 					<div class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">SSE Events (TypeScript)</div>
 					<div class="code-block text-[12px]">
 						<pre set:html={sseCode} />
@@ -442,12 +442,12 @@ ${"}"}`} />
 	</section>
 
 	<!-- Guides grid -->
-	<section class="py-24 px-4 sm:px-6 bg-oled-surface/30">
+	<section class="py-16 sm:py-24 px-4 sm:px-6 bg-oled-surface/30">
 		<div class="mx-auto max-w-5xl">
-			<div class="text-center mb-12">
+			<div class="text-center mb-8 sm:mb-12">
 				<span class="section-label">Learn</span>
-				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Guides</h2>
-				<p class="text-text-secondary mt-3">Step-by-step guides for every aspect of the Bot API.</p>
+				<h2 class="mt-3 text-2xl sm:text-3xl font-bold tracking-tight sm:text-4xl">Guides</h2>
+				<p class="text-text-secondary mt-3 text-sm sm:text-base">Step-by-step guides for every aspect of the Bot API.</p>
 			</div>
 
 			<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

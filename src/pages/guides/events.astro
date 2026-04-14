@@ -131,7 +131,7 @@ function toCamelCase(s: string): string {
         </p>
 
         <div class="code-block text-[12px]">
-          <pre set:html={`<span class="type-property">GET</span> /api/bot/IEvents/v1/Stream?intents=<span class="text-accent">{bitmask}</span>
+          <pre set:html={`<span class="type-property">GET</span> /IEvents/v1/Stream?intents=<span class="text-accent">{bitmask}</span>
 
 <span class="text-text-muted">Headers:</span>
   Authorization: Bot YOUR_TOKEN
@@ -331,7 +331,7 @@ data: {"timestamp":40953660000}`} />
 
         <div class="code-block text-[12px]">
           <pre set:html={`<span class="text-text-muted">Option 1: Query parameter</span>
-GET /api/bot/IEvents/v1/Stream?intents=4045&lastEventId=<span class="text-accent">42</span>
+GET /IEvents/v1/Stream?intents=4045&lastEventId=<span class="text-accent">42</span>
 
 <span class="text-text-muted">Option 2: Standard SSE header</span>
 Last-Event-ID: <span class="text-accent">42</span>`} />
@@ -365,7 +365,7 @@ Last-Event-ID: <span class="text-accent">42</span>`} />
             <pre set:html={`<span class="text-accent-3">import</span> EventSource <span class="text-accent-3">from</span> <span class="text-accent-2">"eventsource"</span>;
 
 <span class="text-accent-3">const</span> es = <span class="text-accent-3">new</span> <span class="type-name">EventSource</span>(
-  <span class="text-accent-2">"https://api.argon.gl/api/bot/IEvents/v1/Stream?intents=2113"</span>,
+  <span class="text-accent-2">"https://gateway.argon.zone/IEvents/v1/Stream?intents=2113"</span>,
   { headers: { <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">"Bot YOUR_TOKEN"</span> } }
 );
 
@@ -396,7 +396,7 @@ es.<span class="type-property">onerror</span> = () => {
 client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</span>, <span class="text-accent-2">"Bot YOUR_TOKEN"</span>);
 
 <span class="text-accent-3">using var</span> stream = <span class="text-accent-3">await</span> client.GetStreamAsync(
-    <span class="text-accent-2">"https://api.argon.gl/api/bot/IEvents/v1/Stream?intents=2113"</span>);
+    <span class="text-accent-2">"https://gateway.argon.zone/IEvents/v1/Stream?intents=2113"</span>);
 <span class="text-accent-3">using var</span> reader = <span class="text-accent-3">new</span> <span class="type-name">StreamReader</span>(stream);
 
 <span class="type-name">string</span>? eventType = <span class="text-accent-3">null</span>;
