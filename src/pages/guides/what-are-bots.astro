@@ -1,6 +1,6 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
-import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight } from 'lucide-astro';
+import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, MailWarning } from 'lucide-astro';
 ---
 
 <DocsLayout title="What Are Bots? — Argon Bot API" current="/guides/what-are-bots/">
@@ -23,7 +23,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight } from 'lucide-astro
           stream audio, respond to slash commands, and react to real-time events — all through a simple REST + SSE API.
         </p>
         <p class="text-text-secondary">
-          Every bot has a linked user account (with a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">_bot</code> username suffix)
+          Every bot has a linked user account (with a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">bot</code> username suffix)
           and appears in member lists like any other user. Under the hood, bot requests are authenticated with a secret token
           and processed through the same permission system as regular users.
         </p>
@@ -128,6 +128,182 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight } from 'lucide-astro
       </div>
     </section>
 
+    <!-- User Flags -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Flag class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">User Flags</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Every user object in the Bot API includes a <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">flags</code> bitmask field.
+          Use bitwise AND to check for specific flags.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Flag</span>
+              <span>Value</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">BOT</span>
+              <span class="text-[12px] text-text-secondary font-mono">1 &lt;&lt; 0</span>
+              <span class="text-[12px] text-text-secondary">Account is a bot</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">SYSTEM</span>
+              <span class="text-[12px] text-text-secondary font-mono">1 &lt;&lt; 1</span>
+              <span class="text-[12px] text-text-secondary">Official system account</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">VERIFIED</span>
+              <span class="text-[12px] text-text-secondary font-mono">1 &lt;&lt; 2</span>
+              <span class="text-[12px] text-text-secondary">Bot or user has been verified by the Argon team</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">PREMIUM</span>
+              <span class="text-[12px] text-text-secondary font-mono">1 &lt;&lt; 3</span>
+              <span class="text-[12px] text-text-secondary">User has an active premium subscription</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">BANNED</span>
+              <span class="text-[12px] text-text-secondary font-mono">1 &lt;&lt; 4</span>
+              <span class="text-[12px] text-text-secondary">Account is under a platform lockdown</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">DELETED</span>
+              <span class="text-[12px] text-text-secondary font-mono">1 &lt;&lt; 5</span>
+              <span class="text-[12px] text-text-secondary">Account has been deleted</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-status-down/20 bg-status-down-subtle p-4">
+          <MailWarning class="size-4 text-status-down mt-0.5 shrink-0" />
+          <div>
+            <p class="text-sm font-medium text-text-primary">About System Account</p>
+            <p class="text-sm text-text-secondary mt-1"> The <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">SYSTEM</code> user always has a fixed ID: <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">11111111-2222-1111-2222-111111111111</code>.</p>
+          </div>
+        </div>
+
+        <div class="code-block text-[12px]">
+          <div class="text-text-muted mb-2 text-[11px]">Checking flags</div>
+          <pre set:html={`<span class="text-text-muted">// Example: check if a user is a verified bot</span>
+<span class="text-accent">const</span> isBot      = (user.flags & <span class="text-accent-2">1</span>) !== <span class="text-accent-2">0</span>;
+<span class="text-accent">const</span> isVerified = (user.flags & <span class="text-accent-2">4</span>) !== <span class="text-accent-2">0</span>;
+
+<span class="text-accent">if</span> (isBot && isVerified) {
+  <span class="text-text-muted">// Verified bot</span>
+}`} />
+        </div>
+      </div>
+    </section>
+
+    <!-- Slash Commands -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Terminal class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Slash Commands</h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Bots can register <strong class="text-text-primary">slash commands</strong> that users invoke via the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">/</code> prefix in any text channel.
+          Commands are registered through the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">ICommands/v1</code> interface and interactions are delivered as <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">CommandInteraction</code> SSE events.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Constraint</span>
+              <span>Limit</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px]">Command name length</span>
+              <span class="text-[12px] text-text-secondary font-mono">1–32 characters</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px]">Command description length</span>
+              <span class="text-[12px] text-text-secondary font-mono">1–100 characters</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px]">Max commands per app per space</span>
+              <span class="text-[12px] text-text-secondary font-mono">50</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px]">Command name format</span>
+              <span class="text-[12px] text-text-secondary">Lowercase only, auto-normalized via <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">toLowerInvariant()</code></span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px]">Scope</span>
+              <span class="text-[12px] text-text-secondary">Per-space (set <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">spaceId</code>) or global (omit it)</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-base font-semibold mt-6">Option Types</h3>
+        <p class="text-text-secondary text-sm">Each command can accept typed options:</p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Type</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">String</span>
+              <span class="text-[12px] text-text-secondary">Free text input</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">Integer</span>
+              <span class="text-[12px] text-text-secondary">Whole number</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">Number</span>
+              <span class="text-[12px] text-text-secondary">Floating-point number</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">Boolean</span>
+              <span class="text-[12px] text-text-secondary">True / false toggle</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">User</span>
+              <span class="text-[12px] text-text-secondary">User picker</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">Channel</span>
+              <span class="text-[12px] text-text-secondary">Channel picker</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="text-[12px] font-mono text-accent">Role</span>
+              <span class="text-[12px] text-text-secondary">Archetype (role) picker</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-block text-[12px]">
+          <div class="text-text-muted mb-2 text-[11px]">Register a command</div>
+          <pre set:html={`<span class="text-text-muted">POST</span> /api/bot/ICommands/v1/Register
+{
+  <span class="text-accent">"spaceId"</span>:     <span class="text-accent-2">"..."</span>,
+  <span class="text-accent">"name"</span>:        <span class="text-accent-2">"play"</span>,
+  <span class="text-accent">"description"</span>: <span class="text-accent-2">"Play a song by URL or search query"</span>,
+  <span class="text-accent">"options"</span>: [
+    {
+      <span class="text-accent">"name"</span>:        <span class="text-accent-2">"query"</span>,
+      <span class="text-accent">"description"</span>: <span class="text-accent-2">"Song URL or search term"</span>,
+      <span class="text-accent">"type"</span>:        <span class="text-accent-2">"String"</span>,
+      <span class="text-accent">"required"</span>:    <span class="text-accent-2">true</span>
+    }
+  ]
+}`} />
+        </div>
+      </div>
+    </section>
+
     <!-- Lifecycle -->
     <section>
       <div class="flex items-center gap-3 mb-4">
@@ -147,7 +323,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight } from 'lucide-astro
           <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-accent-subtle text-accent text-sm font-bold flex items-center justify-center">2</span>
           <div>
             <p class="text-sm font-medium">Install</p>
-            <p class="text-sm text-text-secondary">Add the bot to a space. The bot appears as a member and can interact with channels.</p>
+            <p class="text-sm text-text-secondary">Add the bot to a space. The bot appears as a member and receives a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">botInstallingToSpace</code> event. When removed, it receives <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">botUninstallingFromSpace</code>. These lifecycle events are always delivered regardless of intents.</p>
           </div>
         </li>
         <li class="flex gap-4">

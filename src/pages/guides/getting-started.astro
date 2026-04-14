@@ -35,7 +35,7 @@ const rateLimits = fullManifest.rateLimits;
         <div class="flex items-start gap-3 rounded-xl border border-status-degraded/20 bg-status-degraded-subtle p-4 mt-4">
           <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
           <p class="text-sm text-text-secondary">
-            Bot usernames <strong class="text-text-primary">must end with <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">_bot</code></strong> (e.g., <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">music_bot</code>). The system will validate this.
+            Bot usernames <strong class="text-text-primary">must end with <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">bot</code></strong> (e.g., <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">music_bot</code>). The system will validate this.
           </p>
         </div>
       </div>
@@ -179,7 +179,7 @@ https://api.argon.gl/api/bot/<span class="text-accent">IBotSelf</span>/v<span cl
 
       <div class="ml-8 space-y-4">
         <p class="text-text-secondary">
-          Each interface has its own <strong class="text-text-primary">token bucket</strong> rate limit. When you hit the limit, the API returns <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">429 Too Many Requests</code> with a <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">Retry-After</code> header indicating how many seconds to wait.
+          Each interface has its own <strong class="text-text-primary">sliding window</strong> rate limit. When you hit the limit, the API returns <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">429 Too Many Requests</code> with a <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">Retry-After</code> header indicating how many seconds to wait.
         </p>
 
         <div class="overflow-x-auto">
@@ -193,8 +193,8 @@ https://api.argon.gl/api/bot/<span class="text-accent">IBotSelf</span>/v<span cl
             <tbody class="text-text-secondary">
               {rateLimits.map((rl: any, idx: number) => (
                 <tr class:list={[idx < rateLimits.length - 1 && "border-b border-oled-border-subtle"]}>
-                  <td class="py-2 px-3 font-mono">{rl.interfaceName === '*' ? 'Others (default)' : rl.interfaceName}</td>
-                  <td class="py-2 px-3">{rl.tokensPerPeriod} requests / {rl.replenishmentPeriod === '1s' ? 'second' : rl.replenishmentPeriod === '1m' ? 'minute' : rl.replenishmentPeriod}</td>
+                  <td class="py-2 px-3 font-mono">{rl.interfaceName}</td>
+                  <td class="py-2 px-3">{rl.permitLimit} requests / {rl.window === '1m' ? 'minute' : rl.window}</td>
                 </tr>
               ))}
             </tbody>

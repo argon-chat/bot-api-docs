@@ -1,17 +1,15 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import fullManifest from '../../data/api-manifest.json';
-import { Gauge, Clock, Zap } from 'lucide-astro';
+import { Gauge, Clock, Zap, Shield } from 'lucide-astro';
 
 const rateLimits = fullManifest.rateLimits;
-const globalLimit = rateLimits.find((r: any) => r.interfaceName === '*');
-const interfaceLimits = rateLimits.filter((r: any) => r.interfaceName !== '*');
 ---
 
 <DocsLayout title="Rate Limits — Argon Bot API" current="/guides/rate-limits/">
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Rate Limits</h1>
-    <p class="text-text-secondary text-lg">All Bot API requests are rate-limited per token using a token bucket algorithm. Stay within limits to avoid <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[13px]">429</code> responses.</p>
+    <p class="text-text-secondary text-lg">All Bot API requests are rate-limited per token using a sliding window algorithm. Stay within limits to avoid <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[13px]">429</code> responses.</p>
   </div>
 
   <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
@@ -25,74 +23,55 @@ const interfaceLimits = rateLimits.filter((r: any) => r.interfaceName !== '*');
 
       <div class="space-y-4">
         <p class="text-text-secondary">
-          Each bot token has a <strong class="text-text-primary">token bucket</strong> per interface and one
-          global bucket across all interfaces. Each request consumes one token. Tokens replenish at a fixed rate.
+          Each bot token has a <strong class="text-text-primary">sliding window</strong> per interface.
+          Each request consumes one permit. Permits replenish as the window slides forward in time.
         </p>
 
         <div class="glass rounded-2xl p-5 space-y-3">
           <div class="flex items-center gap-4">
             <Zap class="size-4 text-accent shrink-0" />
             <p class="text-sm text-text-secondary">
-              <strong class="text-text-primary">Bucket capacity</strong> — maximum number of tokens the bucket can hold.
-              This is your burst allowance.
+              <strong class="text-text-primary">Permit limit</strong> — maximum number of requests allowed within the
+              sliding window. Smoothed across 6 segments for even distribution.
             </p>
           </div>
           <div class="flex items-center gap-4">
             <Clock class="size-4 text-accent shrink-0" />
             <p class="text-sm text-text-secondary">
-              <strong class="text-text-primary">Replenishment</strong> — tokens added to the bucket at regular intervals,
-              up to the capacity.
+              <strong class="text-text-primary">Window</strong> — the time period over which requests are counted.
+              Permits become available as older segments slide out.
+            </p>
+          </div>
+          <div class="flex items-center gap-4">
+            <Shield class="size-4 text-accent shrink-0" />
+            <p class="text-sm text-text-secondary">
+              <strong class="text-text-primary">Concurrency</strong> — a global limit of <strong class="text-text-primary">10 concurrent requests</strong>
+              per bot prevents parallel flooding, independent of per-interface limits.
             </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Global limit -->
-    <section>
-      <h2 class="text-xl font-semibold mb-4">Global Limit</h2>
-      <p class="text-text-secondary mb-4">
-        Applied across all endpoints combined, per bot token.
-      </p>
-      {globalLimit && (
-        <div class="glass rounded-2xl overflow-hidden">
-          <div class="type-grid">
-            <div class="type-grid-header" style="grid-template-columns: 1fr 1fr 1fr">
-              <span>Bucket</span>
-              <span>Replenish</span>
-              <span>Period</span>
-            </div>
-            <div class="type-grid-row" style="grid-template-columns: 1fr 1fr 1fr">
-              <span class="font-mono text-[12px] text-accent">{globalLimit.tokenLimit} tokens</span>
-              <span class="font-mono text-[12px] text-text-secondary">+{globalLimit.tokensPerPeriod}/period</span>
-              <span class="font-mono text-[12px] text-text-secondary">{globalLimit.replenishmentPeriod}</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </section>
-
     <!-- Per-interface limits -->
     <section>
       <h2 class="text-xl font-semibold mb-4">Per-Interface Limits</h2>
       <p class="text-text-secondary mb-4">
-        Each interface has its own bucket. These are checked <em>in addition to</em> the global limit.
+        Each interface has its own sliding window. Limits are enforced independently per bot token.
       </p>
 
       <div class="glass rounded-2xl overflow-hidden">
         <div class="type-grid">
-          <div class="type-grid-header" style="grid-template-columns: 1.5fr 1fr 1fr 1fr">
+          <div class="type-grid-header" style="grid-template-columns: 1.5fr 1fr 1fr">
             <span>Interface</span>
-            <span>Bucket</span>
-            <span>Replenish</span>
-            <span>Period</span>
+            <span>Limit</span>
+            <span>Window</span>
           </div>
-          {interfaceLimits.map((r: any) => (
-            <div class="type-grid-row" style="grid-template-columns: 1.5fr 1fr 1fr 1fr">
+          {rateLimits.map((r: any) => (
+            <div class="type-grid-row" style="grid-template-columns: 1.5fr 1fr 1fr">
               <span class="font-mono text-[12px] text-accent">{r.interfaceName}</span>
-              <span class="font-mono text-[12px] text-text-secondary">{r.tokenLimit}</span>
-              <span class="font-mono text-[12px] text-text-secondary">+{r.tokensPerPeriod}</span>
-              <span class="font-mono text-[12px] text-text-secondary">{r.replenishmentPeriod}</span>
+              <span class="font-mono text-[12px] text-text-secondary">{r.permitLimit} req</span>
+              <span class="font-mono text-[12px] text-text-secondary">{r.window}</span>
             </div>
           ))}
         </div>

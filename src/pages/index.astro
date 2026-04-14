@@ -2,7 +2,75 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
-import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-astro';
+import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic, MessageSquare, Users, Palette, Keyboard, ArrowRight, BookOpen, Compass, Code, Hash, MousePointerClick } from 'lucide-astro';
+import fullManifest from '../data/api-manifest.json';
+
+const manifest = fullManifest.interfaces;
+const events = fullManifest.events;
+const intents = fullManifest.intents;
+const rateLimits = fullManifest.rateLimits;
+const totalRoutes = manifest.reduce((sum: number, i: any) => sum + i.routes.length, 0);
+const stableCount = manifest.filter((i: any) => i.isStable).length;
+
+const curlCode = `<span class="text-text-muted">$</span> <span class="text-accent-hover">curl</span> <span class="text-text-secondary">-X POST</span> \\
+  <span class="text-text-secondary">-H</span> <span class="text-accent-2">"Authorization: Bot YOUR_TOKEN"</span> \\
+  <span class="text-text-secondary">-H</span> <span class="text-accent-2">"Content-Type: application/json"</span> \\
+  <span class="text-text-secondary">-d</span> <span class="text-accent-2">'{"channelId":"...","text":"Hello!","randomId":1}'</span> \\
+  <span class="text-text-secondary">https://api.argon.gl/api/bot/IMessages/v1/Send</span>
+
+<span class="text-text-muted">→ {"messageId": 42}</span>`;
+
+const tsCode = `<span class="text-accent-3">const</span> res = <span class="text-accent-3">await</span> <span class="type-name">fetch</span>(
+  <span class="text-accent-2">"https://api.argon.gl/api/bot/IMessages/v1/Send"</span>,
+  {
+    method: <span class="text-accent-2">"POST"</span>,
+    headers: {
+      <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">\`Bot \${TOKEN}\`</span>,
+      <span class="text-accent-2">"Content-Type"</span>: <span class="text-accent-2">"application/json"</span>,
+    },
+    body: <span class="type-name">JSON</span>.stringify({
+      channelId: <span class="text-accent-2">"d3f1a2b4-..."</span>,
+      text: <span class="text-accent-2">"Hello!"</span>,
+      randomId: <span class="type-name">Date</span>.now(),
+    }),
+  }
+);
+
+<span class="text-accent-3">const</span> { messageId } = <span class="text-accent-3">await</span> res.json();`;
+
+
+const csCode = `<span class="text-accent-3">var</span> client = <span class="text-accent-3">new</span> <span class="type-name">HttpClient</span>();
+client.DefaultRequestHeaders.Add(
+    <span class="text-accent-2">"Authorization"</span>, <span class="text-accent-2">$"Bot {token}"</span>);
+
+<span class="text-accent-3">var</span> resp = <span class="text-accent-3">await</span> client.PostAsJsonAsync(
+    <span class="text-accent-2">"https://api.argon.gl/api/bot/IMessages/v1/Send"</span>,
+    <span class="text-accent-3">new</span> {
+        channelId = <span class="text-accent-2">"d3f1a2b4-..."</span>,
+        text = <span class="text-accent-2">"Hello!"</span>,
+        randomId = <span class="type-name">DateTimeOffset</span>.UtcNow.ToUnixTimeMilliseconds()
+    });
+
+<span class="text-accent-3">var</span> result = <span class="text-accent-3">await</span> resp.Content
+    .ReadFromJsonAsync<<span class="type-name">SendResult</span>>();`;
+
+const sseCode = `<span class="text-accent-3">import</span> EventSource <span class="text-accent-3">from</span> <span class="text-accent-2">"eventsource"</span>;
+
+<span class="text-accent-3">const</span> es = <span class="text-accent-3">new</span> <span class="type-name">EventSource</span>(
+  <span class="text-accent-2">"https://api.argon.gl/api/bot/IEvents/v1/Stream"</span>
+  + <span class="text-accent-2">"?intents=12269"</span>,
+  { headers: { Authorization: <span class="text-accent-2">\`Bot \${TOKEN}\`</span> } }
+);
+
+es.addEventListener(<span class="text-accent-2">"messageCreate"</span>, (e) => {
+  <span class="text-accent-3">const</span> msg = <span class="type-name">JSON</span>.parse(e.data);
+  console.log(<span class="text-accent-2">\`\${msg.message.sender.username}: \${msg.message.text}\`</span>);
+});
+
+es.addEventListener(<span class="text-accent-2">"commandInteraction"</span>, (e) => {
+  <span class="text-accent-3">const</span> cmd = <span class="type-name">JSON</span>.parse(e.data);
+  console.log(<span class="text-accent-2">\`/\${cmd.commandName} by \${cmd.user.username}\`</span>);
+});`;
 ---
 
 <Layout>
@@ -17,7 +85,7 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 		<div class="relative z-10 mx-auto max-w-4xl text-center">
 			<div class="animate-fade-in-up mb-8 inline-flex items-center gap-2 rounded-full border border-oled-border bg-oled-surface/50 px-4 py-1.5 backdrop-blur-sm">
 				<span class="h-2 w-2 rounded-full bg-accent animate-pulse"></span>
-				<span class="text-xs font-medium text-text-secondary">REST + SSE · Per-interface versioning · Stable contracts</span>
+				<span class="text-xs font-medium text-text-secondary">{manifest.length} interfaces · {totalRoutes} routes · {events.length} event types · REST + SSE</span>
 			</div>
 
 			<h1 class="animate-fade-in-up-delay-1 text-4xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
@@ -26,17 +94,18 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 			</h1>
 
 			<p class="animate-fade-in-up-delay-2 mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-text-secondary sm:text-xl">
-				Send messages, stream voice, handle commands, and react to events in real-time.
-				A developer-first API with typed contracts and hash-verified stability.
+				Send messages, manage roles, stream voice, handle slash commands, and react to events in real-time.
+				A developer-first API with typed contracts, per-interface versioning, and hash-verified stability.
 			</p>
 
 			<div class="animate-fade-in-up-delay-3 mt-10 flex flex-wrap items-center justify-center gap-4">
-				<a href="/docs/" class="inline-flex items-center gap-3 rounded-xl bg-linear-to-r from-accent to-accent-3 px-8 py-3.5 text-base font-bold text-white transition-all hover:brightness-110">
+				<a href="/guides/getting-started/" class="inline-flex items-center gap-3 rounded-xl bg-linear-to-r from-accent to-accent-3 px-8 py-3.5 text-base font-bold text-white transition-all hover:brightness-110">
 					<Bot class="size-5" />
-					Read the Docs
+					Get Started
 				</a>
-				<a href="#quickstart" class="inline-flex items-center gap-2 rounded-xl border border-oled-border bg-oled-surface/50 px-8 py-3.5 text-base font-semibold text-text-primary backdrop-blur-sm transition-all hover:border-oled-border hover:bg-oled-hover">
-					Quick Start
+				<a href="/docs/" class="inline-flex items-center gap-2 rounded-xl border border-oled-border bg-oled-surface/50 px-8 py-3.5 text-base font-semibold text-text-primary backdrop-blur-sm transition-all hover:border-oled-border hover:bg-oled-hover">
+					<BookOpen class="size-4" />
+					API Reference
 				</a>
 			</div>
 		</div>
@@ -48,40 +117,68 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 					<div class="h-3 w-3 rounded-full bg-accent/40"></div>
 					<div class="h-3 w-3 rounded-full bg-accent-3/40"></div>
 					<div class="h-3 w-3 rounded-full bg-accent-2/40"></div>
-					<span class="ml-2 text-[11px] text-text-muted">First API call</span>
+					<span class="ml-2 text-[11px] text-text-muted">Send a message with a button</span>
 				</div>
-				<pre class="text-[13px] leading-relaxed" set:html={`<span class="text-text-muted">$</span> <span class="text-accent-hover">curl</span> <span class="text-text-secondary">-H</span> <span class="text-accent-2">"Authorization: Bot YOUR_TOKEN"</span> \\
-     <span class="text-text-secondary">https://api.argon.gl/api/bot/IBotSelf/v1/GetMe</span>
+				<pre class="text-[13px] leading-relaxed" set:html={`<span class="text-accent-hover">POST</span> <span class="text-text-secondary">/api/bot/IMessages/v1/Send</span>
 
-<span class="text-text-muted">{"botId":"...","userId":"...","username":"my-bot","displayName":"My Bot"}</span>`} />
+${"{"} <span class="text-accent-2">"channelId"</span>: <span class="text-text-secondary">"d3f1a2b4-..."</span>,
+  <span class="text-accent-2">"text"</span>: <span class="text-text-secondary">"Hello from my bot!"</span>,
+  <span class="text-accent-2">"randomId"</span>: <span class="text-accent-3">1</span>,
+  <span class="text-accent-2">"controls"</span>: [[${"{"}<span class="text-accent-2">"type"</span>: <span class="text-text-secondary">"Button"</span>, <span class="text-accent-2">"label"</span>: <span class="text-text-secondary">"Click me"</span>, <span class="text-accent-2">"id"</span>: <span class="text-text-secondary">"btn_hello"</span>${"}"}]]
+${"}"}`} />
 			</div>
 			<div class="absolute -inset-4 -z-10 rounded-3xl bg-linear-to-r from-accent/10 via-transparent to-accent-2/10 blur-2xl"></div>
 		</div>
 	</section>
 
-	<!-- Features -->
+	<!-- Stats bar -->
+	<section class="py-12 px-4 sm:px-6 border-y border-oled-border-subtle">
+		<div class="mx-auto max-w-5xl grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
+			<div>
+				<div class="text-3xl font-black text-accent">{manifest.length}</div>
+				<div class="text-sm text-text-muted mt-1">API Interfaces</div>
+			</div>
+			<div>
+				<div class="text-3xl font-black text-accent">{totalRoutes}</div>
+				<div class="text-sm text-text-muted mt-1">Endpoints</div>
+			</div>
+			<div>
+				<div class="text-3xl font-black text-accent">{events.length}</div>
+				<div class="text-sm text-text-muted mt-1">Event Types</div>
+			</div>
+			<div>
+				<div class="text-3xl font-black text-accent">{intents.length}</div>
+				<div class="text-sm text-text-muted mt-1">Intent Flags</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Capabilities grid -->
 	<section class="py-24 px-4 sm:px-6">
 		<div class="mx-auto max-w-5xl">
 			<div class="text-center mb-16">
 				<span class="section-label">Capabilities</span>
 				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Everything you need to build</h2>
+				<p class="text-text-secondary mt-3 max-w-2xl mx-auto">From simple message bots to full-featured applications with voice, interactive controls, and role management.</p>
 			</div>
 
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				<div class="glass rounded-2xl p-6">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-subtle mb-4">
-						<Zap class="size-5 text-accent" />
+						<MessageSquare class="size-5 text-accent" />
 					</div>
-					<h3 class="font-semibold mb-2">REST + JSON</h3>
-					<p class="text-sm text-text-secondary">Simple HTTP endpoints. No SDK required — use curl, fetch, or any HTTP client.</p>
+					<h3 class="font-semibold mb-2">Messages</h3>
+					<p class="text-sm text-text-secondary">Send messages with rich formatting — bold, italic, spoilers, mentions, links, and file attachments. Query history with pagination.</p>
+					<a href="/docs/IMessages/" class="text-xs text-accent hover:underline mt-3 inline-block">IMessages →</a>
 				</div>
 
 				<div class="glass rounded-2xl p-6">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-subtle mb-4">
 						<Radio class="size-5 text-accent" />
 					</div>
-					<h3 class="font-semibold mb-2">SSE Events</h3>
-					<p class="text-sm text-text-secondary">Real-time event stream via Server-Sent Events. Filter by intents, resume on disconnect.</p>
+					<h3 class="font-semibold mb-2">Real-time Events</h3>
+					<p class="text-sm text-text-secondary">Server-Sent Events stream with intent filtering, automatic reconnection, and event replay. Never miss a message or interaction.</p>
+					<a href="/guides/events/" class="text-xs text-accent hover:underline mt-3 inline-block">Events Guide →</a>
 				</div>
 
 				<div class="glass rounded-2xl p-6">
@@ -89,7 +186,17 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 						<Terminal class="size-5 text-accent" />
 					</div>
 					<h3 class="font-semibold mb-2">Slash Commands</h3>
-					<p class="text-sm text-text-secondary">Register commands, receive interactions. Global or per-space, with typed options.</p>
+					<p class="text-sm text-text-secondary">Register commands with typed options (string, integer, user, channel, role). Receive interactions with full context.</p>
+					<a href="/docs/ICommands/" class="text-xs text-accent hover:underline mt-3 inline-block">ICommands →</a>
+				</div>
+
+				<div class="glass rounded-2xl p-6">
+					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-subtle mb-4">
+						<MousePointerClick class="size-5 text-accent" />
+					</div>
+					<h3 class="font-semibold mb-2">Interactive Controls</h3>
+					<p class="text-sm text-text-secondary">Buttons, select menus, and modal dialogs. Build interactive UIs directly in chat messages with callback handling.</p>
+					<a href="/guides/controls/" class="text-xs text-accent hover:underline mt-3 inline-block">Controls Guide →</a>
 				</div>
 
 				<div class="glass rounded-2xl p-6">
@@ -97,15 +204,35 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 						<Mic class="size-5 text-accent" />
 					</div>
 					<h3 class="font-semibold mb-2">Voice Streaming</h3>
-					<p class="text-sm text-text-secondary">Stream Opus audio over WebSocket ingress. Music bots, TTS, live audio — all supported.</p>
+					<p class="text-sm text-text-secondary">Stream Opus audio over WebSocket ingress. Build music bots, TTS, live audio processing — no WebRTC needed.</p>
+					<a href="/guides/voice/" class="text-xs text-accent hover:underline mt-3 inline-block">Voice Guide →</a>
+				</div>
+
+				<div class="glass rounded-2xl p-6">
+					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-subtle mb-4">
+						<Shield class="size-5 text-accent" />
+					</div>
+					<h3 class="font-semibold mb-2">Archetypes & Roles</h3>
+					<p class="text-sm text-text-secondary">Query archetypes, inspect role assignments, list members by role. Permission-aware — detailed access only for authorized bots.</p>
+					<a href="/docs/IArchetypes/" class="text-xs text-accent hover:underline mt-3 inline-block">IArchetypes →</a>
+				</div>
+
+				<div class="glass rounded-2xl p-6">
+					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-subtle mb-4">
+						<Keyboard class="size-5 text-accent" />
+					</div>
+					<h3 class="font-semibold mb-2">Typing Indicators</h3>
+					<p class="text-sm text-text-secondary">Show typing, thinking, uploading, or searching status in channels. Auto-expires after 8 seconds — refresh to keep active.</p>
+					<a href="/docs/ITyping/" class="text-xs text-accent hover:underline mt-3 inline-block">ITyping →</a>
 				</div>
 
 				<div class="glass rounded-2xl p-6">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-subtle mb-4">
 						<Layers class="size-5 text-accent" />
 					</div>
-					<h3 class="font-semibold mb-2">Per-Interface Versioning</h3>
-					<p class="text-sm text-text-secondary">Each interface versioned independently. Stable contracts with SHA-256 hash verification.</p>
+					<h3 class="font-semibold mb-2">Stable Contracts</h3>
+					<p class="text-sm text-text-secondary">Each interface versioned independently with SHA-256 hash verification. Breaking changes are impossible without a version bump.</p>
+					<a href="/guides/glossary/" class="text-xs text-accent hover:underline mt-3 inline-block">Glossary →</a>
 				</div>
 
 				<div class="glass rounded-2xl p-6">
@@ -113,14 +240,124 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 						<Gauge class="size-5 text-accent" />
 					</div>
 					<h3 class="font-semibold mb-2">Rate Limiting</h3>
-					<p class="text-sm text-text-secondary">Token bucket rate limits per bot, per interface. Retry-After headers included.</p>
+					<p class="text-sm text-text-secondary">Sliding window rate limits per interface. {rateLimits.length} policies, 10 concurrent requests per bot. Retry-After headers included.</p>
+					<a href="/guides/rate-limits/" class="text-xs text-accent hover:underline mt-3 inline-block">Rate Limits →</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Interface overview table -->
+	<section class="py-24 px-4 sm:px-6 bg-oled-surface/30">
+		<div class="mx-auto max-w-5xl">
+			<div class="text-center mb-12">
+				<span class="section-label">API Surface</span>
+				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">All Interfaces at a Glance</h2>
+				<p class="text-text-secondary mt-3">{stableCount} stable, {manifest.length - stableCount} draft — each versioned and documented independently.</p>
+			</div>
+
+			<div class="glass rounded-2xl overflow-hidden">
+				<div class="overflow-x-auto">
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="border-b border-oled-border-subtle">
+								<th class="text-left py-3 px-4 text-text-muted font-medium">Interface</th>
+								<th class="text-left py-3 px-4 text-text-muted font-medium">Description</th>
+								<th class="text-center py-3 px-4 text-text-muted font-medium">Routes</th>
+								<th class="text-center py-3 px-4 text-text-muted font-medium">Status</th>
+							</tr>
+						</thead>
+						<tbody class="text-text-secondary">
+							{manifest.map((iface: any, idx: number) => {
+								const statusClass = iface.isStable ? 'bg-status-healthy-subtle text-status-healthy border-status-healthy/20' : 'bg-status-degraded-subtle text-status-degraded border-status-degraded/20';
+								const statusText = iface.isStable ? 'stable' : 'draft';
+								return (
+									<tr class:list={[idx < manifest.length - 1 && "border-b border-oled-border-subtle"]}>
+										<td class="py-2.5 px-4">
+											<a href={`/docs/${iface.name}/`} class="font-mono font-medium text-accent hover:underline">{iface.name}<span class="text-text-faint">/v{iface.version}</span></a>
+										</td>
+										<td class="py-2.5 px-4 text-xs max-w-xs">{iface.description?.split('.')[0]}.</td>
+										<td class="py-2.5 px-4 text-center font-mono">{iface.routes.length}</td>
+										<td class="py-2.5 px-4 text-center">
+											<span class:list={["text-[10px] px-2 py-0.5 rounded-full font-medium border", statusClass]}>{statusText}</span>
+										</td>
+									</tr>
+								);
+							})}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Event Stream Preview -->
+	<section class="py-24 px-4 sm:px-6">
+		<div class="mx-auto max-w-5xl">
+			<div class="grid lg:grid-cols-2 gap-12 items-center">
+				<div>
+					<span class="section-label">Real-time</span>
+					<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Live Event Stream</h2>
+					<p class="text-text-secondary mt-4 leading-relaxed">Open a single SSE connection with an intent bitmask and receive events as they happen. Messages, member joins, typing indicators, voice activity, role changes — all in one stream.</p>
+
+					<div class="mt-6 space-y-3">
+						<div class="flex items-center gap-3">
+							<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-status-healthy-subtle text-[10px] font-bold text-status-healthy">✓</span>
+							<span class="text-sm text-text-secondary">{events.length} event types across {intents.length} intent categories</span>
+						</div>
+						<div class="flex items-center gap-3">
+							<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-status-healthy-subtle text-[10px] font-bold text-status-healthy">✓</span>
+							<span class="text-sm text-text-secondary">Automatic replay on reconnection — no events lost</span>
+						</div>
+						<div class="flex items-center gap-3">
+							<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-status-healthy-subtle text-[10px] font-bold text-status-healthy">✓</span>
+							<span class="text-sm text-text-secondary">30-second heartbeats with cursor for reliable resume</span>
+						</div>
+						<div class="flex items-center gap-3">
+							<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-status-healthy-subtle text-[10px] font-bold text-status-healthy">✓</span>
+							<span class="text-sm text-text-secondary">Standard SSE — works with EventSource, curl, any HTTP client</span>
+						</div>
+					</div>
+
+					<a href="/guides/events/" class="inline-flex items-center gap-2 mt-8 text-sm font-medium text-accent hover:underline">
+						Events Guide <ArrowRight class="size-3.5" />
+					</a>
+				</div>
+
+				<div class="code-block text-[12px]">
+					<div class="flex items-center gap-2 mb-4 pb-3 border-b border-oled-border-subtle">
+						<div class="h-3 w-3 rounded-full bg-status-healthy/40 animate-pulse"></div>
+						<span class="text-[11px] text-text-muted">SSE stream — live events</span>
+					</div>
+					<pre set:html={`<span class="text-text-muted">event:</span> <span class="text-accent">ready</span>
+<span class="text-text-muted">data:</span> ${"{"}"intents":12269,"spaceIds":["a1b2...","c3d4..."]${"}"}
+
+<span class="text-text-muted">event:</span> <span class="text-accent">messageCreate</span>
+<span class="text-text-muted">data:</span> ${"{"}"spaceId":"a1b2...","channelId":"e5f6...",
+       "message":${"{"}"text":"Hey bot!","sender":${"{"} ... ${"}"}${"}"}${"}"}
+
+<span class="text-text-muted">event:</span> <span class="text-accent">typingStart</span>
+<span class="text-text-muted">data:</span> ${"{"}"spaceId":"a1b2...","channelId":"e5f6...",
+       "userId":"u7v8...","kind":"typing"${"}"}
+
+<span class="text-text-muted">event:</span> <span class="text-accent">commandInteraction</span>
+<span class="text-text-muted">data:</span> ${"{"}"interactionId":"i9j0...",
+       "commandName":"play","user":${"{"} ... ${"}"},
+       "options":[${"{"}"name":"url","value":"..."${"}"}]${"}"}
+
+<span class="text-text-muted">event:</span> <span class="text-accent">controlInteraction</span>
+<span class="text-text-muted">data:</span> ${"{"}"interactionId":"k1l2...",
+       "controlId":"btn_hello","user":${"{"} ... ${"}"}${"}"}
+
+<span class="text-text-muted">event:</span> <span class="text-accent">heartbeat</span>
+<span class="text-text-muted">data:</span> ${"{"}"timestamp":40953660000${"}"}`} />
 				</div>
 			</div>
 		</div>
 	</section>
 
 	<!-- Quick Start -->
-	<section id="quickstart" class="py-24 px-4 sm:px-6 scroll-mt-16">
+	<section id="quickstart" class="py-24 px-4 sm:px-6 bg-oled-surface/30 scroll-mt-16">
 		<div class="mx-auto max-w-3xl">
 			<div class="text-center mb-12">
 				<span class="section-label">Get Started</span>
@@ -142,7 +379,7 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 					<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">2</div>
 					<div class="flex-1">
 						<h3 class="font-semibold mb-2">Authenticate</h3>
-						<p class="text-sm text-text-secondary mb-3">Copy your bot token from the Developer Console and include it in every request:</p>
+						<p class="text-sm text-text-secondary mb-3">Copy your bot token and include it in every request:</p>
 						<div class="code-block text-[12px]">
 							<pre>Authorization: Bot &lt;your-token&gt;</pre>
 						</div>
@@ -156,14 +393,7 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 						<h3 class="font-semibold mb-2">Send your first message</h3>
 						<p class="text-sm text-text-secondary mb-3">POST to the Messages interface:</p>
 						<div class="code-block text-[12px]">
-							<pre set:html={`<span class="text-accent-hover">POST</span> /api/bot/IMessages/v1/Send
-<span class="text-text-muted">Content-Type: application/json</span>
-
-{
-  <span class="text-accent-2">"channelId"</span>: <span class="text-text-secondary">"your-channel-id"</span>,
-  <span class="text-accent-2">"text"</span>: <span class="text-text-secondary">"Hello from my bot!"</span>,
-  <span class="text-accent-2">"randomId"</span>: <span class="text-accent-3">1</span>
-}`} />
+							<pre set:html={curlCode} />
 						</div>
 					</div>
 				</div>
@@ -171,10 +401,100 @@ import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic } from 'lucide-as
 
 			<div class="mt-12 flex flex-wrap justify-center gap-4">
 				<a href="/guides/getting-started/" class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-accent to-accent-3 px-8 py-3 text-sm font-bold text-white transition-all hover:brightness-110">
-					Full Getting Started Guide →
+					Full Getting Started Guide <ArrowRight class="size-3.5" />
 				</a>
-				<a href="/docs/" class="inline-flex items-center gap-2 rounded-xl border border-oled-border bg-oled-surface/50 px-8 py-3 text-sm font-semibold text-text-primary transition-all hover:border-oled-border hover:bg-oled-hover">
-					API Reference
+			</div>
+		</div>
+	</section>
+
+	<!-- Code examples -->
+	<section class="py-24 px-4 sm:px-6">
+		<div class="mx-auto max-w-5xl">
+			<div class="text-center mb-12">
+				<span class="section-label">Any Language</span>
+				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">No SDK required</h2>
+				<p class="text-text-secondary mt-3">Plain HTTP — use whatever language and runtime you prefer.</p>
+			</div>
+
+			<div class="grid lg:grid-cols-2 gap-4">
+				<div>
+					<div class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">TypeScript / Bun</div>
+					<div class="code-block text-[12px]">
+						<pre set:html={tsCode} />
+					</div>
+				</div>
+
+				<div>
+					<div class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">C# / .NET</div>
+					<div class="code-block text-[12px]">
+						<pre set:html={csCode} />
+					</div>
+				</div>
+
+				<div>
+					<div class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-1">SSE Events (TypeScript)</div>
+					<div class="code-block text-[12px]">
+						<pre set:html={sseCode} />
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Guides grid -->
+	<section class="py-24 px-4 sm:px-6 bg-oled-surface/30">
+		<div class="mx-auto max-w-5xl">
+			<div class="text-center mb-12">
+				<span class="section-label">Learn</span>
+				<h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Guides</h2>
+				<p class="text-text-secondary mt-3">Step-by-step guides for every aspect of the Bot API.</p>
+			</div>
+
+			<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				<a href="/guides/what-are-bots/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Bot class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">What Are Bots?</h3>
+					<p class="text-xs text-text-muted mt-1">Architecture, bot vs. user, capabilities overview.</p>
+				</a>
+				<a href="/guides/getting-started/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Zap class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Getting Started</h3>
+					<p class="text-xs text-text-muted mt-1">Create a bot, get a token, send your first request.</p>
+				</a>
+				<a href="/guides/events/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Radio class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Real-time Events</h3>
+					<p class="text-xs text-text-muted mt-1">SSE connection, intents, reconnection, all {events.length} event types.</p>
+				</a>
+				<a href="/guides/voice/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Mic class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Voice Streaming</h3>
+					<p class="text-xs text-text-muted mt-1">WebSocket ingress, Opus format, music bots.</p>
+				</a>
+				<a href="/guides/message-entities/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Hash class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Message Entities</h3>
+					<p class="text-xs text-text-muted mt-1">Rich text formatting, mentions, links, attachments.</p>
+				</a>
+				<a href="/guides/controls/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><MousePointerClick class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Interactive Controls</h3>
+					<p class="text-xs text-text-muted mt-1">Buttons, select menus, modals, OKLCH colours.</p>
+				</a>
+				<a href="/guides/message-constructor/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Code class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Message Constructor</h3>
+					<p class="text-xs text-text-muted mt-1">Interactive playground for building messages.</p>
+				</a>
+				<a href="/guides/permissions/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Shield class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Permissions & Intents</h3>
+					<p class="text-xs text-text-muted mt-1">Entitlement flags, privileged intents, access control.</p>
+				</a>
+				<a href="/guides/rate-limits/" class="glass rounded-2xl p-5 group hover:border-accent/20 transition-all">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-subtle mb-3"><Gauge class="size-4 text-accent" /></div>
+					<h3 class="font-semibold text-sm group-hover:text-accent transition-colors">Rate Limits</h3>
+					<p class="text-xs text-text-muted mt-1">Sliding window policy, per-interface limits, Retry-After.</p>
 				</a>
 			</div>
 		</div>

@@ -335,11 +335,11 @@ Last-Event-ID: <span class="text-accent">42</span>`} />
 
         <div class="code-block text-[11px]">
           <pre set:html={`<span class="text-text-muted">// Replayed events arrive first...</span>
-{ "id": "43", "type": "MessageCreate", "data": { ... } }
-{ "id": "44", "type": "MemberJoin", "data": { ... } }
+{ "id": "43", "type": "...", "data": { ... } }
+{ "id": "44", "type": "...", "data": { ... } }
 
 <span class="text-text-muted">// Then the Resumed marker</span>
-{ "id": "resumed", "type": "Resumed", "data": { "replayed": 2 } }
+{ "id": "resumed", "type": "Resumed", "data": { "replayedCount": 2 } }
 
 <span class="text-text-muted">// Then live events continue</span>`} />
         </div>
@@ -450,6 +450,11 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
                           {evt.intent}
                         </span>
                       )}
+                      {evt.isStable && (
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-status-healthy-subtle text-status-healthy border border-status-healthy/20">
+                          STABLE
+                        </span>
+                      )}
                       {evt.payloadTypeName && (
                         <span class="ml-auto text-[10px] font-mono text-text-faint">{evt.payloadTypeName}</span>
                       )}
@@ -535,7 +540,7 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
                         </div>
                       ))}
 
-                      {/* N:1 payload variants (e.g. PresenceUpdate ← multiple IArgonEvent types) */}
+                      {/* N:1 payload variants (multiple source types for one event) */}
                       {evt.payloadVariants && (
                         <div>
                           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
@@ -575,8 +580,8 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
                       )}
 
                       {/* No payload info */}
-                      {!hasPayload && !['Ready', 'Heartbeat', 'Resumed'].includes(evt.name) && (
-                        <p class="text-xs text-text-faint italic">Payload type not yet mapped</p>
+                      {!hasPayload && (
+                        <p class="text-xs text-text-faint italic">No payload — lifecycle event</p>
                       )}
                     </div>
                   </section>

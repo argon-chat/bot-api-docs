@@ -5,30 +5,30 @@ import { Type, Sparkles, AtSign, Link, Paperclip, Phone } from 'lucide-astro';
 const entities = [
   { name: 'Bold',           type: 'bold',            extra: null,           group: 'Formatting' },
   { name: 'Italic',         type: 'italic',          extra: null,           group: 'Formatting' },
-  { name: 'Underline',      type: 'underline',       extra: 'colour: number', group: 'Formatting' },
+  { name: 'Underline',      type: 'underline',       extra: 'colour: number?', group: 'Formatting' },
   { name: 'Strikethrough',  type: 'strikethrough',   extra: null,           group: 'Formatting' },
   { name: 'Spoiler',        type: 'spoiler',         extra: null,           group: 'Formatting' },
   { name: 'Monospace',      type: 'monospace',       extra: null,           group: 'Formatting' },
   { name: 'Capitalized',    type: 'capitalized',     extra: null,           group: 'Formatting' },
-  { name: 'Fraction',       type: 'fraction',        extra: 'numerator: number, denominator: number', group: 'Formatting' },
+  { name: 'Fraction',       type: 'fraction',        extra: 'numerator: number?, denominator: number?', group: 'Formatting' },
   { name: 'Ordinal',        type: 'ordinal',         extra: null,           group: 'Formatting' },
 
-  { name: 'Mention',         type: 'mention',          extra: 'userId: string',      group: 'Mentions' },
-  { name: 'MentionEveryone', type: 'mentionEveryone',  extra: null,                  group: 'Mentions' },
-  { name: 'MentionRole',     type: 'mentionRole',      extra: 'archetypeId: string', group: 'Mentions' },
+  { name: 'Mention',         type: 'mention',          extra: 'userId: string?',      group: 'Mentions' },
+  { name: 'MentionEveryone', type: 'mentionEveryone',  extra: null,                   group: 'Mentions' },
+  { name: 'MentionRole',     type: 'mentionRole',      extra: 'archetypeId: string?', group: 'Mentions' },
 
   { name: 'Url',      type: 'url',      extra: 'domain: string, path: string', group: 'Links' },
   { name: 'Email',    type: 'email',    extra: 'email: string',                group: 'Links' },
   { name: 'HashTag',  type: 'hashTag',  extra: 'hashtag: string',              group: 'Links' },
 
-  { name: 'Quote', type: 'quote', extra: 'quotedUserId: string', group: 'Content' },
+  { name: 'Quote', type: 'quote', extra: 'quotedUserId: string?', group: 'Content' },
 
-  { name: 'Attachment', type: 'attachment', extra: 'fileId: string, fileName: string, fileSize: number, contentType: string, width?: number, height?: number, thumbHash?: string', group: 'Content' },
+  { name: 'Attachment', type: 'attachment', extra: 'fileName: string, fileSize: number, contentType: string, width?: number, height?: number, thumbHash?: string', group: 'Content' },
 
-  { name: 'SystemCallStarted', type: 'systemCallStarted', extra: 'callerId: string, callId: string',                           group: 'System' },
-  { name: 'SystemCallEnded',   type: 'systemCallEnded',   extra: 'callerId: string, callId: string, durationSeconds: number',  group: 'System' },
-  { name: 'SystemCallTimeout', type: 'systemCallTimeout', extra: 'callerId: string, callId: string',                           group: 'System' },
-  { name: 'SystemUserJoined',  type: 'systemUserJoined',  extra: 'userId: string, inviterId?: string',                         group: 'System' },
+  { name: 'SystemCallStarted', type: 'systemCallStarted', extra: 'callerId: string?, callId: string?',                           group: 'System' },
+  { name: 'SystemCallEnded',   type: 'systemCallEnded',   extra: 'callerId: string?, callId: string?, durationSeconds: number?',  group: 'System' },
+  { name: 'SystemCallTimeout', type: 'systemCallTimeout', extra: 'callerId: string?, callId: string?',                            group: 'System' },
+  { name: 'SystemUserJoined',  type: 'systemUserJoined',  extra: 'userId: string?, inviterId?: string',                           group: 'System' },
 ];
 
 const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
@@ -52,7 +52,8 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
       <div class="space-y-4">
         <p class="text-text-secondary">
           Every message has a plain <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">text</code> field plus an optional <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">entities</code> array.
-          Each entity marks a span of the text with a type and offset/length.
+          Each entity marks a span of the text with a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">type</code> discriminator and offset/length.
+          Extra fields are present only when relevant for the entity type — all other fields are <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">null</code>.
         </p>
 
         <div class="glass rounded-2xl p-5">
@@ -74,15 +75,11 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
               <span class="type-property font-mono text-[12px]">length</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">number</span></span>
             </div>
-            <div class="type-grid-row">
-              <span class="type-property font-mono text-[12px]">version</span>
-              <span class="font-mono text-[12px]"><span class="type-keyword">number</span></span>
-            </div>
           </div>
         </div>
 
         <div class="glass rounded-2xl p-5">
-          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example</h4>
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example — bold + mention</h4>
           <div class="code-block text-[12px]">
             <pre set:html={`<span class="text-text-muted">// "Hello **world**!" with bold on "world"</span>
 {
@@ -91,10 +88,17 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
     {
       <span class="text-accent-2">"type"</span>: <span class="text-accent-2">"bold"</span>,
       <span class="text-accent-2">"offset"</span>: <span class="type-keyword">6</span>,
-      <span class="text-accent-2">"length"</span>: <span class="type-keyword">5</span>,
-      <span class="text-accent-2">"version"</span>: <span class="type-keyword">1</span>
+      <span class="text-accent-2">"length"</span>: <span class="type-keyword">5</span>
     }
   ]
+}
+
+<span class="text-text-muted">// Mention entity — only userId is populated</span>
+{
+  <span class="text-accent-2">"type"</span>: <span class="text-accent-2">"mention"</span>,
+  <span class="text-accent-2">"offset"</span>: <span class="type-keyword">0</span>,
+  <span class="text-accent-2">"length"</span>: <span class="type-keyword">6</span>,
+  <span class="text-accent-2">"userId"</span>: <span class="text-accent-2">"d3b07384-..."</span>
 }`} />
           </div>
         </div>
@@ -159,8 +163,8 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
         <ul class="text-sm text-text-secondary space-y-2">
           <li>Entities can overlap — for example, bold and italic on the same span.</li>
           <li>System entities (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">systemCall*</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">systemUserJoined</code>) are created by the server. Bots cannot send system entities.</li>
-          <li>Attachment entities reference uploaded files. Use the file upload endpoint to get a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code> before sending.</li>
-          <li>The <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">version</code> field is for forward compatibility. Always send <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">1</code>.</li>
+          <li>Attachment entities contain file metadata (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileName</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileSize</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">contentType</code>). No internal file IDs are exposed.</li>
+          <li>Entity objects are <strong>flattened</strong> — all possible extra fields exist on the same type, but only the fields relevant to the entity's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">type</code> are non-null.</li>
         </ul>
       </div>
     </section>

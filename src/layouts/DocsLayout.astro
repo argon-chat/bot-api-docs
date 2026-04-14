@@ -70,6 +70,20 @@ function formatVersion(v: number): string {
           Message Entities
         </a>
         <a
+          href="/guides/controls/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/controls/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Interactive Controls
+        </a>
+        <a
+          href="/guides/message-constructor/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/message-constructor/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Message Constructor
+        </a>
+        <a
           href="/guides/permissions/"
           class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
             current === '/guides/permissions/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}

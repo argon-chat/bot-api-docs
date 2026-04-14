@@ -1,0 +1,50 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import MessagePlayground from '../../components/MessagePlayground.vue';
+---
+
+<DocsLayout title="Message Constructor — Argon Bot API" current="/guides/message-constructor/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Message Constructor</h1>
+    <p class="text-text-secondary text-lg">
+      Build messages interactively — combine entities, add buttons, preview the result, and copy the JSON payload.
+    </p>
+  </div>
+
+  <div class="mt-8 animate-fade-in-up-delay-1">
+    <MessagePlayground client:load />
+  </div>
+
+  <div class="mt-10 space-y-6 animate-fade-in-up-delay-2">
+    <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+      <h4 class="text-sm font-semibold mb-2">How to use</h4>
+      <ol class="text-sm text-text-secondary space-y-1.5 list-decimal list-inside">
+        <li>Type your message text in the input box</li>
+        <li>Select a text range and click an entity button to apply formatting</li>
+        <li>For mentions and URLs — enter the extra data in the popup field</li>
+        <li>Add button rows with the controls builder below</li>
+        <li>The live preview shows how the message will render in the client</li>
+        <li>Copy the JSON payload and use it with <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">POST /api/bot/IMessages/v1/Send</code> or <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">POST /api/bot/IInteractions/v1/Reply</code></li>
+      </ol>
+    </div>
+
+    <div class="glass rounded-2xl p-5">
+      <h4 class="text-sm font-semibold mb-2">Entity rendering</h4>
+      <p class="text-sm text-text-secondary">
+        The preview closely matches the Argon desktop client.
+        Entities are offset/length spans into the text — overlapping entities are supported (e.g., bold + italic on the same word).
+        Spoiler text is hidden until hover. See <a href="/guides/message-entities/" class="text-accent hover:text-accent-hover">Message Entities</a> for the full type reference.
+      </p>
+    </div>
+
+    <div class="glass rounded-2xl p-5">
+      <h4 class="text-sm font-semibold mb-2">Controls</h4>
+      <p class="text-sm text-text-secondary">
+        Buttons are organized in rows (max 5 per row, max 5 rows).
+        <strong>Callback</strong> buttons fire a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ControlInteraction</code> event with the button's ID.
+        <strong>Link</strong> buttons open a URL — no event is fired.
+        The hue slider controls the OKLCH colour. See <a href="/guides/controls/" class="text-accent hover:text-accent-hover">Interactive Controls</a> for details.
+      </p>
+    </div>
+  </div>
+</DocsLayout>

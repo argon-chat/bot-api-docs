@@ -1,0 +1,339 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { MousePointerClick, Palette, LayoutGrid, Zap, Code, ArrowRight } from 'lucide-astro';
+---
+
+<DocsLayout title="Interactive Controls — Argon Bot API" current="/guides/controls/">
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Interactive Controls</h1>
+    <p class="text-text-secondary text-lg">
+      Add buttons and other interactive components to messages.
+      When a user clicks a control, your bot receives a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ControlInteraction</code> event.
+    </p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Overview -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <MousePointerClick class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">How Controls Work</h2>
+      </div>
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Controls are interactive UI elements attached to messages. They're sent as an optional <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">controls</code>
+          array alongside the message text and entities. Controls are organized into <strong>rows</strong> — up to 5 rows with up to 5 controls each (25 total).
+        </p>
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <p class="text-sm text-text-secondary">
+            <strong>Two button variants:</strong>
+            <span class="type-enum">Callback</span> buttons fire a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ControlInteraction</code> event with the button's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">id</code>.
+            <span class="type-enum">Link</span> buttons open a URL in the browser — no event is fired.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Control shape -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <LayoutGrid class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Control Schema</h2>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="type-grid">
+          <div class="type-grid-header">
+            <span>Field</span>
+            <span>Type</span>
+            <span>Description</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">type</span>
+            <span class="font-mono text-[12px]"><span class="type-enum">"button"</span></span>
+            <span class="text-text-secondary text-[12px]">Control type. Currently only <code>button</code>.</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">variant</span>
+            <span class="font-mono text-[12px]"><span class="type-enum">"callback"</span> | <span class="type-enum">"link"</span></span>
+            <span class="text-text-secondary text-[12px]">What happens on click.</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">label</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+            <span class="text-text-secondary text-[12px]">Button text. Max 80 chars.</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">id</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">string?</span></span>
+            <span class="text-text-secondary text-[12px]">Developer-defined ID. Required for callback, forbidden for link. Max 100 chars.</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">url</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">string?</span></span>
+            <span class="text-text-secondary text-[12px]">URL for link buttons. Must be HTTPS. Required for link, forbidden for callback.</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">colour</span>
+            <span class="font-mono text-[12px]"><span class="type-name">OklchColor?</span></span>
+            <span class="text-text-secondary text-[12px]">Accent colour in OKLCH colour space.</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">labelLocalizations</span>
+            <span class="font-mono text-[12px]">Record&lt;<span class="type-keyword">string</span>, <span class="type-keyword">string</span>&gt;?</span>
+            <span class="text-text-secondary text-[12px]">Localized labels keyed by BCP-47 tag (e.g. <code>"ru"</code>, <code>"en-US"</code>).</span>
+          </div>
+          <div class="type-grid-row">
+            <span class="type-property font-mono text-[12px]">disabled</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">boolean?</span></span>
+            <span class="text-text-secondary text-[12px]">If true, button is visible but non-interactive.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OKLCH Colors -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Palette class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">OKLCH Colours</h2>
+      </div>
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Buttons use <a href="https://oklch.com" class="text-accent hover:text-accent-hover">OKLCH</a> colours for theme-adaptive rendering.
+          The client adjusts lightness to match the active theme while preserving hue and chroma.
+        </p>
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Component</span>
+              <span>Range</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">l</span>
+              <span class="font-mono text-[12px]">0.40 — 0.80</span>
+              <span class="text-text-secondary text-[12px]">Perceived lightness</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">c</span>
+              <span class="font-mono text-[12px]">0.00 — 0.37</span>
+              <span class="text-text-secondary text-[12px]">Chroma (saturation)</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">h</span>
+              <span class="font-mono text-[12px]">0 — 360</span>
+              <span class="text-text-secondary text-[12px]">Hue angle (degrees, exclusive 360)</span>
+            </div>
+          </div>
+        </div>
+        <div class="code-block text-[12px]">
+          <pre set:html={`<span class="text-text-muted">// Common colours</span>
+{ <span class="text-accent-2">"l"</span>: 0.72, <span class="text-accent-2">"c"</span>: 0.19, <span class="text-accent-2">"h"</span>: 142 }  <span class="text-text-muted">// green</span>
+{ <span class="text-accent-2">"l"</span>: 0.55, <span class="text-accent-2">"c"</span>: 0.25, <span class="text-accent-2">"h"</span>: 29  }  <span class="text-text-muted">// red</span>
+{ <span class="text-accent-2">"l"</span>: 0.65, <span class="text-accent-2">"c"</span>: 0.20, <span class="text-accent-2">"h"</span>: 260 }  <span class="text-text-muted">// blue</span>
+{ <span class="text-accent-2">"l"</span>: 0.75, <span class="text-accent-2">"c"</span>: 0.18, <span class="text-accent-2">"h"</span>: 85  }  <span class="text-text-muted">// yellow</span>`} />
+        </div>
+      </div>
+    </section>
+
+    <!-- Sending controls -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Code class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Sending Controls</h2>
+      </div>
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Pass <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">controls</code> in your
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IMessages/Send</code> or
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IInteractions/Reply</code> request.
+        </p>
+
+        <div class="code-block text-[12px]">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">curl — send a message with buttons</h4>
+          <pre set:html={`curl -X POST /api/bot/IMessages/v1/Send \\
+  -H "Authorization: Bot YOUR_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"..."</span>,
+    <span class="text-accent-2">"text"</span>: <span class="text-accent-2">"Deploy to production?"</span>,
+    <span class="text-accent-2">"randomId"</span>: 42,
+    <span class="text-accent-2">"controls"</span>: [
+      {
+        <span class="text-accent-2">"controls"</span>: [
+          {
+            <span class="text-accent-2">"type"</span>: 0,
+            <span class="text-accent-2">"variant"</span>: 0,
+            <span class="text-accent-2">"label"</span>: <span class="text-accent-2">"✅ Deploy"</span>,
+            <span class="text-accent-2">"id"</span>: <span class="text-accent-2">"deploy_confirm"</span>,
+            <span class="text-accent-2">"colour"</span>: { <span class="text-accent-2">"l"</span>: 0.72, <span class="text-accent-2">"c"</span>: 0.19, <span class="text-accent-2">"h"</span>: 142 }
+          },
+          {
+            <span class="text-accent-2">"type"</span>: 0,
+            <span class="text-accent-2">"variant"</span>: 0,
+            <span class="text-accent-2">"label"</span>: <span class="text-accent-2">"❌ Cancel"</span>,
+            <span class="text-accent-2">"id"</span>: <span class="text-accent-2">"deploy_cancel"</span>,
+            <span class="text-accent-2">"colour"</span>: { <span class="text-accent-2">"l"</span>: 0.55, <span class="text-accent-2">"c"</span>: 0.25, <span class="text-accent-2">"h"</span>: 29 }
+          },
+          {
+            <span class="text-accent-2">"type"</span>: 0,
+            <span class="text-accent-2">"variant"</span>: 1,
+            <span class="text-accent-2">"label"</span>: <span class="text-accent-2">"📚 Runbook"</span>,
+            <span class="text-accent-2">"url"</span>: <span class="text-accent-2">"https://wiki.example.com/deploy"</span>
+          }
+        ]
+      }
+    ]
+  }'`} />
+        </div>
+
+        <div class="code-block text-[12px]">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">C# — MessageBuilder</h4>
+          <pre set:html={`<span class="text-text-muted">// Fluent builder for messages with entities + controls</span>
+var (text, entities, controls) = new MessageBuilder()
+    .Text(<span class="text-accent-2">"Deploy to production?"</span>)
+    .Row(row => row
+        .CallbackButton(<span class="text-accent-2">"deploy_confirm"</span>, <span class="text-accent-2">"✅ Deploy"</span>,
+            colour: new OklchColor(0.72f, 0.19f, 142))
+        .CallbackButton(<span class="text-accent-2">"deploy_cancel"</span>, <span class="text-accent-2">"❌ Cancel"</span>,
+            colour: new OklchColor(0.55f, 0.25f, 29))
+        .LinkButton(<span class="text-accent-2">"📚 Runbook"</span>, <span class="text-accent-2">"https://wiki.example.com/deploy"</span>))
+    .Build();
+
+await channel.SendMessage(text, entities, randomId, replyTo: null, controls);`} />
+        </div>
+
+        <div class="code-block text-[12px]">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">C# — Rich text with entities + controls</h4>
+          <pre set:html={`var (text, entities, controls) = new MessageBuilder()
+    .Bold(<span class="text-accent-2">"Build #847"</span>)
+    .Text(<span class="text-accent-2">" passed on "</span>)
+    .Italic(<span class="text-accent-2">"main"</span>)
+    .Text(<span class="text-accent-2">" — "</span>)
+    .Url(<span class="text-accent-2">"ci.example.com"</span>, <span class="text-accent-2">"/builds/847"</span>)
+    .Row(row => row
+        .CallbackButton(<span class="text-accent-2">"deploy"</span>, <span class="text-accent-2">"Deploy"</span>,
+            colour: new OklchColor(0.72f, 0.19f, 142))
+        .CallbackButton(<span class="text-accent-2">"logs"</span>, <span class="text-accent-2">"View Logs"</span>))
+    .Build();`} />
+        </div>
+      </div>
+    </section>
+
+    <!-- ControlInteraction event -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Zap class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Handling Interactions</h2>
+      </div>
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          When a user clicks a <span class="type-enum">Callback</span> button, your SSE stream receives a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ControlInteraction</code> event.
+          Subscribe to the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ControlInteractions</code> intent (bit 13, value 8192).
+        </p>
+
+        <div class="code-block text-[12px]">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Event payload</h4>
+          <pre set:html={`event: ControlInteraction
+data: {
+  <span class="text-accent-2">"interactionId"</span>: <span class="text-accent-2">"a1b2c3d4-..."</span>,
+  <span class="text-accent-2">"controlType"</span>: 0,
+  <span class="text-accent-2">"messageId"</span>: 123456789,
+  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"..."</span>,
+  <span class="text-accent-2">"spaceId"</span>: <span class="text-accent-2">"..."</span>,
+  <span class="text-accent-2">"user"</span>: {
+    <span class="text-accent-2">"userId"</span>: <span class="text-accent-2">"..."</span>,
+    <span class="text-accent-2">"username"</span>: <span class="text-accent-2">"alice"</span>,
+    <span class="text-accent-2">"displayName"</span>: <span class="text-accent-2">"Alice"</span>,
+    <span class="text-accent-2">"avatarUrl"</span>: null
+  },
+  <span class="text-accent-2">"controlId"</span>: <span class="text-accent-2">"deploy_confirm"</span>
+}`} />
+        </div>
+
+        <div class="code-block text-[12px]">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Responding — reply with updated controls</h4>
+          <pre set:html={`<span class="text-text-muted">// Handle the interaction in your SSE event loop</span>
+if (eventType == <span class="text-accent-2">"ControlInteraction"</span>) {
+    var data = JsonSerializer.Deserialize&lt;ControlInteractionEvent&gt;(payload);
+
+    if (data.ControlId == <span class="text-accent-2">"deploy_confirm"</span>) {
+        <span class="text-text-muted">// Reply to the channel</span>
+        await httpClient.PostAsJsonAsync(<span class="text-accent-2">"/api/bot/IInteractions/v1/Reply"</span>, new {
+            channelId = data.ChannelId,
+            text      = <span class="text-accent-2">"🚀 Deploying..."</span>,
+            randomId  = Random.Shared.NextInt64()
+        });
+
+        <span class="text-text-muted">// Disable the buttons on the original message</span>
+        await httpClient.PatchAsJsonAsync(<span class="text-accent-2">"/api/bot/IInteractions/v1/EditMessage"</span>, new {
+            channelId = data.ChannelId,
+            messageId = data.MessageId,
+            controls  = new[] {
+                new { controls = new[] {
+                    new { type = 0, variant = 0, label = <span class="text-accent-2">"✅ Deployed"</span>, id = <span class="text-accent-2">"deploy_confirm"</span>, disabled = true },
+                    new { type = 0, variant = 0, label = <span class="text-accent-2">"❌ Cancel"</span>, id = <span class="text-accent-2">"deploy_cancel"</span>, disabled = true }
+                }}
+            }
+        });
+    }
+}`} />
+        </div>
+
+        <div class="code-block text-[12px]">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">TypeScript — full interaction handler</h4>
+          <pre set:html={`const sse = new EventSource(
+  ` + '`' + `/api/bot/IEvents/v1/Stream?intents=` + '${' + `8192}` + '`' + `,
+  { headers: { Authorization: ` + '`' + `Bot ` + '${' + `TOKEN}` + '`' + ` } }
+);
+
+sse.addEventListener(<span class="text-accent-2">"ControlInteraction"</span>, async (e) =&gt; {
+  const { controlId, channelId, messageId, user } = JSON.parse(e.data);
+
+  switch (controlId) {
+    case <span class="text-accent-2">"approve"</span>:
+      await fetch(<span class="text-accent-2">"/api/bot/IInteractions/v1/Reply"</span>, {
+        method: <span class="text-accent-2">"POST"</span>,
+        headers: { Authorization: ` + '`' + `Bot ` + '${' + `TOKEN}` + '`' + `, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channelId,
+          text: ` + '`' + `Approved by ` + '${' + `user.displayName}` + '`' + `,
+          randomId: Date.now(),
+        }),
+      });
+      break;
+  }
+});`} />
+        </div>
+      </div>
+    </section>
+
+    <!-- Editing controls -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <ArrowRight class="size-5 text-accent" />
+        <h2 class="text-xl font-semibold">Editing Controls</h2>
+      </div>
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Use <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">PATCH /api/bot/IInteractions/v1/EditMessage</code> to update the text or controls on a message your bot sent.
+          Pass an empty <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">controls: []</code> array to remove all controls.
+        </p>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <h4 class="text-sm font-semibold mb-2">Limits</h4>
+          <ul class="text-sm text-text-secondary space-y-1">
+            <li>Max <strong>5 rows</strong> per message, <strong>5 controls</strong> per row (25 total)</li>
+            <li>Control <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">id</code> values must be unique across all rows</li>
+            <li>Link button URLs must be <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">https://</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">http://</code></li>
+            <li>Bots can only edit their own messages</li>
+            <li>Rate limit: <strong>15 requests/min</strong> for IInteractions</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</DocsLayout>

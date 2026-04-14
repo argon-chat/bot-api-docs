@@ -1,5 +1,119 @@
 [
   {
+    "version": "1.7.0",
+    "date": "2026-04-14",
+    "title": "Control Archetype Constraints",
+    "changes": [
+      { "type": "added", "interface": "IMessages", "description": "New requiredArchetypeId field on controls — restrict button/select interaction to members with a specific archetype" },
+      { "type": "added", "interface": "IInteractions", "description": "Controls sent via Reply and EditMessage now support requiredArchetypeId" },
+      { "type": "added", "description": "Backend enforcement: InteractWithControl and InteractWithSelect return ARCHETYPE_REQUIRED error when user lacks the required archetype" },
+      { "type": "added", "description": "Administrator bypass: users with ManageServer permission can always interact with archetype-constrained controls" },
+      { "type": "added", "description": "Client visibility hint: requiredArchetypeId can be used by clients to hide controls from users without the archetype" },
+      { "type": "changed", "interface": "IMessages", "description": "Contract hash updated (RequiredArchetypeId added to BotControlV1)" },
+      { "type": "changed", "interface": "IInteractions", "description": "Contract hash updated (RequiredArchetypeId added to BotControlV1)" }
+    ]
+  },
+  {
+    "version": "1.6.0",
+    "date": "2026-04-14",
+    "title": "Archetypes API & Events",
+    "changes": [
+      { "type": "added", "interface": "IArchetypes", "description": "New IArchetypes/v1 interface — list and inspect archetypes (roles) in a space" },
+      { "type": "added", "interface": "IArchetypes", "description": "GET /List — list all visible archetypes with id, name, colour, isMentionable, isDefault" },
+      { "type": "added", "interface": "IArchetypes", "description": "GET /Get — get a single archetype by ID" },
+      { "type": "added", "interface": "IArchetypes", "description": "GET /ListMembers — list all members assigned to a specific archetype" },
+      { "type": "added", "interface": "IArchetypes", "description": "Permissions bitmask only exposed when bot has ManageArchetype entitlement" },
+      { "type": "added", "interface": "IEvents", "description": "New ArchetypeCreate event — fired when a new archetype is created in a space" },
+      { "type": "added", "interface": "IEvents", "description": "New ArchetypeUpdate event — fired when an archetype is modified in a space" },
+      { "type": "added", "interface": "IArchetypes", "description": "Rate limit added: 30 requests/min" }
+    ]
+  },
+  {
+    "version": "1.5.0",
+    "date": "2026-04-14",
+    "title": "Typing Indicators",
+    "changes": [
+      { "type": "added", "interface": "ITyping", "description": "New ITyping/v1 interface — send typing indicators to channels" },
+      { "type": "added", "interface": "ITyping", "description": "POST /Start — trigger a typing indicator with optional kind (typing, thinking, uploading, searching)" },
+      { "type": "added", "interface": "ITyping", "description": "POST /Stop — explicitly stop the typing indicator (auto-expires after 8 seconds)" },
+      { "type": "added", "interface": "IEvents", "description": "New TypingStart event — fired when a user or bot starts typing in a channel" },
+      { "type": "added", "interface": "IEvents", "description": "New TypingStop event — fired when a user or bot stops typing in a channel" },
+      { "type": "added", "interface": "ITyping", "description": "Rate limit added: 60 requests/min" },
+      { "type": "added", "description": "Bot typing auto-stop — typing indicator automatically expires after 8 seconds if not refreshed" }
+    ]
+  },
+  {
+    "version": "1.4.0",
+    "date": "2026-04-13",
+    "title": "Selects, Modals & Interaction Lifecycle",
+    "changes": [
+      { "type": "added", "interface": "IInteractions", "description": "POST /Ack — acknowledge an interaction, client shows brief confirmation" },
+      { "type": "added", "interface": "IInteractions", "description": "POST /Defer — defer an interaction, client shows loading state until bot follows up" },
+      { "type": "added", "interface": "IInteractions", "description": "POST /Modal — show a modal dialog with text inputs, selects, and checkboxes to the invoking user" },
+      { "type": "added", "interface": "IEvents", "description": "New SelectInteraction event — fired when a user submits a select menu (String, User, Archetype, Channel)" },
+      { "type": "added", "interface": "IEvents", "description": "New ModalSubmit event — fired when a user submits a modal form" },
+      { "type": "added", "interface": "IEvents", "description": "New MessageEdit event — fired when a message is edited in a channel" },
+      { "type": "added", "description": "Select controls — StringSelect, UserSelect, ArchetypeSelect, ChannelSelect with customId, placeholder, min/max values, and options" },
+      { "type": "added", "description": "Modal components — TextInput (short/paragraph), StringSelect, UserSelect, ArchetypeSelect, ChannelSelect, Checkbox" },
+      { "type": "added", "description": "InteractWithSelect channel method — submit select menu values, validated against allowed options" },
+      { "type": "added", "description": "SubmitModal channel method — submit modal form values by interaction ID" },
+      { "type": "changed", "interface": "IInteractions", "description": "Contract hash updated (Ack, Defer, Modal routes added)" },
+      { "type": "changed", "interface": "IMessages", "description": "Contract hash updated (MessageEdit event added)" },
+      { "type": "fixed", "description": "EditBotMessage now broadcasts MessageEdited event via SignalR to connected clients" },
+      { "type": "added", "description": "Interaction responses delivered via SignalR 'interactionResponse' method (Ack, Deferred, ShowModal)" }
+    ]
+  },
+  {
+    "version": "1.3.0",
+    "date": "2026-04-13",
+    "title": "Rate Limit Overhaul",
+    "changes": [
+      { "type": "changed", "description": "Switched from token bucket to sliding window algorithm — no background timers, lazy window advancement" },
+      { "type": "changed", "description": "Added global concurrency limiter (10 parallel requests per bot) instead of unused global token bucket" },
+      { "type": "changed", "interface": "IMessages", "description": "Rate limit increased from 20 to 120 requests/min" },
+      { "type": "changed", "interface": "IInteractions", "description": "Rate limit increased from 15 to 120 requests/min" },
+      { "type": "changed", "interface": "ICommands", "description": "Rate limit increased from 10 to 60 requests/min" },
+      { "type": "changed", "interface": "IChannels", "description": "Rate limit increased from 10 to 60 requests/min" },
+      { "type": "changed", "interface": "ISpaces", "description": "Rate limit increased from 5 to 30 requests/min" },
+      { "type": "changed", "interface": "IMembers", "description": "Rate limit increased from 5 to 30 requests/min" },
+      { "type": "changed", "interface": "IVoice", "description": "Rate limit increased from 5 to 20 requests/min" },
+      { "type": "added", "interface": "IBotSelf", "description": "Rate limit added: 15 requests/min" },
+      { "type": "added", "interface": "ICalls", "description": "Own rate limit policy: 20 requests/min (was shared with IVoice)" },
+      { "type": "added", "interface": "IVoiceEgress", "description": "Own rate limit policy: 10 requests/min (was shared with IVoice)" },
+      { "type": "added", "interface": "IEvents", "description": "Rate limit added: 5 requests/min" }
+    ]
+  },
+  {
+    "version": "1.2.0",
+    "date": "2026-04-13",
+    "title": "Interactive Controls & IInteractions API",
+    "changes": [
+      { "type": "added", "interface": "IInteractions", "description": "New IInteractions/v1 interface — Reply to interactions, edit message text and controls" },
+      { "type": "added", "interface": "IMessages", "description": "SendMessage now accepts optional 'controls' — rows of interactive buttons attached to messages" },
+      { "type": "added", "interface": "IMessages", "description": "Message history now includes 'controls' in the response" },
+      { "type": "added", "interface": "IEvents", "description": "New ControlInteraction event — fired when a user clicks a Callback button" },
+      { "type": "added", "interface": "IEvents", "description": "New ControlInteractions intent (bit 13, value 8192)" },
+      { "type": "changed", "interface": "IMessages", "description": "Contract hash updated (controls field added to Send request and History response)" },
+      { "type": "changed", "interface": "IEvents", "description": "CommandInteraction event now includes interactionId as correlation token" },
+      { "type": "added", "description": "Message Constructor — interactive playground in docs for building messages with entities and controls" },
+      { "type": "added", "description": "OKLCH colour model for theme-adaptive button colours (L 0.40–0.80, C 0.00–0.37, H 0–360°)" },
+      { "type": "added", "description": "IInteractions rate limit: 15 requests/min" }
+    ]
+  },
+  {
+    "version": "1.1.0",
+    "date": "2026-04-13",
+    "title": "Bot Lifecycle Events, Slash Commands & Rate Limits",
+    "changes": [
+      { "type": "added", "interface": "IEvents", "description": "New botInstallingToSpace and botUninstallingFromSpace lifecycle events — sent directly to the bot when it is installed or removed from a space" },
+      { "type": "added", "interface": "IEvents", "description": "CommandInteraction event — dispatched when a user invokes a slash command registered by the bot" },
+      { "type": "changed", "interface": "ICommands", "description": "Rate limiting applied: 10 requests per minute" },
+      { "type": "changed", "interface": "IChannels", "description": "Rate limiting applied: 10 requests per minute" },
+      { "type": "changed", "interface": "IMembers", "description": "Rate limiting applied: 5 requests per minute" },
+      { "type": "changed", "interface": "IVoice", "description": "Rate limit defaults now included in manifest (5 requests per minute)" }
+    ]
+  },
+  {
     "version": "1.0.0",
     "date": "2026-04-09",
     "title": "Initial Bot API Release",
