@@ -3,7 +3,15 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, MailWarning } from 'lucide-astro';
 ---
 
-<DocsLayout title="What Are Bots? — Argon Bot API" current="/guides/what-are-bots/">
+<DocsLayout title="What Are Bots? — Argon Bot API" current="/guides/what-are-bots/" toc={[
+  { id: "overview", title: "Overview" },
+  { id: "architecture", title: "Architecture" },
+  { id: "bot-vs-user", title: "Bot vs. User" },
+  { id: "user-flags", title: "User Flags" },
+  { id: "slash-commands", title: "Slash Commands" },
+  { id: "bot-lifecycle", title: "Bot Lifecycle" },
+  { id: "verified-bots", title: "Verified Bots" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">What Are Bots?</h1>
     <p class="text-text-secondary text-lg">Automated users that interact with spaces, channels, and members via the Argon Bot API.</p>
@@ -15,7 +23,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, Mai
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Bot class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Overview</h2>
+        <h2 id="overview" class="text-xl font-semibold">Overview <a href="#overview" class="anchor-link">#</a></h2>
       </div>
       <div class="space-y-4">
         <p class="text-text-secondary">
@@ -34,7 +42,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, Mai
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Cpu class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Architecture</h2>
+        <h2 id="architecture" class="text-xl font-semibold">Architecture <a href="#architecture" class="anchor-link">#</a></h2>
       </div>
 
       <div class="glass rounded-2xl p-5">
@@ -84,7 +92,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, Mai
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Users class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Bot vs. User</h2>
+        <h2 id="bot-vs-user" class="text-xl font-semibold">Bot vs. User <a href="#bot-vs-user" class="anchor-link">#</a></h2>
       </div>
 
       <div class="glass rounded-2xl overflow-hidden">
@@ -132,7 +140,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, Mai
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Flag class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">User Flags</h2>
+        <h2 id="user-flags" class="text-xl font-semibold">User Flags <a href="#user-flags" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -206,7 +214,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, Mai
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Terminal class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Slash Commands</h2>
+        <h2 id="slash-commands" class="text-xl font-semibold">Slash Commands <a href="#slash-commands" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -308,7 +316,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, Mai
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Workflow class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Bot Lifecycle</h2>
+        <h2 id="bot-lifecycle" class="text-xl font-semibold">Bot Lifecycle <a href="#bot-lifecycle" class="anchor-link">#</a></h2>
       </div>
 
       <ol class="space-y-4">
@@ -354,7 +362,7 @@ import { Bot, Cpu, Shield, Workflow, Zap, Users, ArrowRight, Flag, Terminal, Mai
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Shield class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Verified Bots</h2>
+        <h2 id="verified-bots" class="text-xl font-semibold">Verified Bots <a href="#verified-bots" class="anchor-link">#</a></h2>
       </div>
 
       <div class="glass rounded-2xl p-5 space-y-3">

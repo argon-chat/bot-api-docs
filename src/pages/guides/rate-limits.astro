@@ -6,7 +6,12 @@ import { Gauge, Clock, Zap, Shield } from 'lucide-astro';
 const rateLimits = fullManifest.rateLimits;
 ---
 
-<DocsLayout title="Rate Limits — Argon Bot API" current="/guides/rate-limits/">
+<DocsLayout title="Rate Limits — Argon Bot API" current="/guides/rate-limits/" toc={[
+  { id: "how-it-works", title: "How It Works" },
+  { id: "per-interface-limits", title: "Per-Interface Limits" },
+  { id: "handling-429", title: "Handling 429 Responses" },
+  { id: "verified-bot-limits", title: "Verified Bot Limits" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Rate Limits</h1>
     <p class="text-text-secondary text-lg">All Bot API requests are rate-limited per token using a sliding window algorithm. Stay within limits to avoid <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[13px]">429</code> responses.</p>
@@ -18,7 +23,7 @@ const rateLimits = fullManifest.rateLimits;
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Gauge class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">How It Works</h2>
+        <h2 id="how-it-works" class="text-xl font-semibold">How It Works <a href="#how-it-works" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -55,7 +60,7 @@ const rateLimits = fullManifest.rateLimits;
 
     <!-- Per-interface limits -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Per-Interface Limits</h2>
+      <h2 id="per-interface-limits" class="text-xl font-semibold mb-4">Per-Interface Limits <a href="#per-interface-limits" class="anchor-link">#</a></h2>
       <p class="text-text-secondary mb-4">
         Each interface has its own sliding window. Limits are enforced independently per bot token.
       </p>
@@ -80,7 +85,7 @@ const rateLimits = fullManifest.rateLimits;
 
     <!-- Handling 429 -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Handling 429 Responses</h2>
+      <h2 id="handling-429" class="text-xl font-semibold mb-4">Handling 429 Responses <a href="#handling-429" class="anchor-link">#</a></h2>
       <div class="space-y-3">
         <p class="text-text-secondary">
           When a bucket is empty, the server returns <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">429 Too Many Requests</code>.
@@ -109,7 +114,7 @@ const rateLimits = fullManifest.rateLimits;
 
     <!-- Verified bots -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Verified Bot Limits</h2>
+      <h2 id="verified-bot-limits" class="text-xl font-semibold mb-4">Verified Bot Limits <a href="#verified-bot-limits" class="anchor-link">#</a></h2>
       <p class="text-text-secondary">
         <a href="/guides/glossary/#verified-bot" class="text-accent hover:underline">Verified bots</a> receive higher
         rate limits automatically. There is no separate API — once your bot is verified, limits are increased server-side.

@@ -6,7 +6,15 @@ import fullManifest from '../../data/api-manifest.json';
 const rateLimits = fullManifest.rateLimits;
 ---
 
-<DocsLayout title="Getting Started — Argon Bot API" current="/guides/getting-started/">
+<DocsLayout title="Getting Started — Argon Bot API" current="/guides/getting-started/" toc={[
+  { id: "create-bot", title: "Create a Bot Application" },
+  { id: "get-token", title: "Get Your Bot Token" },
+  { id: "authenticate", title: "Authenticate Requests" },
+  { id: "api-structure", title: "API Structure" },
+  { id: "first-request", title: "Your First Request" },
+  { id: "rate-limits", title: "Rate Limits" },
+  { id: "error-responses", title: "Error Responses" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Getting Started</h1>
     <p class="text-text-secondary text-lg">Create your bot, get a token, and send your first API request.</p>
@@ -18,7 +26,7 @@ const rateLimits = fullManifest.rateLimits;
     <section>
       <div class="flex items-center gap-3 mb-4">
         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">1</div>
-        <h2 class="text-xl font-semibold">Create a Bot Application</h2>
+        <h2 id="create-bot" class="text-xl font-semibold">Create a Bot Application <a href="#create-bot" class="anchor-link">#</a></h2>
       </div>
 
       <div class="ml-11 space-y-4">
@@ -45,7 +53,7 @@ const rateLimits = fullManifest.rateLimits;
     <section>
       <div class="flex items-center gap-3 mb-4">
         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">2</div>
-        <h2 class="text-xl font-semibold">Get Your Bot Token</h2>
+        <h2 id="get-token" class="text-xl font-semibold">Get Your Bot Token <a href="#get-token" class="anchor-link">#</a></h2>
       </div>
 
       <div class="ml-11 space-y-4">
@@ -80,7 +88,7 @@ const rateLimits = fullManifest.rateLimits;
     <section>
       <div class="flex items-center gap-3 mb-4">
         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">3</div>
-        <h2 class="text-xl font-semibold">Authenticate Your Requests</h2>
+        <h2 id="authenticate" class="text-xl font-semibold">Authenticate Your Requests <a href="#authenticate" class="anchor-link">#</a></h2>
       </div>
 
       <div class="ml-11 space-y-4">
@@ -100,7 +108,7 @@ const rateLimits = fullManifest.rateLimits;
     <section>
       <div class="flex items-center gap-3 mb-4">
         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">4</div>
-        <h2 class="text-xl font-semibold">API Structure</h2>
+        <h2 id="api-structure" class="text-xl font-semibold">API Structure <a href="#api-structure" class="anchor-link">#</a></h2>
       </div>
 
       <div class="ml-11 space-y-4">
@@ -138,7 +146,7 @@ https://api.argon.gl/api/bot/<span class="text-accent">IBotSelf</span>/v<span cl
     <section>
       <div class="flex items-center gap-3 mb-4">
         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">5</div>
-        <h2 class="text-xl font-semibold">Your First Request</h2>
+        <h2 id="first-request" class="text-xl font-semibold">Your First Request <a href="#first-request" class="anchor-link">#</a></h2>
       </div>
 
       <div class="ml-11 space-y-4">
@@ -174,7 +182,7 @@ https://api.argon.gl/api/bot/<span class="text-accent">IBotSelf</span>/v<span cl
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Terminal class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Rate Limits</h2>
+        <h2 id="rate-limits" class="text-xl font-semibold">Rate Limits <a href="#rate-limits" class="anchor-link">#</a></h2>
       </div>
 
       <div class="ml-8 space-y-4">
@@ -213,7 +221,7 @@ https://api.argon.gl/api/bot/<span class="text-accent">IBotSelf</span>/v<span cl
     <section>
       <div class="flex items-center gap-3 mb-4">
         <AlertTriangle class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Error Responses</h2>
+        <h2 id="error-responses" class="text-xl font-semibold">Error Responses <a href="#error-responses" class="anchor-link">#</a></h2>
       </div>
 
       <div class="ml-8 space-y-4">

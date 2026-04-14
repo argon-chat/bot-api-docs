@@ -102,7 +102,15 @@ function toCamelCase(s: string): string {
 }
 ---
 
-<DocsLayout title="Real-time Events (SSE) — Argon Bot API" current="/guides/events/">
+<DocsLayout title="Real-time Events (SSE) — Argon Bot API" current="/guides/events/" toc={[
+  { id: "connecting", title: "Connecting" },
+  { id: "intents", title: "Intents" },
+  { id: "event-format", title: "Event Format" },
+  { id: "lifecycle", title: "Connection Lifecycle" },
+  { id: "reconnection", title: "Reconnection & Replay" },
+  { id: "code-examples", title: "Code Examples" },
+  { id: "all-events", title: "All Event Types" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Real-time Events</h1>
     <p class="text-text-secondary text-lg">Subscribe to live events via Server-Sent Events (SSE) — messages, member activity, voice state, and more.</p>
@@ -114,7 +122,7 @@ function toCamelCase(s: string): string {
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Radio class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Connecting to the Event Stream</h2>
+        <h2 id="connecting" class="text-xl font-semibold">Connecting to the Event Stream <a href="#connecting" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -160,7 +168,7 @@ function toCamelCase(s: string): string {
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Zap class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Intents</h2>
+        <h2 id="intents" class="text-xl font-semibold">Intents <a href="#intents" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -221,7 +229,7 @@ intents = <span class="text-accent">${allIntents}</span>`} />
 
     <!-- Event Format -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Event Format</h2>
+      <h2 id="event-format" class="text-xl font-semibold mb-4">Event Format <a href="#event-format" class="anchor-link">#</a></h2>
 
       <div class="space-y-4">
         <p class="text-text-secondary">
@@ -247,7 +255,7 @@ data: {"messageId":12345,"text":"Hello!","spaceId":"...","channelId":"...","crea
 
     <!-- Connection Lifecycle -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Connection Lifecycle</h2>
+      <h2 id="lifecycle" class="text-xl font-semibold mb-4">Connection Lifecycle <a href="#lifecycle" class="anchor-link">#</a></h2>
 
       <div class="space-y-4">
         <p class="text-text-secondary">When you connect, the server sends events in this order:</p>
@@ -309,7 +317,7 @@ data: {"timestamp":40953660000}`} />
     <section>
       <div class="flex items-center gap-3 mb-4">
         <RefreshCw class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Reconnection &amp; Replay</h2>
+        <h2 id="reconnection" class="text-xl font-semibold">Reconnection &amp; Replay <a href="#reconnection" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -348,7 +356,7 @@ Last-Event-ID: <span class="text-accent">42</span>`} />
 
     <!-- Code Examples -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Code Examples</h2>
+      <h2 id="code-examples" class="text-xl font-semibold mb-4">Code Examples <a href="#code-examples" class="anchor-link">#</a></h2>
 
       <div class="space-y-6">
         <div>
@@ -411,7 +419,7 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Database class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">All Event Types</h2>
+        <h2 id="all-events" class="text-xl font-semibold">All Event Types <a href="#all-events" class="anchor-link">#</a></h2>
       </div>
 
       <p class="text-text-secondary mb-6">

@@ -5,12 +5,19 @@ import Footer from '../components/Footer.astro';
 import fullManifest from '../data/api-manifest.json';
 const manifest = fullManifest.interfaces;
 
+interface TocEntry {
+  id: string;
+  title: string;
+  depth?: number;
+}
+
 interface Props {
   title?: string;
   current?: string;
+  toc?: TocEntry[];
 }
 
-const { title = 'Docs — Argon Bot API', current = '/docs/' } = Astro.props;
+const { title = 'Docs — Argon Bot API', current = '/docs/', toc = [] } = Astro.props;
 
 const stableInterfaces = manifest.filter((i: any) => i.isStable && !i.isDeprecated);
 const draftInterfaces = manifest.filter((i: any) => !i.isStable && !i.isDeprecated);
@@ -178,8 +185,65 @@ function formatVersion(v: number): string {
         <slot />
       </div>
     </main>
+
+    {toc.length > 0 && (
+      <aside class="hidden xl:flex w-56 flex-col fixed top-14 right-0 bottom-0 overflow-y-auto py-8 px-4">
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">On this page</div>
+        <nav class="flex flex-col gap-0.5 border-l border-oled-border-subtle">
+          {toc.map((entry) => (
+            <a
+              href={`#${entry.id}`}
+              class="toc-link text-[13px] leading-snug py-1 pl-3 -ml-px border-l border-transparent text-text-muted hover:text-text-primary hover:border-accent/40 transition-colors"
+              data-toc-id={entry.id}
+              style={entry.depth && entry.depth > 0 ? `padding-left: ${0.75 + entry.depth * 0.75}rem` : undefined}
+            >
+              {entry.title}
+            </a>
+          ))}
+        </nav>
+      </aside>
+    )}
   </div>
   <div class="lg:ml-64">
     <Footer />
   </div>
 </Layout>
+
+{toc.length > 0 && (
+  <script>
+    function initScrollSpy() {
+      const links = document.querySelectorAll<HTMLAnchorElement>('.toc-link');
+      if (!links.length) return;
+
+      const ids = Array.from(links).map(l => l.dataset.tocId!);
+      const sections = ids.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+      if (!sections.length) return;
+
+      const OFFSET = 80;
+      let active = '';
+
+      function update() {
+        let current = ids[0];
+        for (let i = 0; i < sections.length; i++) {
+          if (sections[i].getBoundingClientRect().top <= OFFSET) {
+            current = ids[i];
+          }
+        }
+        if (current !== active) {
+          active = current;
+          links.forEach(l => {
+            const isActive = l.dataset.tocId === active;
+            l.classList.toggle('text-accent', isActive);
+            l.classList.toggle('!border-accent', isActive);
+            l.classList.toggle('text-text-muted', !isActive);
+          });
+        }
+      }
+
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    }
+    document.addEventListener('astro:page-load', initScrollSpy);
+    initScrollSpy();
+  </script>
+)}

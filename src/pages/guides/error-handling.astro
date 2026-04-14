@@ -3,7 +3,12 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
 ---
 
-<DocsLayout title="Error Handling — Argon Bot API" current="/guides/error-handling/">
+<DocsLayout title="Error Handling — Argon Bot API" current="/guides/error-handling/" toc={[
+  { id: "response-shape", title: "Response Shape" },
+  { id: "http-status-codes", title: "HTTP Status Codes" },
+  { id: "common-error-codes", title: "Common Error Codes" },
+  { id: "best-practices", title: "Best Practices" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Error Handling</h1>
     <p class="text-text-secondary text-lg">Every error response follows a consistent JSON shape. Use the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[13px]">error</code> field to branch your logic.</p>
@@ -15,7 +20,7 @@ import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
     <section>
       <div class="flex items-center gap-3 mb-4">
         <FileJson class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Response Shape</h2>
+        <h2 id="response-shape" class="text-xl font-semibold">Response Shape <a href="#response-shape" class="anchor-link">#</a></h2>
       </div>
 
       <p class="text-text-secondary mb-4">
@@ -54,7 +59,7 @@ import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
     <section>
       <div class="flex items-center gap-3 mb-4">
         <AlertTriangle class="size-5 text-amber-400" />
-        <h2 class="text-xl font-semibold">HTTP Status Codes</h2>
+        <h2 id="http-status-codes" class="text-xl font-semibold">HTTP Status Codes <a href="#http-status-codes" class="anchor-link">#</a></h2>
       </div>
 
       <div class="type-grid">
@@ -101,7 +106,7 @@ import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
     <section>
       <div class="flex items-center gap-3 mb-4">
         <ArrowRight class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Common Error Codes</h2>
+        <h2 id="common-error-codes" class="text-xl font-semibold">Common Error Codes <a href="#common-error-codes" class="anchor-link">#</a></h2>
       </div>
 
       <p class="text-text-secondary mb-4">
@@ -139,7 +144,7 @@ import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
 
     <!-- Best practices -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Best Practices</h2>
+      <h2 id="best-practices" class="text-xl font-semibold mb-4">Best Practices <a href="#best-practices" class="anchor-link">#</a></h2>
       <div class="space-y-3">
         <div class="glass rounded-xl p-4">
           <p class="text-sm text-text-secondary">

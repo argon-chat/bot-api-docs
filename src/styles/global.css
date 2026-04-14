@@ -134,6 +134,23 @@
   border-color: rgba(255,255,255,0.07);
 }
 
+/* ── Section headings with anchors ── */
+h2[id], h3[id] {
+  scroll-margin-top: 5rem;
+}
+
+h2[id] .anchor-link,
+h3[id] .anchor-link {
+  opacity: 0;
+  transition: opacity 0.15s;
+  color: var(--color-text-muted);
+}
+
+h2[id]:hover .anchor-link,
+h3[id]:hover .anchor-link {
+  opacity: 1;
+}
+
 /* ── Section label ── */
 .section-label {
   font-size: 11px;

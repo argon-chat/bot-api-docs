@@ -34,7 +34,10 @@ const entities = [
 const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
 ---
 
-<DocsLayout title="Message Entities — Argon Bot API" current="/guides/message-entities/">
+<DocsLayout title="Message Entities — Argon Bot API" current="/guides/message-entities/" toc={[
+  { id: "how-entities-work", title: "How Entities Work" },
+  { id: "entity-types", title: "Entity Types" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Message Entities</h1>
     <p class="text-text-secondary text-lg">Rich text formatting, mentions, links, attachments, and system events — all expressed as entity spans within message text.</p>
@@ -46,7 +49,7 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Type class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">How Entities Work</h2>
+        <h2 id="how-entities-work" class="text-xl font-semibold">How Entities Work <a href="#how-entities-work" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -118,7 +121,7 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
         <section>
           <div class="flex items-center gap-3 mb-4">
             <icon class="size-5 text-accent" />
-            <h2 class="text-xl font-semibold">{group}</h2>
+            <h2 id="entity-types" class="text-xl font-semibold">{group} <a href="#entity-types" class="anchor-link">#</a></h2>
           </div>
 
           <div class="glass rounded-2xl overflow-hidden">

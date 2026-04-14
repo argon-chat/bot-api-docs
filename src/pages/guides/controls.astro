@@ -3,7 +3,14 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 import { MousePointerClick, Palette, LayoutGrid, Zap, Code, ArrowRight } from 'lucide-astro';
 ---
 
-<DocsLayout title="Interactive Controls — Argon Bot API" current="/guides/controls/">
+<DocsLayout title="Interactive Controls — Argon Bot API" current="/guides/controls/" toc={[
+  { id: "how-controls-work", title: "How Controls Work" },
+  { id: "control-schema", title: "Control Schema" },
+  { id: "oklch-colours", title: "OKLCH Colours" },
+  { id: "sending-controls", title: "Sending Controls" },
+  { id: "handling-interactions", title: "Handling Interactions" },
+  { id: "editing-controls", title: "Editing Controls" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Interactive Controls</h1>
     <p class="text-text-secondary text-lg">
@@ -18,7 +25,7 @@ import { MousePointerClick, Palette, LayoutGrid, Zap, Code, ArrowRight } from 'l
     <section>
       <div class="flex items-center gap-3 mb-4">
         <MousePointerClick class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">How Controls Work</h2>
+        <h2 id="how-controls-work" class="text-xl font-semibold">How Controls Work <a href="#how-controls-work" class="anchor-link">#</a></h2>
       </div>
       <div class="space-y-4">
         <p class="text-text-secondary">
@@ -39,7 +46,7 @@ import { MousePointerClick, Palette, LayoutGrid, Zap, Code, ArrowRight } from 'l
     <section>
       <div class="flex items-center gap-3 mb-4">
         <LayoutGrid class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Control Schema</h2>
+        <h2 id="control-schema" class="text-xl font-semibold">Control Schema <a href="#control-schema" class="anchor-link">#</a></h2>
       </div>
 
       <div class="glass rounded-2xl overflow-hidden">
@@ -97,7 +104,7 @@ import { MousePointerClick, Palette, LayoutGrid, Zap, Code, ArrowRight } from 'l
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Palette class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">OKLCH Colours</h2>
+        <h2 id="oklch-colours" class="text-xl font-semibold">OKLCH Colours <a href="#oklch-colours" class="anchor-link">#</a></h2>
       </div>
       <div class="space-y-4">
         <p class="text-text-secondary">
@@ -142,7 +149,7 @@ import { MousePointerClick, Palette, LayoutGrid, Zap, Code, ArrowRight } from 'l
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Code class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Sending Controls</h2>
+        <h2 id="sending-controls" class="text-xl font-semibold">Sending Controls <a href="#sending-controls" class="anchor-link">#</a></h2>
       </div>
       <div class="space-y-4">
         <p class="text-text-secondary">
@@ -226,7 +233,7 @@ await channel.SendMessage(text, entities, randomId, replyTo: null, controls);`} 
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Zap class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Handling Interactions</h2>
+        <h2 id="handling-interactions" class="text-xl font-semibold">Handling Interactions <a href="#handling-interactions" class="anchor-link">#</a></h2>
       </div>
       <div class="space-y-4">
         <p class="text-text-secondary">
@@ -314,7 +321,7 @@ sse.addEventListener(<span class="text-accent-2">"ControlInteraction"</span>, as
     <section>
       <div class="flex items-center gap-3 mb-4">
         <ArrowRight class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Editing Controls</h2>
+        <h2 id="editing-controls" class="text-xl font-semibold">Editing Controls <a href="#editing-controls" class="anchor-link">#</a></h2>
       </div>
       <div class="space-y-4">
         <p class="text-text-secondary">

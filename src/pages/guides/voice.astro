@@ -3,7 +3,15 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
 ---
 
-<DocsLayout title="Voice Streaming — Argon Bot API" current="/guides/voice/">
+<DocsLayout title="Voice Streaming — Argon Bot API" current="/guides/voice/" toc={[
+  { id: "how-it-works", title: "How It Works" },
+  { id: "step-by-step", title: "Step-by-Step Flow" },
+  { id: "audio-requirements", title: "Audio Requirements" },
+  { id: "room-token", title: "Room & Token Details" },
+  { id: "prerequisites", title: "Prerequisites" },
+  { id: "code-example", title: "Code Example" },
+  { id: "use-cases", title: "Use Cases" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Voice Streaming</h1>
     <p class="text-text-secondary text-lg">Stream audio directly into voice channels via WebSocket. Music bots, TTS, live audio relay — no WebRTC needed.</p>
@@ -15,7 +23,7 @@ import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Mic class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">How It Works</h2>
+        <h2 id="how-it-works" class="text-xl font-semibold">How It Works <a href="#how-it-works" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -59,7 +67,7 @@ import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
 
     <!-- Step-by-Step Flow -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Step-by-Step Flow</h2>
+      <h2 id="step-by-step" class="text-xl font-semibold mb-4">Step-by-Step Flow <a href="#step-by-step" class="anchor-link">#</a></h2>
 
       <div class="space-y-6">
         <!-- Step 1: Get Token -->
@@ -147,7 +155,7 @@ ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&s
 
     <!-- Audio Requirements -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Audio Requirements</h2>
+      <h2 id="audio-requirements" class="text-xl font-semibold mb-4">Audio Requirements <a href="#audio-requirements" class="anchor-link">#</a></h2>
 
       <div class="space-y-4">
         <div class="overflow-x-auto">
@@ -179,7 +187,7 @@ ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&s
 
     <!-- Room & Token Details -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Room &amp; Token Details</h2>
+      <h2 id="room-token" class="text-xl font-semibold mb-4">Room &amp; Token Details <a href="#room-token" class="anchor-link">#</a></h2>
 
       <div class="space-y-4">
         <div class="overflow-x-auto">
@@ -205,7 +213,7 @@ ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&s
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Lock class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Prerequisites &amp; Validation</h2>
+        <h2 id="prerequisites" class="text-xl font-semibold">Prerequisites &amp; Validation <a href="#prerequisites" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -222,7 +230,7 @@ ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&s
 
     <!-- Code Example -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Code Example</h2>
+      <h2 id="code-example" class="text-xl font-semibold mb-4">Code Example <a href="#code-example" class="anchor-link">#</a></h2>
 
       <div class="space-y-6">
         <div>
@@ -305,7 +313,7 @@ http.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</span
 
     <!-- Use Cases -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Use Cases</h2>
+      <h2 id="use-cases" class="text-xl font-semibold mb-4">Use Cases <a href="#use-cases" class="anchor-link">#</a></h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="glass rounded-2xl p-5">

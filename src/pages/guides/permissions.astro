@@ -8,7 +8,13 @@ const privilegedIntents = intents.filter((i: any) => i.isPrivileged);
 const normalIntents = intents.filter((i: any) => !i.isPrivileged);
 ---
 
-<DocsLayout title="Permissions & Intents — Argon Bot API" current="/guides/permissions/">
+<DocsLayout title="Permissions & Intents — Argon Bot API" current="/guides/permissions/" toc={[
+  { id: "endpoint-permissions", title: "Endpoint Permissions" },
+  { id: "privileged-endpoints", title: "Privileged Endpoints" },
+  { id: "event-intents", title: "Event Intents" },
+  { id: "calculating-bitmask", title: "Calculating the Bitmask" },
+  { id: "quick-reference", title: "Quick Reference" },
+]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Permissions & Intents</h1>
     <p class="text-text-secondary text-lg">Understand how endpoint permissions and event intents control what your bot can do.</p>
@@ -20,7 +26,7 @@ const normalIntents = intents.filter((i: any) => !i.isPrivileged);
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Shield class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Endpoint Permissions</h2>
+        <h2 id="endpoint-permissions" class="text-xl font-semibold">Endpoint Permissions <a href="#endpoint-permissions" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -74,7 +80,7 @@ const normalIntents = intents.filter((i: any) => !i.isPrivileged);
     <section>
       <div class="flex items-center gap-3 mb-4">
         <ShieldAlert class="size-5 text-red-400" />
-        <h2 class="text-xl font-semibold">Privileged Endpoints</h2>
+        <h2 id="privileged-endpoints" class="text-xl font-semibold">Privileged Endpoints <a href="#privileged-endpoints" class="anchor-link">#</a></h2>
       </div>
 
       <p class="text-text-secondary mb-4">
@@ -95,7 +101,7 @@ const normalIntents = intents.filter((i: any) => !i.isPrivileged);
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Eye class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Event Intents</h2>
+        <h2 id="event-intents" class="text-xl font-semibold">Event Intents <a href="#event-intents" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
@@ -162,7 +168,7 @@ const normalIntents = intents.filter((i: any) => !i.isPrivileged);
 
     <!-- Calculating bitmask -->
     <section>
-      <h2 class="text-xl font-semibold mb-4">Calculating the Bitmask</h2>
+      <h2 id="calculating-bitmask" class="text-xl font-semibold mb-4">Calculating the Bitmask <a href="#calculating-bitmask" class="anchor-link">#</a></h2>
 
       <p class="text-text-secondary mb-4">
         Combine intents using bitwise OR. For example, to subscribe to Messages + Channels + Voice:
@@ -188,7 +194,7 @@ intents   =            2051`}</pre>
     <section>
       <div class="flex items-center gap-3 mb-4">
         <Key class="size-5 text-accent" />
-        <h2 class="text-xl font-semibold">Quick Reference</h2>
+        <h2 id="quick-reference" class="text-xl font-semibold">Quick Reference <a href="#quick-reference" class="anchor-link">#</a></h2>
       </div>
       <div class="glass rounded-2xl overflow-hidden">
         <div class="type-grid">
