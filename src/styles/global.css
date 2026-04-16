@@ -265,6 +265,11 @@ code {
   word-break: break-word;
 }
 
+/* ── Flex children must not push parent wider ── */
+article .flex-1 {
+  min-width: 0;
+}
+
 /* ── Mobile content overflow fixes ── */
 @media (max-width: 639px) {
   /* Reduce left indent on guide step sections */

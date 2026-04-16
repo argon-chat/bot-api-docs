@@ -201,7 +201,7 @@ function formatVersion(v: number): string {
     </aside>
 
     <!-- Main content -->
-    <main id="main-content" class="flex-1 lg:ml-64 pb-16 min-w-0 overflow-x-hidden">
+    <main id="main-content" class="flex-1 lg:ml-64 2xl:mr-56 pb-16 min-w-0 overflow-x-hidden">
       <article class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 min-w-0">
         <slot />
 
@@ -226,7 +226,7 @@ function formatVersion(v: number): string {
     </main>
 
     {toc.length > 0 && (
-      <aside class="hidden xl:flex w-56 flex-col fixed top-14 right-0 bottom-0 overflow-y-auto py-8 px-4">
+      <aside class="hidden 2xl:flex w-56 flex-col fixed top-14 right-0 bottom-0 overflow-y-auto py-8 px-4">
         <div class="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">On this page</div>
         <nav class="flex flex-col gap-0.5 border-l border-oled-border-subtle">
           {toc.map((entry) => (

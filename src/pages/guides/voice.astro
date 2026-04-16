@@ -1,6 +1,8 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
+import AudioPhasePlayer from '../../components/AudioPhasePlayer.vue';
+import LoudnessDemo from '../../components/LoudnessDemo.vue';
 ---
 
 <DocsLayout title="Voice Streaming — Argon Bot API" current="/guides/voice/" toc={[
@@ -10,8 +12,10 @@ import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
   { id: "audio-subscribe", title: "/audio/subscribe — Subscribe" },
   { id: "audio-duplex", title: "/audio/duplex — Bidirectional" },
   { id: "step-by-step", title: "Step-by-Step Flow" },
+  { id: "interactive-demo", title: "Interactive Demo" },
   { id: "audio-requirements", title: "Audio Requirements" },
   { id: "audio-normalization", title: "Audio Normalization" },
+  { id: "hear-the-difference", title: "Hear the Difference" },
   { id: "keepalive", title: "Keepalive" },
   { id: "room-token", title: "Room & Token Details" },
   { id: "prerequisites", title: "Prerequisites" },
@@ -351,6 +355,42 @@ Content-Type: application/json
       </div>
     </section>
 
+    <!-- Interactive Demo: Echo Bot Flow -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Headphones class="size-5 text-accent" />
+        <h2 id="interactive-demo" class="text-xl font-semibold">Interactive Demo: Echo Bot Flow <a href="#interactive-demo" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-sm text-text-secondary">
+          Listen to a real echo bot session and see how the <strong class="text-text-primary">six phases</strong> map to the audio timeline. Hit play and watch the phases light up — this is exactly what happens over the WebSocket connection during a call.
+        </p>
+
+        <AudioPhasePlayer
+          client:visible
+          src="/audio/echo-demo.opus"
+          phases={[
+            { name: 'greeting',   label: 'Greeting',   start: 0,     end: 16.5,  color: '#8b5cf6', description: 'Bot plays a pre-recorded greeting. Audio is sent as Opus frames over the WebSocket. The bot is not yet listening to the caller.' },
+            { name: 'recording',  label: 'Recording',  start: 16.5,  end: 26.5,  color: '#f87171', description: 'Bot records the caller\'s microphone input. Incoming Opus frames from /audio/duplex are buffered in memory for later playback.' },
+            { name: 'transition', label: 'Transition', start: 26.5,  end: 33.6,  color: '#555555', description: 'Brief pause between recording and playback. Bot continues sending pre-recorded audio while preparing the echo buffer.' },
+            { name: 'playback',   label: 'Playback',   start: 33.6,  end: 43.6,  color: '#34d399', description: 'Bot echoes back the recorded frames. The captured Opus packets are sent back through the WebSocket exactly as received.' },
+            { name: 'outro',      label: 'Outro',      start: 43.6,  end: 52,    color: '#555555', description: 'Closing audio before the background music loop. Bot sends remaining pre-recorded frames.' },
+            { name: 'background', label: 'Background', start: 52,    end: 60,    color: '#06b6d4', description: 'Background music loops indefinitely until the caller hangs up. A separate audio file is looped over the WebSocket.' },
+          ]}
+        />
+
+        <div class="flex items-start gap-3 rounded-xl border border-accent/20 bg-accent-subtle/30 p-4 mt-2">
+          <Mic class="size-4 text-accent mt-0.5 shrink-0" />
+          <div class="text-sm text-text-secondary">
+            <strong class="text-text-primary">This is real audio</strong> from the echo bot sample in the
+            <a href="https://github.com/nicksrc/argon-echo-bot" class="text-accent hover:underline">argon-echo-bot</a>
+            repository. The phases are driven by timestamp markers defined in a JSON file alongside each audio variant.
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Audio Requirements -->
     <section>
       <h2 id="audio-requirements" class="text-xl font-semibold mb-4">Audio Requirements <a href="#audio-requirements" class="anchor-link">#</a></h2>
@@ -483,6 +523,19 @@ Content-Type: application/json
             <strong class="text-text-primary">Key principle:</strong> pick one target loudness for your bot and normalize <strong class="text-text-primary">all</strong> audio files to it. The specific value matters less than consistency — a greeting, a response, and background music should all sound the same volume to the listener.
           </div>
         </div>
+
+        <h4 id="hear-the-difference" class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">Hear the Difference <a href="#hear-the-difference" class="anchor-link">#</a></h4>
+
+        <p class="text-sm text-text-secondary">
+          Put on headphones and compare the same voice clip at three loudness levels. This is the same <strong class="text-text-primary">"Привет"</strong> greeting from the echo bot — normalized to different LUFS targets.
+        </p>
+
+        <LoudnessDemo
+          client:visible
+          quietSrc="/audio/norm-quiet.opus"
+          loudSrc="/audio/norm-loud.opus"
+          goodSrc="/audio/norm-good.opus"
+        />
 
         <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">Step 1: Measure Loudness</h4>
 
