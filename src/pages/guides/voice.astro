@@ -5,8 +5,14 @@ import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
 
 <DocsLayout title="Voice Streaming — Argon Bot API" current="/guides/voice/" toc={[
   { id: "how-it-works", title: "How It Works" },
+  { id: "endpoints", title: "Endpoints Overview" },
+  { id: "audio-connect", title: "/audio/connect — Publish" },
+  { id: "audio-subscribe", title: "/audio/subscribe — Subscribe" },
+  { id: "audio-duplex", title: "/audio/duplex — Bidirectional" },
   { id: "step-by-step", title: "Step-by-Step Flow" },
   { id: "audio-requirements", title: "Audio Requirements" },
+  { id: "audio-normalization", title: "Audio Normalization" },
+  { id: "keepalive", title: "Keepalive" },
   { id: "room-token", title: "Room & Token Details" },
   { id: "prerequisites", title: "Prerequisites" },
   { id: "code-example", title: "Code Example" },
@@ -62,6 +68,205 @@ import { Mic, AlertTriangle, Lock, Headphones } from 'lucide-astro';
             </div>
           </div>
         </div>
+
+        <p class="text-text-secondary mt-4">
+          Three WebSocket endpoints are available depending on your use case:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+          <a href="#audio-connect" class="glass rounded-xl p-4 hover:border-accent/30 transition-colors">
+            <div class="font-mono text-xs text-accent mb-1">/audio/connect</div>
+            <div class="text-sm font-semibold mb-1">Publish only</div>
+            <div class="text-xs text-text-secondary">Stream audio into a room. Music bots, TTS, notifications.</div>
+          </a>
+          <a href="#audio-subscribe" class="glass rounded-xl p-4 hover:border-accent/30 transition-colors">
+            <div class="font-mono text-xs text-accent mb-1">/audio/subscribe</div>
+            <div class="text-sm font-semibold mb-1">Subscribe only</div>
+            <div class="text-xs text-text-secondary">Receive a participant's audio. Transcription, analysis.</div>
+          </a>
+          <a href="#audio-duplex" class="glass rounded-xl p-4 hover:border-accent/30 transition-colors">
+            <div class="font-mono text-xs text-accent mb-1">/audio/duplex</div>
+            <div class="text-sm font-semibold mb-1">Bidirectional</div>
+            <div class="text-xs text-text-secondary">Publish + subscribe on one connection. Voice bots, echo bots.</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Endpoints Overview -->
+    <section>
+      <h2 id="endpoints" class="text-xl font-semibold mb-4">Endpoints Overview <a href="#endpoints" class="anchor-link">#</a></h2>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3 rounded-xl border border-oled-border bg-oled-surface/50 p-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <p class="text-sm text-text-secondary">
+            You <strong class="text-text-primary">cannot</strong> use a single token for both <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">/audio/connect</code> and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">/audio/subscribe</code> simultaneously. If you need both directions, use <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">/audio/duplex</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- /audio/connect -->
+    <section>
+      <h2 id="audio-connect" class="text-xl font-semibold mb-4"><code class="bg-oled-elevated px-2 py-1 rounded font-mono text-[14px]">/audio/connect</code> — Publish <a href="#audio-connect" class="anchor-link">#</a></h2>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Publish-only endpoint. Send binary WebSocket messages containing Opus frames — each message is one Opus packet. The server publishes them as an audio track in the Argon Voice Channel.
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`ws://ingress.argon.gl:12880<span class="text-accent">/audio/connect</span>?token=<span class="text-accent-2">JWT</span>&stereo=false&frame_duration_ms=20`} />
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">Query Parameters</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Required</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">token</td><td class="py-2 px-3">Yes</td><td class="py-2 px-3">JWT with room grant</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">stereo</td><td class="py-2 px-3">No</td><td class="py-2 px-3"><code class="bg-oled-elevated px-1 rounded text-[11px]">true</code> for stereo. Default: <code class="bg-oled-elevated px-1 rounded text-[11px]">false</code></td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">channels</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Alternative to <code class="bg-oled-elevated px-1 rounded text-[11px]">stereo</code>: <code class="bg-oled-elevated px-1 rounded text-[11px]">2</code> = stereo, <code class="bg-oled-elevated px-1 rounded text-[11px]">1</code> = mono</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">frame_duration_ms</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Opus frame duration: 2.5, 5, 10, 20 (default), 40, 60</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_name</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Display name for the published track (default: <code class="bg-oled-elevated px-1 rounded text-[11px]">audio</code>)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_source</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Source type: <code class="bg-oled-elevated px-1 rounded text-[11px]">microphone</code> (default), <code class="bg-oled-elevated px-1 rounded text-[11px]">screen_share_audio</code></td></tr>
+              <tr><td class="py-2 px-3 font-mono text-text-primary">metadata</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Arbitrary participant metadata (JSON string)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="space-y-2 text-sm text-text-secondary">
+          <p><strong class="text-text-primary">WS messages (bot → server):</strong> Binary only. Each binary message = one raw Opus packet.</p>
+          <p><strong class="text-text-primary">WS messages (server → bot):</strong> Text only. <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">{`{"status":"ready","session_id":"AWS_xxx"}`}</code> — track published, safe to start sending.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- /audio/subscribe -->
+    <section>
+      <h2 id="audio-subscribe" class="text-xl font-semibold mb-4"><code class="bg-oled-elevated px-2 py-1 rounded font-mono text-[14px]">/audio/subscribe</code> — Subscribe <a href="#audio-subscribe" class="anchor-link">#</a></h2>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Subscribe-only endpoint. Receive a specific participant's audio as raw Opus frames. The server also sends JSON status messages as text frames.
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`ws://ingress.argon.gl:12880<span class="text-accent">/audio/subscribe</span>?token=<span class="text-accent-2">JWT</span>&target_identity=<span class="text-accent-2">user-guid</span>&target_track_source=<span class="text-accent-2">microphone</span>`} />
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">Query Parameters</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Required</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">token</td><td class="py-2 px-3">Yes</td><td class="py-2 px-3">JWT with room grant</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">target_identity</td><td class="py-2 px-3">Yes</td><td class="py-2 px-3">Identity of the participant to listen to</td></tr>
+              <tr><td class="py-2 px-3 font-mono text-text-primary">target_track_source</td><td class="py-2 px-3">No</td><td class="py-2 px-3"><code class="bg-oled-elevated px-1 rounded text-[11px]">microphone</code> (default) or <code class="bg-oled-elevated px-1 rounded text-[11px]">screen_share_audio</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">WS Messages (server → bot)</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Type</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Format</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Binary</td><td class="py-2 px-3">Raw Opus frame</td><td class="py-2 px-3">One Opus packet per message (RTP payload)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"waiting","session_id":"...","participant_identity":"..."}`}</td><td class="py-2 px-3">Target participant not yet in room</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"subscribed","session_id":"...","track_sid":"...","participant_identity":"..."}`}</td><td class="py-2 px-3">Subscribed to target's audio, frames incoming</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"target_left","session_id":"...","participant_identity":"..."}`}</td><td class="py-2 px-3">Target left the room, WS closes</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-text-primary">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"error","message":"..."}`}</td><td class="py-2 px-3">Error occurred, WS closes after</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- /audio/duplex -->
+    <section>
+      <h2 id="audio-duplex" class="text-xl font-semibold mb-4"><code class="bg-oled-elevated px-2 py-1 rounded font-mono text-[14px]">/audio/duplex</code> — Bidirectional <a href="#audio-duplex" class="anchor-link">#</a></h2>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Full-duplex endpoint — publish and subscribe on a <strong class="text-text-primary">single WebSocket connection</strong>. One identity, one room join. This is the recommended endpoint for voice bots that need to both speak and listen.
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`ws://ingress.argon.gl:12880<span class="text-accent">/audio/duplex</span>?token=<span class="text-accent-2">JWT</span>&target_identity=<span class="text-accent-2">user-guid</span>&target_track_source=<span class="text-accent-2">microphone</span>&stereo=<span class="text-accent-2">false</span>&frame_duration_ms=<span class="text-accent-2">20</span>`} />
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">Query Parameters</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Required</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">token</td><td class="py-2 px-3">Yes</td><td class="py-2 px-3">JWT with room grant</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">target_identity</td><td class="py-2 px-3">Yes</td><td class="py-2 px-3">Identity of the participant to listen to</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">target_track_source</td><td class="py-2 px-3">No</td><td class="py-2 px-3"><code class="bg-oled-elevated px-1 rounded text-[11px]">microphone</code> (default) or <code class="bg-oled-elevated px-1 rounded text-[11px]">screen_share_audio</code></td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_name</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Name of the published track (default: <code class="bg-oled-elevated px-1 rounded text-[11px]">audio</code>)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_source</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Published track source type (default: <code class="bg-oled-elevated px-1 rounded text-[11px]">microphone</code>)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">stereo</td><td class="py-2 px-3">No</td><td class="py-2 px-3"><code class="bg-oled-elevated px-1 rounded text-[11px]">true</code> for stereo. Default: <code class="bg-oled-elevated px-1 rounded text-[11px]">false</code></td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">channels</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Alternative to <code class="bg-oled-elevated px-1 rounded text-[11px]">stereo</code>: <code class="bg-oled-elevated px-1 rounded text-[11px]">2</code> = stereo, <code class="bg-oled-elevated px-1 rounded text-[11px]">1</code> = mono</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">frame_duration_ms</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Opus frame duration: 2.5, 5, 10, 20 (default), 40, 60</td></tr>
+              <tr><td class="py-2 px-3 font-mono text-text-primary">metadata</td><td class="py-2 px-3">No</td><td class="py-2 px-3">Participant metadata (JSON string)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">WS Message Flow</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Direction</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Type</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Bot → Room</td><td class="py-2 px-3">Binary</td><td class="py-2 px-3">Opus frames published as an audio track</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Room → Bot</td><td class="py-2 px-3">Binary</td><td class="py-2 px-3">Target participant's Opus frames</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Room → Bot</td><td class="py-2 px-3">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"ready","session_id":"AWS_xxx"}`} — track published, safe to start sending</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Room → Bot</td><td class="py-2 px-3">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"waiting","session_id":"...","participant_identity":"..."}`} — target not yet in room</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Room → Bot</td><td class="py-2 px-3">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"subscribed","session_id":"...","track_sid":"...","participant_identity":"..."}`} — receiving target's audio</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Room → Bot</td><td class="py-2 px-3">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"target_left","session_id":"...","participant_identity":"..."}`} — target left the room</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-text-primary">Room → Bot</td><td class="py-2 px-3">Text</td><td class="py-2 px-3 font-mono text-[11px]">{`{"status":"error","message":"..."}`} — error, WS closes after</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-accent/20 bg-accent-subtle/30 p-4 mt-3">
+          <Headphones class="size-4 text-accent mt-0.5 shrink-0" />
+          <p class="text-sm text-text-secondary">
+            <strong class="text-text-primary">Recommended for call bots.</strong> The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ICalls/Accept</code> endpoint returns <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">audioBaseUrl</code> and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">callerId</code> — use them directly to build the duplex URL.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -104,50 +309,43 @@ Content-Type: application/json
         <div class="flex items-start gap-4">
           <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">2</div>
           <div class="flex-1 space-y-3">
-            <h3 class="font-semibold">Connect to the WebSocket Ingress</h3>
-            <p class="text-sm text-text-secondary">Open a WebSocket connection to the <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">ingressUrl</code> with your token and audio configuration as query parameters:</p>
+            <h3 class="font-semibold">Connect to the WebSocket Endpoint</h3>
+            <p class="text-sm text-text-secondary">Open a WebSocket connection to the endpoint that matches your use case. For publish-only (music bots, TTS), use <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">/audio/connect</code>. For voice bots that speak and listen, use <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">/audio/duplex</code>.</p>
 
             <div class="code-block text-[12px]">
-              <pre set:html={`<span class="text-text-muted">// Full connection URL with all parameters</span>
-ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&stereo=<span class="text-accent-2">false</span>&frame_duration_ms=<span class="text-accent-2">20</span>&track_name=<span class="text-accent-2">audio</span>&track_source=<span class="text-accent-2">microphone</span>`} />
+              <div class="text-text-muted mb-2 text-[11px]">Publish-only (music bot)</div>
+              <pre set:html={`ws://ingress.argon.gl:12880<span class="text-accent">/audio/connect</span>?token=<span class="text-accent-2">TOKEN</span>&stereo=<span class="text-accent-2">true</span>&frame_duration_ms=<span class="text-accent-2">20</span>`} />
             </div>
 
-            <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">Connection Parameters</h4>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="border-b border-oled-border-subtle">
-                    <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
-                    <th class="text-left py-2 px-3 text-text-muted font-medium">Type</th>
-                    <th class="text-left py-2 px-3 text-text-muted font-medium">Default</th>
-                    <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody class="text-text-secondary">
-                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">token</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 text-text-muted">—</td><td class="py-2 px-3"><strong class="text-text-primary">Required.</strong> The JWT token from <code class="bg-oled-elevated px-1 rounded text-[11px]">StreamToken</code>.</td></tr>
-                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">stereo</td><td class="py-2 px-3 font-mono text-accent-2">boolean</td><td class="py-2 px-3 font-mono">false</td><td class="py-2 px-3">Set to <code class="bg-oled-elevated px-1 rounded text-[11px]">true</code> for stereo audio (2 channels). Mono by default.</td></tr>
-                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">channels</td><td class="py-2 px-3 font-mono text-accent-2">number</td><td class="py-2 px-3 font-mono">1</td><td class="py-2 px-3">Alternative to <code class="bg-oled-elevated px-1 rounded text-[11px]">stereo</code>. Set to <code class="bg-oled-elevated px-1 rounded text-[11px]">2</code> for stereo.</td></tr>
-                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">frame_duration_ms</td><td class="py-2 px-3 font-mono text-accent-2">number</td><td class="py-2 px-3 font-mono">20</td><td class="py-2 px-3">Opus frame duration in milliseconds. Valid values: <code class="bg-oled-elevated px-1 rounded text-[11px]">10</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">20</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">40</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">60</code>.</td></tr>
-                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_name</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 font-mono">""</td><td class="py-2 px-3">Display name for the audio track (visible to other participants).</td></tr>
-                  <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">track_source</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 font-mono">""</td><td class="py-2 px-3">Track source type, e.g. <code class="bg-oled-elevated px-1 rounded text-[11px]">microphone</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">screen_share_audio</code>.</td></tr>
-                  <tr><td class="py-2 px-3 font-mono text-text-primary">metadata</td><td class="py-2 px-3 font-mono text-accent-2">string</td><td class="py-2 px-3 font-mono">""</td><td class="py-2 px-3">Arbitrary metadata string attached to the track participant.</td></tr>
-                </tbody>
-              </table>
+            <div class="code-block text-[12px]">
+              <div class="text-text-muted mb-2 text-[11px]">Full-duplex (voice bot in a call)</div>
+              <pre set:html={`ws://ingress.argon.gl:12880<span class="text-accent">/audio/duplex</span>?token=<span class="text-accent-2">TOKEN</span>&target_identity=<span class="text-accent-2">caller-guid</span>&target_track_source=<span class="text-accent-2">microphone</span>`} />
             </div>
 
-            <div class="code-block text-[12px] mt-3">
-              <div class="text-text-muted mb-2 text-[11px]">Music bot (stereo, 20ms frames)</div>
-              <pre set:html={`ws://ingress.argon.gl:12880?token=<span class="text-accent">TOKEN</span>&stereo=<span class="text-accent-2">true</span>&frame_duration_ms=<span class="text-accent-2">20</span>&track_name=<span class="text-accent-2">music</span>&track_source=<span class="text-accent-2">microphone</span>`} />
+            <p class="text-xs text-text-muted mt-2">See the <a href="#audio-connect" class="text-accent hover:underline">endpoint sections above</a> for full parameter tables.</p>
+          </div>
+        </div>
+
+        <!-- Step 3: Wait for Ready -->
+        <div class="flex items-start gap-4">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">3</div>
+          <div class="flex-1 space-y-3">
+            <h3 class="font-semibold">Wait for Ready Status</h3>
+            <p class="text-sm text-text-secondary">Before sending any audio, wait for the server's <code class="bg-oled-elevated px-1.5 py-0.5 rounded font-mono text-[11px]">{`{"status":"ready"}`}</code> text message. This confirms the track is published and the room is joined. Do <strong class="text-text-primary">not</strong> send Opus frames before receiving this.</p>
+
+            <div class="code-block text-[12px]">
+              <pre set:html={`<span class="text-text-muted">// Server sends:</span>
+{"status": "ready", "session_id": "AWS_xxxxx"}`} />
             </div>
           </div>
         </div>
 
-        <!-- Step 3: Stream Audio -->
+        <!-- Step 4: Stream Audio -->
         <div class="flex items-start gap-4">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">3</div>
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-sm font-bold text-accent">4</div>
           <div class="flex-1 space-y-3">
             <h3 class="font-semibold">Stream Opus Audio Frames</h3>
-            <p class="text-sm text-text-secondary">Send binary WebSocket frames containing Opus-encoded audio data. Each frame should be a single Opus packet.</p>
+            <p class="text-sm text-text-secondary">Send binary WebSocket frames containing Opus-encoded audio data. Each frame should be a single Opus packet (max 3,825 bytes).</p>
           </div>
         </div>
       </div>
@@ -170,7 +368,8 @@ ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&s
               <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Codec</td><td class="py-2 px-3">Opus</td></tr>
               <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Sample Rate</td><td class="py-2 px-3">48,000 Hz</td></tr>
               <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Channels</td><td class="py-2 px-3">Mono (1) or Stereo (2) — configured via <code class="bg-oled-elevated px-1 rounded text-[11px]">stereo</code> or <code class="bg-oled-elevated px-1 rounded text-[11px]">channels</code> query param</td></tr>
-              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Frame Duration</td><td class="py-2 px-3">10, 20 (default), 40, or 60 ms — configured via <code class="bg-oled-elevated px-1 rounded text-[11px]">frame_duration_ms</code> query param</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Frame Duration</td><td class="py-2 px-3">2.5, 5, 10, 20 (default), 40, or 60 ms — configured via <code class="bg-oled-elevated px-1 rounded text-[11px]">frame_duration_ms</code> query param</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Max Frame Size</td><td class="py-2 px-3">3,825 bytes per Opus packet</td></tr>
               <tr><td class="py-2 px-3 font-semibold text-text-primary">Transport</td><td class="py-2 px-3">Binary WebSocket frames (one Opus packet per frame)</td></tr>
             </tbody>
           </table>
@@ -180,6 +379,219 @@ ws://ingress.argon.gl:12880?token=<span class="text-accent">eyJhbGci...</span>&s
           <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
           <p class="text-sm text-text-secondary">
             Do <strong class="text-text-primary">not</strong> send raw PCM. The ingress expects Opus-encoded packets. Use a library like <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">opusenc</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ffmpeg</code>, or your language's Opus bindings to encode before sending.
+          </p>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">Frame Validation</h4>
+
+        <p class="text-sm text-text-secondary">
+          The server validates every incoming Opus frame by parsing the <strong class="text-text-primary">TOC byte</strong> (RFC 6716 §3.1). If a frame's declared structure doesn't match its actual size, the server <strong class="text-text-primary">immediately closes the WebSocket</strong> with the error:
+        </p>
+
+        <div class="code-block text-[12px] mt-3">
+          <pre set:html={`<span class="text-status-degraded">opus frame too small for declared structure</span>`} />
+        </div>
+
+        <p class="text-sm text-text-secondary mt-3">
+          This typically happens when:
+        </p>
+        <ul class="list-disc list-inside space-y-1.5 text-sm text-text-secondary mt-2">
+          <li>Sending a truncated or corrupted Opus packet</li>
+          <li><strong class="text-text-primary">Re-publishing DTX/comfort noise frames</strong> received from a subscribed participant (see below)</li>
+          <li>Accidentally sending an OGG page header instead of a raw Opus frame</li>
+          <li>Sending an empty or 1-byte binary message where the TOC byte declares a multi-frame packet</li>
+        </ul>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">TOC Frame Code</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Meaning</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Minimum Packet Size</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">0</td><td class="py-2 px-3">1 frame</td><td class="py-2 px-3">2 bytes (TOC + at least 1 byte payload)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">1</td><td class="py-2 px-3">2 equal-size CBR frames</td><td class="py-2 px-3">3 bytes (TOC + even payload ≥ 2)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">2</td><td class="py-2 px-3">2 different-size VBR frames</td><td class="py-2 px-3">3 bytes (TOC + size field + data)</td></tr>
+              <tr><td class="py-2 px-3 font-mono text-text-primary">3</td><td class="py-2 px-3">Arbitrary N frames (CBR/VBR)</td><td class="py-2 px-3">3+ bytes (TOC + count byte + padding/sizes + data)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-accent/20 bg-accent-subtle/30 p-4 mt-4">
+          <Headphones class="size-4 text-accent mt-0.5 shrink-0" />
+          <div class="text-sm text-text-secondary">
+            <strong class="text-text-primary">Tip:</strong> If you're echoing or relaying received audio frames, validate each packet before sending it back. Drop invalid frames or replace them with a silence packet (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">0xf8 0xff 0xfe</code> — a valid Opus frame that decodes to silence).
+          </div>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">DTX &amp; Comfort Noise Frames</h4>
+
+        <p class="text-sm text-text-secondary">
+          When subscribed to a participant's audio (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">/audio/subscribe</code> or <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">/audio/duplex</code>), WebRTC clients with <strong class="text-text-primary">DTX (Discontinuous Transmission)</strong> enabled will send very small packets during silence — typically <strong class="text-text-primary">1-byte frames</strong> with TOC bytes like <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">0xdc</code> or <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">0xfc</code>.
+        </p>
+
+        <p class="text-sm text-text-secondary mt-2">
+          These DTX frames are valid for a decoder to produce comfort noise, but <strong class="text-text-primary">they cannot be re-published</strong> through the ingress — the server will reject them as structurally invalid and <strong class="text-text-primary">close the WebSocket</strong>.
+        </p>
+
+        <div class="flex items-start gap-3 rounded-xl border border-status-degraded/20 bg-status-degraded/5 p-4 mt-3">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <div class="text-sm text-text-secondary">
+            <strong class="text-text-primary">If you relay or echo received audio:</strong> discard all frames ≤ 2 bytes before recording or re-publishing. These are DTX/comfort noise packets that carry no useful audio content. A normal Opus voice frame is typically 20–160 bytes.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audio Normalization -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Mic class="size-5 text-accent" />
+        <h2 id="audio-normalization" class="text-xl font-semibold">Audio Normalization <a href="#audio-normalization" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-sm text-text-secondary">
+          If your bot plays multiple audio files (greetings, responses, background music, sound effects), their loudness levels should be <strong class="text-text-primary">normalized</strong> so listeners don't experience jarring volume jumps between tracks.
+        </p>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">Recommended Target</h4>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Value</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Notes</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Integrated Loudness (I)</td><td class="py-2 px-3 font-mono">-16 to -23 LUFS</td><td class="py-2 px-3">Streaming standard. Voice-heavy bots can aim for -16, music bots for -14.</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">True Peak (TP)</td><td class="py-2 px-3 font-mono">-1 dBTP</td><td class="py-2 px-3">Prevents clipping after Opus encoding</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-text-primary">Loudness Range (LRA)</td><td class="py-2 px-3 font-mono">≤ 11 LU</td><td class="py-2 px-3">Keep dynamics consistent across tracks</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-accent/20 bg-accent-subtle/30 p-4 mt-3">
+          <Headphones class="size-4 text-accent mt-0.5 shrink-0" />
+          <div class="text-sm text-text-secondary">
+            <strong class="text-text-primary">Key principle:</strong> pick one target loudness for your bot and normalize <strong class="text-text-primary">all</strong> audio files to it. The specific value matters less than consistency — a greeting, a response, and background music should all sound the same volume to the listener.
+          </div>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">Step 1: Measure Loudness</h4>
+
+        <p class="text-sm text-text-secondary">
+          Use <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ffmpeg</code>'s <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">loudnorm</code> filter in analysis mode to measure the loudness of each file:
+        </p>
+
+        <div class="code-block text-[12px] mt-3">
+          <div class="text-text-muted mb-2 text-[11px]">Measure integrated loudness (LUFS)</div>
+          <pre set:html={`ffmpeg -i <span class="text-accent-2">input.opus</span> -af loudnorm=print_format=json -f null /dev/null`} />
+        </div>
+
+        <p class="text-sm text-text-secondary mt-3">
+          Look at the <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">input_i</code> value in the JSON output — that's the integrated loudness in LUFS. Compare it across all your files.
+        </p>
+
+        <div class="code-block text-[12px] mt-3">
+          <div class="text-text-muted mb-2 text-[11px]">Example output</div>
+          <pre set:html={`<span class="text-text-muted">// Voice greeting (quiet)</span>
+"input_i" : "-40.74"    <span class="text-text-muted">// -40.7 LUFS</span>
+
+<span class="text-text-muted">// Background music (too loud!)</span>
+"input_i" : "-8.40"     <span class="text-text-muted">// -8.4 LUFS — 32 dB louder</span>`} />
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">Step 2: Normalize to a Reference</h4>
+
+        <p class="text-sm text-text-secondary">
+          Pick your main voice track as the reference and normalize all other files to match its loudness. Use <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">loudnorm</code> with your target values:
+        </p>
+
+        <div class="code-block text-[12px] mt-3">
+          <div class="text-text-muted mb-2 text-[11px]">Normalize to match a reference file</div>
+          <pre set:html={`ffmpeg -y -i <span class="text-accent-2">loud_background.opus</span> \\
+  -af "loudnorm=I=<span class="text-accent">-40.7</span>:TP=<span class="text-accent">-1</span>:LRA=<span class="text-accent">11</span>" \\
+  -c:a libopus -b:a 48k -ar 48000 -ac 2 -frame_duration 20 \\
+  <span class="text-accent-2">normalized_background.opus</span>`} />
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">I=&lt;value&gt;</td><td class="py-2 px-3">Target integrated loudness in LUFS (match your reference)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">TP=-1</td><td class="py-2 px-3">True peak limit — prevents clipping</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">LRA=11</td><td class="py-2 px-3">Loudness range limit — compresses dynamics</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">-c:a libopus</td><td class="py-2 px-3">Re-encode as Opus</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-mono text-text-primary">-b:a 48k</td><td class="py-2 px-3">Bitrate (48–96 kbps for voice, 96–128 for music)</td></tr>
+              <tr><td class="py-2 px-3 font-mono text-text-primary">-frame_duration 20</td><td class="py-2 px-3">Match the ingress frame duration setting</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">Step 3: Verify</h4>
+
+        <p class="text-sm text-text-secondary">
+          Re-measure the output to confirm the loudness matches your target:
+        </p>
+
+        <div class="code-block text-[12px] mt-3">
+          <pre set:html={`ffmpeg -i <span class="text-accent-2">normalized_background.opus</span> -af loudnorm=print_format=json -f null /dev/null
+<span class="text-text-muted">// Should output input_i close to your target (e.g. -40.7 → -41.2 is fine)</span>`} />
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-oled-border bg-oled-surface/50 p-4 mt-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <div class="text-sm text-text-secondary space-y-2">
+            <p><strong class="text-text-primary">Common pitfalls:</strong></p>
+            <ul class="list-disc list-inside space-y-1">
+              <li><code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">TP</code> must be between <strong class="text-text-primary">-9</strong> and <strong class="text-text-primary">0</strong> — values outside this range cause ffmpeg errors</li>
+              <li>Don't mix mono and stereo files without matching the <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">-ac</code> flag to your ingress <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">stereo</code> setting</li>
+              <li>Always re-measure after normalization — <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">loudnorm</code> may undershoot by 0.5–1 dB, which is perfectly acceptable</li>
+              <li>If your input is an OGG/Opus file, ffmpeg will transcode losslessly through PCM — this is expected</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Keepalive -->
+    <section>
+      <h2 id="keepalive" class="text-xl font-semibold mb-4">Keepalive <a href="#keepalive" class="anchor-link">#</a></h2>
+
+      <div class="space-y-4">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Parameter</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Value</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Ping Interval</td><td class="py-2 px-3">30 seconds (server → bot)</td></tr>
+              <tr class="border-b border-oled-border-subtle"><td class="py-2 px-3 font-semibold text-text-primary">Pong Timeout</td><td class="py-2 px-3">60 seconds — session closed if bot doesn't respond</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-text-primary">Write Deadline</td><td class="py-2 px-3">10 seconds per message</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-oled-border bg-oled-surface/50 p-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <p class="text-sm text-text-secondary">
+            Most WebSocket libraries respond to pings automatically. If yours doesn't, make sure to reply with a pong frame within 60 seconds or the server will disconnect the session.
           </p>
         </div>
       </div>
@@ -318,11 +730,19 @@ http.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</span
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="glass rounded-2xl p-5">
           <h3 class="font-semibold mb-1 text-sm">Music Bot</h3>
-          <p class="text-xs text-text-secondary">Stream audio from local files or your own media library. Encode to Opus and push to the channel.</p>
+          <p class="text-xs text-text-secondary">Stream audio from local files or your own media library. Encode to Opus and push to the channel via <code class="bg-oled-elevated px-1 rounded text-[11px]">/audio/connect</code>.</p>
         </div>
         <div class="glass rounded-2xl p-5">
           <h3 class="font-semibold mb-1 text-sm">TTS Bot</h3>
           <p class="text-xs text-text-secondary">Convert text to speech (e.g., via Google TTS or Coqui), encode to Opus, and stream the result.</p>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-semibold mb-1 text-sm">Voice / Echo Bot</h3>
+          <p class="text-xs text-text-secondary">Use <code class="bg-oled-elevated px-1 rounded text-[11px]">/audio/duplex</code> to listen to a participant and respond — AI voice assistants, echo bots, call automation.</p>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-semibold mb-1 text-sm">Transcription Bot</h3>
+          <p class="text-xs text-text-secondary">Subscribe to a participant's audio via <code class="bg-oled-elevated px-1 rounded text-[11px]">/audio/subscribe</code> and pipe Opus frames to a speech-to-text engine.</p>
         </div>
         <div class="glass rounded-2xl p-5">
           <h3 class="font-semibold mb-1 text-sm">Live Audio Relay</h3>

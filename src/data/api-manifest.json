@@ -480,7 +480,7 @@
     {
       "name": "ICalls",
       "version": 20260401,
-      "computedHash": "ef7971aeaf2204b2a88eaf44e9b08fe6ff4f5bcb1841dc5e776fef0a3d1f55de",
+      "computedHash": "3fb0542c0a1c996c90fa920cd02c3aba28ddff32e9635b2cd617673a2a83eb69",
       "declaredHash": null,
       "isStable": false,
       "isDeprecated": false,
@@ -676,6 +676,101 @@
           "permission": "ConnectVoice",
           "isPrivileged": true,
           "errors": [
+            {
+              "status": 403,
+              "code": "not_verified",
+              "description": "This endpoint requires a verified bot."
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/SubscribeCallTrack",
+          "description": "Subscribes to the caller's audio track in an active call. Returns a token and WebSocket URL for receiving Opus audio frames. The caller may take a few seconds to connect after the call is accepted — retry or delay the subscription.",
+          "requestTypeName": "SubscribeCallTrackRequest",
+          "responseTypeName": "SubscribeCallTrackResponse",
+          "requestTypeShape": [
+            {
+              "name": "callId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "callerId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "roomName",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "token",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "wsUrl",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "permission": "ConnectVoice",
+          "isPrivileged": true,
+          "errors": [
+            {
+              "status": 400,
+              "code": "not_accepted",
+              "description": "Call is not in accepted state."
+            },
+            {
+              "status": 403,
+              "code": "not_callee",
+              "description": "This call is not directed at this bot."
+            },
             {
               "status": 403,
               "code": "not_verified",
