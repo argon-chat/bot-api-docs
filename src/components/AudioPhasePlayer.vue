@@ -9,7 +9,7 @@
       <span class="time-display">
         <span class="time-current">{{ formatTime(currentTime) }}</span>
         <span class="time-sep">/</span>
-        <span class="time-total">{{ formatTime(duration) }}</span>
+        <span class="time-total">{{ formatTime(duration || totalEnd) }}</span>
       </span>
       <div class="volume-group">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="volume-icon">
@@ -87,7 +87,7 @@ let raf = null
 
 const totalEnd = computed(() => {
   const maxPhase = Math.max(...props.phases.map(p => p.end))
-  return duration.value > 0 ? duration.value : maxPhase
+  return (duration.value > 0 && isFinite(duration.value)) ? duration.value : maxPhase
 })
 
 const playheadPct = computed(() => {
@@ -115,7 +115,7 @@ function segmentStyle(phase) {
 }
 
 function formatTime(sec) {
-  if (!sec || sec < 0) return '0:00'
+  if (!sec || sec < 0 || !isFinite(sec)) return '0:00'
   const m = Math.floor(sec / 60)
   const s = Math.floor(sec % 60)
   return m + ':' + String(s).padStart(2, '0')

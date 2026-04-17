@@ -369,7 +369,7 @@ Content-Type: application/json
 
         <AudioPhasePlayer
           client:visible
-          src="/audio/echo-demo.opus"
+          src="/audio/echo-demo.mp3"
           phases={[
             { name: 'greeting',   label: 'Greeting',   start: 0,     end: 16.5,  color: '#8b5cf6', description: 'Bot plays a pre-recorded greeting. Audio is sent as Opus frames over the WebSocket. The bot is not yet listening to the caller.' },
             { name: 'recording',  label: 'Recording',  start: 16.5,  end: 26.5,  color: '#f87171', description: 'Bot records the caller\'s microphone input. Incoming Opus frames from /audio/duplex are buffered in memory for later playback.' },
@@ -384,10 +384,14 @@ Content-Type: application/json
           <Mic class="size-4 text-accent mt-0.5 shrink-0" />
           <div class="text-sm text-text-secondary">
             <strong class="text-text-primary">This is real audio</strong> from the echo bot sample in the
-            <a href="https://github.com/nicksrc/argon-echo-bot" class="text-accent hover:underline">argon-echo-bot</a>
+            <a href="https://github.com/argon-chat/echo-bot" class="text-accent hover:underline">Argon Chat Echo Bot</a>
             repository. The phases are driven by timestamp markers defined in a JSON file alongside each audio variant.
           </div>
         </div>
+        <p class="text-xs text-text-muted">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:-2px;margin-right:4px;opacity:0.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            Audio samples on this page are proprietary assets of Argon Inc. LLC and are provided for demonstration purposes only. They may not be reused or redistributed without permission.
+        </p>
       </div>
     </section>
 
@@ -532,9 +536,9 @@ Content-Type: application/json
 
         <LoudnessDemo
           client:visible
-          quietSrc="/audio/norm-quiet.opus"
-          loudSrc="/audio/norm-loud.opus"
-          goodSrc="/audio/norm-good.opus"
+          quietSrc="/audio/norm-quiet.mp3"
+          loudSrc="/audio/norm-loud.mp3"
+          goodSrc="/audio/norm-good.mp3"
         />
 
         <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-6 mb-2">Step 1: Measure Loudness</h4>
@@ -816,6 +820,14 @@ http.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</span
         <a href="/guides/events/" class="text-sm text-accent hover:underline">→ Real-time Events — listen for VoiceJoin/VoiceLeave events</a>
         <a href="/docs/" class="text-sm text-accent hover:underline">→ API Reference — all interfaces</a>
       </div>
+    </section>
+
+    <!-- Audio Asset Notice -->
+    <section class="mt-4">
+      <p class="text-xs text-text-muted">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:-2px;margin-right:4px;opacity:0.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            Audio samples on this page are proprietary assets of Argon Inc. LLC and are provided for demonstration purposes only. They may not be reused or redistributed without permission.
+      </p>
     </section>
   </div>
 </DocsLayout>
