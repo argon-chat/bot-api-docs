@@ -480,7 +480,7 @@
     {
       "name": "ICalls",
       "version": 20260401,
-      "computedHash": "3fb0542c0a1c996c90fa920cd02c3aba28ddff32e9635b2cd617673a2a83eb69",
+      "computedHash": "f5765d99a3caef2c8054c653a9cd2bda7bdb9361e5ff0e3d32063efae3358c6a",
       "declaredHash": null,
       "isStable": false,
       "isDeprecated": false,
@@ -508,6 +508,32 @@
             }
           ],
           "responseTypeShape": [
+            {
+              "name": "audioBaseUrl",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "callerId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
             {
               "name": "roomName",
               "type": "string",
@@ -676,101 +702,6 @@
           "permission": "ConnectVoice",
           "isPrivileged": true,
           "errors": [
-            {
-              "status": 403,
-              "code": "not_verified",
-              "description": "This endpoint requires a verified bot."
-            }
-          ]
-        },
-        {
-          "method": "POST",
-          "path": "/SubscribeCallTrack",
-          "description": "Subscribes to the caller's audio track in an active call. Returns a token and WebSocket URL for receiving Opus audio frames. The caller may take a few seconds to connect after the call is accepted — retry or delay the subscription.",
-          "requestTypeName": "SubscribeCallTrackRequest",
-          "responseTypeName": "SubscribeCallTrackResponse",
-          "requestTypeShape": [
-            {
-              "name": "callId",
-              "type": "string",
-              "isArray": false,
-              "isNullable": false,
-              "isCircular": false,
-              "properties": null,
-              "enumValues": null,
-              "isUnion": false,
-              "discriminatorField": null,
-              "discriminatorType": null,
-              "variants": null
-            }
-          ],
-          "responseTypeShape": [
-            {
-              "name": "callerId",
-              "type": "string",
-              "isArray": false,
-              "isNullable": false,
-              "isCircular": false,
-              "properties": null,
-              "enumValues": null,
-              "isUnion": false,
-              "discriminatorField": null,
-              "discriminatorType": null,
-              "variants": null
-            },
-            {
-              "name": "roomName",
-              "type": "string",
-              "isArray": false,
-              "isNullable": false,
-              "isCircular": false,
-              "properties": null,
-              "enumValues": null,
-              "isUnion": false,
-              "discriminatorField": null,
-              "discriminatorType": null,
-              "variants": null
-            },
-            {
-              "name": "token",
-              "type": "string",
-              "isArray": false,
-              "isNullable": false,
-              "isCircular": false,
-              "properties": null,
-              "enumValues": null,
-              "isUnion": false,
-              "discriminatorField": null,
-              "discriminatorType": null,
-              "variants": null
-            },
-            {
-              "name": "wsUrl",
-              "type": "string",
-              "isArray": false,
-              "isNullable": false,
-              "isCircular": false,
-              "properties": null,
-              "enumValues": null,
-              "isUnion": false,
-              "discriminatorField": null,
-              "discriminatorType": null,
-              "variants": null
-            }
-          ],
-          "permission": "ConnectVoice",
-          "isPrivileged": true,
-          "errors": [
-            {
-              "status": 400,
-              "code": "not_accepted",
-              "description": "Call is not in accepted state."
-            },
-            {
-              "status": 403,
-              "code": "not_callee",
-              "description": "This call is not directed at this bot."
-            },
             {
               "status": 403,
               "code": "not_verified",
@@ -2309,7 +2240,9 @@
                 "typingStart",
                 "typingStop",
                 "archetypeCreate",
-                "archetypeUpdate"
+                "archetypeUpdate",
+                "reactionAdd",
+                "reactionRemove"
               ],
               "isUnion": false,
               "discriminatorField": null,
@@ -5604,8 +5537,8 @@
     {
       "name": "IMessages",
       "version": 1,
-      "computedHash": "2885642024b3ef35e571ce02cf7c9dc58861071df3ac2954931065c49ca356d5",
-      "declaredHash": "2885642024b3ef35e571ce02cf7c9dc58861071df3ac2954931065c49ca356d5",
+      "computedHash": "bd1b0ab376c3db85c5c8932b02b13938e0e6de5e69662afc928869bf3b54eba6",
+      "declaredHash": "bd1b0ab376c3db85c5c8932b02b13938e0e6de5e69662afc928869bf3b54eba6",
       "isStable": true,
       "isDeprecated": false,
       "description": "Send messages and retrieve message history from channels.",
@@ -8015,6 +7948,59 @@
                   "isNullable": false,
                   "isCircular": false,
                   "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "reactions",
+                  "type": "ReactionDto",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "count",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "emoji",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "userIds",
+                      "type": "string",
+                      "isArray": true,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    }
+                  ],
                   "enumValues": null,
                   "isUnion": false,
                   "discriminatorField": null,
@@ -10510,6 +10496,350 @@
       ]
     },
     {
+      "name": "IReactions",
+      "version": 1,
+      "computedHash": "a192cbc985de63a76e4a7cd0413a774327a667ba5d44cf9eb81c579f448e7807",
+      "declaredHash": "a192cbc985de63a76e4a7cd0413a774327a667ba5d44cf9eb81c579f448e7807",
+      "isStable": true,
+      "isDeprecated": false,
+      "description": "Add and remove emoji reactions on messages.",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/Add",
+          "description": "Adds a reaction to a message. Each user can react once per emoji. Maximum 20 unique emoji per message.",
+          "requestTypeName": "AddReactionRequest",
+          "responseTypeName": null,
+          "requestTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "emoji",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "messageId",
+              "type": "int64",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "responseTypeShape": null,
+          "permission": "AddReactions",
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 403,
+              "code": "insufficient_permissions",
+              "description": "Bot does not have the AddReactions permission."
+            },
+            {
+              "status": 403,
+              "code": "not_a_member",
+              "description": "Bot is not a member of this space."
+            },
+            {
+              "status": 404,
+              "code": "message_not_found",
+              "description": "Message does not exist in this channel."
+            },
+            {
+              "status": 409,
+              "code": "already_reacted",
+              "description": "Bot has already reacted with this emoji."
+            },
+            {
+              "status": 422,
+              "code": "reaction_limit_reached",
+              "description": "Maximum 20 unique emoji per message."
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/BatchGet",
+          "description": "Returns current reactions for up to 50 messages in a single channel. Ideal for refreshing visible messages after reconnect.",
+          "requestTypeName": "BatchGetReactionsRequest",
+          "responseTypeName": "BatchGetReactionsResponse",
+          "requestTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "messageIds",
+              "type": "int64",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "responseTypeShape": [
+            {
+              "name": "messages",
+              "type": "MessageReactionsDto",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "messageId",
+                  "type": "int64",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "reactions",
+                  "type": "ReactionDto",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": [
+                    {
+                      "name": "count",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "emoji",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "userIds",
+                      "type": "string",
+                      "isArray": true,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    }
+                  ],
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                }
+              ],
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": null
+        },
+        {
+          "method": "GET",
+          "path": "/List",
+          "description": "Lists all reactions on a message. Returns emoji, count, and a preview of user IDs (up to 3).",
+          "requestTypeName": null,
+          "responseTypeName": "ListReactionsResponse",
+          "requestTypeShape": null,
+          "responseTypeShape": [
+            {
+              "name": "reactions",
+              "type": "ReactionDto",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "count",
+                  "type": "int32",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "emoji",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "userIds",
+                  "type": "string",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                }
+              ],
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 404,
+              "code": "message_not_found",
+              "description": "Message does not exist in this channel."
+            }
+          ]
+        },
+        {
+          "method": "DELETE",
+          "path": "/Remove",
+          "description": "Removes the bot's reaction from a message. Only the bot's own reaction can be removed.",
+          "requestTypeName": "RemoveReactionRequest",
+          "responseTypeName": null,
+          "requestTypeShape": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "emoji",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "messageId",
+              "type": "int64",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "responseTypeShape": null,
+          "permission": null,
+          "isPrivileged": false,
+          "errors": [
+            {
+              "status": 404,
+              "code": "message_not_found",
+              "description": "Message does not exist in this channel."
+            },
+            {
+              "status": 404,
+              "code": "reaction_not_found",
+              "description": "Bot has not reacted with this emoji."
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "ISpaces",
       "version": 1,
       "computedHash": "4e98c00f57070e7d70cce6ccbac2c6488f62cc11c1fcf7623bfeb327d9a1adc6",
@@ -11188,7 +11518,10 @@
       "bit": 3,
       "value": 8,
       "isPrivileged": false,
-      "events": []
+      "events": [
+        "ReactionAdd",
+        "ReactionRemove"
+      ]
     },
     {
       "name": "Typing",
@@ -13211,6 +13544,59 @@
               "variants": null
             },
             {
+              "name": "reactions",
+              "type": "BotReactionV1",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "count",
+                  "type": "int32",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "emoji",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "userIds",
+                  "type": "string",
+                  "isArray": true,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                }
+              ],
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
               "name": "replyId",
               "type": "int64",
               "isArray": false,
@@ -13848,6 +14234,162 @@
       ],
       "payloadVariants": null,
       "computedHash": "4038019ac8d86ed4458f53f9a9999dd9a423e0b390603d30ca181b26ee4f1a67",
+      "declaredHash": null,
+      "isStable": false
+    },
+    {
+      "name": "ReactionAdd",
+      "intent": "Reactions",
+      "description": "A user added a reaction to a message.",
+      "category": "Reactions",
+      "payloadTypeName": "ReactionAddEvent",
+      "payloadTypeShape": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "messageId",
+          "type": "int64",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "spaceId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        }
+      ],
+      "payloadVariants": null,
+      "computedHash": "e050fd9d91e43e65214c81fd6a1f558e698469f4f5ae82b238ad0402ecdf64a9",
+      "declaredHash": null,
+      "isStable": false
+    },
+    {
+      "name": "ReactionRemove",
+      "intent": "Reactions",
+      "description": "A user removed a reaction from a message.",
+      "category": "Reactions",
+      "payloadTypeName": "ReactionRemoveEvent",
+      "payloadTypeShape": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "messageId",
+          "type": "int64",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "spaceId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        }
+      ],
+      "payloadVariants": null,
+      "computedHash": "051da26212c5d4c7c213ce1f7d2709da6d53adb8fcd95b6cfb11e651e322995c",
       "declaredHash": null,
       "isStable": false
     },
@@ -16187,6 +16729,59 @@
           "variants": null
         },
         {
+          "name": "reactions",
+          "type": "BotReactionV1",
+          "isArray": true,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": [
+            {
+              "name": "count",
+              "type": "int32",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "emoji",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "userIds",
+              "type": "string",
+              "isArray": true,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
           "name": "replyId",
           "type": "int64",
           "isArray": false,
@@ -16407,6 +17002,53 @@
             "touchGrass",
             "doNotDisturb"
           ],
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        }
+      ],
+      "previousVersionName": null,
+      "changes": null
+    },
+    {
+      "name": "BotReactionV1",
+      "version": 1,
+      "shape": [
+        {
+          "name": "count",
+          "type": "int32",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "userIds",
+          "type": "string",
+          "isArray": true,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
           "isUnion": false,
           "discriminatorField": null,
           "discriminatorType": null,

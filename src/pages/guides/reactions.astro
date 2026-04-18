@@ -1,0 +1,491 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-astro';
+---
+
+<DocsLayout title="Reactions — Argon Bot API" current="/guides/reactions/" toc={[
+  { id: "how-reactions-work", title: "How Reactions Work" },
+  { id: "reaction-schema", title: "Reaction Schema" },
+  { id: "adding-reactions", title: "Adding Reactions" },
+  { id: "removing-reactions", title: "Removing Reactions" },
+  { id: "listing-reactions", title: "Listing Reactions" },
+  { id: "batch-refresh", title: "Batch Refresh" },
+  { id: "reactions-in-messages", title: "Reactions in Messages" },
+  { id: "events", title: "Real-time Events" },
+  { id: "limits", title: "Limits & Permissions" },
+]}>
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Reactions</h1>
+    <p class="text-text-secondary text-lg">
+      Add emoji reactions to messages. Users and bots can react with standard Unicode emoji.
+      Reactions are delivered in real time via the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Reactions</code> intent.
+    </p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- How Reactions Work -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <SmilePlus class="size-5 text-accent" />
+        <h2 id="how-reactions-work" class="text-xl font-semibold">How Reactions Work <a href="#how-reactions-work" class="anchor-link">#</a></h2>
+      </div>
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Any user or bot with the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddReactions</code> permission can react to a message with a Unicode emoji.
+          Each message supports up to <strong>20 unique emoji</strong>. Each user can react once per emoji — attempting to react twice returns
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">already_reacted</code>.
+        </p>
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <p class="text-sm text-text-secondary">
+            <strong>Performance note:</strong> Reactions are buffered in-memory on the server and flushed to the database periodically.
+            Real-time events (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ReactionAdd</code> / <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ReactionRemove</code>)
+            fire instantly — there's zero latency for connected clients even under heavy load.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reaction Schema -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Database class="size-5 text-accent" />
+        <h2 id="reaction-schema" class="text-xl font-semibold">Reaction Schema <a href="#reaction-schema" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          When you query messages or receive them via events, each message includes a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">reactions</code> array.
+          Each entry represents one emoji with its count and a preview of who reacted.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Field</span>
+              <span>Type</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">emoji</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">Unicode emoji (e.g. "👍", "🔥").</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">count</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">number</span></span>
+              <span class="text-text-secondary text-[12px]">Total number of users who reacted with this emoji.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">userIds</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string[]</span></span>
+              <span class="text-text-secondary text-[12px]">Preview of user IDs (up to 3). Use <code>count</code> for the real total.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example — message with reactions</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`{
+  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
+  <span class="text-accent-2">"text"</span>: <span class="text-accent-2">"Hello everyone!"</span>,
+  <span class="text-accent-2">"reactions"</span>: [
+    {
+      <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>,
+      <span class="text-accent-2">"count"</span>: <span class="type-keyword">128</span>,
+      <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"d3b07384-..."</span>, <span class="text-accent-2">"a1b2c3d4-..."</span>, <span class="text-accent-2">"e5f6a7b8-..."</span>]
+    },
+    {
+      <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"🔥"</span>,
+      <span class="text-accent-2">"count"</span>: <span class="type-keyword">3</span>,
+      <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"d3b07384-..."</span>, <span class="text-accent-2">"a1b2c3d4-..."</span>, <span class="text-accent-2">"e5f6a7b8-..."</span>]
+    }
+  ]
+}`} />
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-status-degraded">
+          <p class="text-sm text-text-secondary">
+            <strong>userIds is capped at 3.</strong> For display purposes (avatars), use the IDs in the array.
+            For the actual count, always use the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">count</code> field — it reflects the real total even when hundreds of users react.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Adding Reactions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <SmilePlus class="size-5 text-accent" />
+        <h2 id="adding-reactions" class="text-xl font-semibold">Adding Reactions <a href="#adding-reactions" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Send a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">POST</code> to <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">/IReactions/v1/Add</code>
+          with the channel, message, and emoji.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="type-property">POST</span> /IReactions/v1/Add
+<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>
+<span class="text-text-muted">Content-Type: application/json</span>
+
+{
+  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
+  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
+  <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>
+}`} />
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Status</span>
+              <span>Code</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="font-mono text-[12px] text-emerald-400">200</span>
+              <span class="font-mono text-[12px]">—</span>
+              <span class="text-text-secondary text-[12px]">Reaction added successfully.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="font-mono text-[12px] text-amber-400">403</span>
+              <span class="font-mono text-[12px]">insufficient_permissions</span>
+              <span class="text-text-secondary text-[12px]">Bot lacks <code>AddReactions</code> permission.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="font-mono text-[12px] text-amber-400">404</span>
+              <span class="font-mono text-[12px]">message_not_found</span>
+              <span class="text-text-secondary text-[12px]">Message doesn't exist in this channel.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="font-mono text-[12px] text-amber-400">409</span>
+              <span class="font-mono text-[12px]">already_reacted</span>
+              <span class="text-text-secondary text-[12px]">Bot already reacted with this emoji.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="font-mono text-[12px] text-amber-400">422</span>
+              <span class="font-mono text-[12px]">reaction_limit_reached</span>
+              <span class="text-text-secondary text-[12px]">Message already has 20 unique emoji.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Removing Reactions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <SmilePlus class="size-5 text-accent" />
+        <h2 id="removing-reactions" class="text-xl font-semibold">Removing Reactions <a href="#removing-reactions" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Remove the bot's own reaction with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">DELETE /IReactions/v1/Remove</code>.
+          Bots can only remove their own reactions — not those of other users.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="type-property">DELETE</span> /IReactions/v1/Remove
+<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>
+<span class="text-text-muted">Content-Type: application/json</span>
+
+{
+  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
+  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
+  <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>
+}`} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Listing Reactions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Database class="size-5 text-accent" />
+        <h2 id="listing-reactions" class="text-xl font-semibold">Listing Reactions <a href="#listing-reactions" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Query all reactions on a specific message with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IReactions/v1/List</code>.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="type-property">GET</span> /IReactions/v1/List?channelId=<span class="text-accent">c0ffee00-...</span>&messageId=<span class="text-accent">42</span>
+<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>`} />
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`{
+  <span class="text-accent-2">"reactions"</span>: [
+    {
+      <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>,
+      <span class="text-accent-2">"count"</span>: <span class="type-keyword">42</span>,
+      <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"d3b07384-..."</span>, <span class="text-accent-2">"a1b2c3d4-..."</span>, <span class="text-accent-2">"e5f6a7b8-..."</span>]
+    }
+  ]
+}`} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Batch Refresh -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Zap class="size-5 text-accent" />
+        <h2 id="batch-refresh" class="text-xl font-semibold">Batch Refresh <a href="#batch-refresh" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          After a reconnect or when a tab regains focus, the client may need to refresh reactions for all currently visible messages.
+          Instead of calling <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">/List</code> per message,
+          use <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">POST /IReactions/v1/BatchGet</code>
+          to fetch reactions for up to <strong>50 messages</strong> in a single request.
+        </p>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <p class="text-sm text-text-secondary">
+            <strong>When to use BatchGet:</strong> All messages must belong to the same channel.
+            The server resolves reactions from an in-memory LRU cache, so hot messages return instantly with no DB hit.
+            Ideal for refreshing the 15–30 messages visible in the viewport.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="type-property">POST</span> /IReactions/v1/BatchGet
+<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>
+<span class="text-text-muted">Content-Type: application/json</span>
+
+{
+  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
+  <span class="text-accent-2">"messageIds"</span>: [<span class="type-keyword">42</span>, <span class="type-keyword">43</span>, <span class="type-keyword">44</span>, <span class="type-keyword">45</span>, <span class="type-keyword">46</span>]
+}`} />
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`{
+  <span class="text-accent-2">"messages"</span>: [
+    {
+      <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
+      <span class="text-accent-2">"reactions"</span>: [
+        { <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>, <span class="text-accent-2">"count"</span>: <span class="type-keyword">128</span>, <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>] }
+      ]
+    },
+    {
+      <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">43</span>,
+      <span class="text-accent-2">"reactions"</span>: []
+    }
+  ]
+}`} />
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Recommended client pattern (TypeScript)</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="text-text-muted">// On reconnect or visibilitychange → "visible"</span>
+<span class="type-keyword">async function</span> refreshVisibleReactions(channelId: string, visibleIds: number[]) {
+  <span class="type-keyword">const</span> res = <span class="type-keyword">await</span> fetch(<span class="text-accent-2">\`/IReactions/v1/BatchGet\`</span>, {
+    method: <span class="text-accent-2">"POST"</span>,
+    headers: { <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">\`Bot \${token}\`</span>, <span class="text-accent-2">"Content-Type"</span>: <span class="text-accent-2">"application/json"</span> },
+    body: JSON.stringify({ channelId, messageIds: visibleIds })
+  });
+  <span class="type-keyword">const</span> { messages } = <span class="type-keyword">await</span> res.json();
+  <span class="text-text-muted">// Replace local reaction state for each returned message</span>
+  <span class="type-keyword">for</span> (<span class="type-keyword">const</span> { messageId, reactions } of messages) {
+    store.setReactions(messageId, reactions);
+  }
+}`} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reactions in Message History -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Code class="size-5 text-accent" />
+        <h2 id="reactions-in-messages" class="text-xl font-semibold">Reactions in Messages <a href="#reactions-in-messages" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Reactions are included automatically when fetching messages via <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IMessages/v1/History</code>
+          and in <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">MessageCreate</code> events.
+          No extra API call needed — reactions travel with the message.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example — message history with reactions</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="type-property">GET</span> /IMessages/v1/History?channelId=<span class="text-accent">c0ffee00-...</span>&limit=<span class="text-accent">1</span>
+
+<span class="text-text-muted">// Response includes reactions on each message</span>
+{
+  <span class="text-accent-2">"messages"</span>: [
+    {
+      <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
+      <span class="text-accent-2">"text"</span>: <span class="text-accent-2">"Ship it!"</span>,
+      <span class="text-accent-2">"creatorId"</span>: <span class="text-accent-2">"..."</span>,
+      <span class="text-accent-2">"reactions"</span>: [
+        { <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"🚀"</span>, <span class="text-accent-2">"count"</span>: <span class="type-keyword">15</span>, <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>] }
+      ]
+    }
+  ]
+}`} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-time Events -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Zap class="size-5 text-accent" />
+        <h2 id="events" class="text-xl font-semibold">Real-time Events <a href="#events" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Subscribe to the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Reactions</code> intent (bit 3, value <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">8</code>)
+          to receive reaction events via SSE. Add it to your intents bitmask:
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">intents = Messages | Reactions</code> = <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">1 | 8 = 9</code>.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Event</span>
+              <span>Fields</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">ReactionAdd</span>
+              <span class="font-mono text-[12px] text-text-secondary">spaceId, channelId, messageId, userId, emoji</span>
+              <span class="text-text-secondary text-[12px]">Fired when any user adds a reaction.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">ReactionRemove</span>
+              <span class="font-mono text-[12px] text-text-secondary">spaceId, channelId, messageId, userId, emoji</span>
+              <span class="text-text-secondary text-[12px]">Fired when any user removes a reaction.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">SSE example</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="text-text-muted">id:</span> 128
+<span class="text-text-muted">event:</span> reactionAdd
+<span class="text-text-muted">data:</span> {
+  <span class="text-accent-2">"spaceId"</span>: <span class="text-accent-2">"aaaabbbb-..."</span>,
+  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
+  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
+  <span class="text-accent-2">"userId"</span>: <span class="text-accent-2">"d3b07384-..."</span>,
+  <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>
+}`} />
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Handling reaction events (TypeScript)</h4>
+          <div class="code-block text-[12px]">
+            <pre set:html={`<span class="text-text-muted">// Update local reaction count from delta events</span>
+eventSource.addEventListener(<span class="text-accent-2">'reactionAdd'</span>, (e) => {
+  <span class="type-keyword">const</span> data = JSON.parse(e.data);
+  <span class="text-text-muted">// Increment local count for data.emoji on data.messageId</span>
+  <span class="text-text-muted">// Add data.userId to the user preview list</span>
+});
+
+eventSource.addEventListener(<span class="text-accent-2">'reactionRemove'</span>, (e) => {
+  <span class="type-keyword">const</span> data = JSON.parse(e.data);
+  <span class="text-text-muted">// Decrement local count for data.emoji on data.messageId</span>
+  <span class="text-text-muted">// Remove data.userId from the user preview list</span>
+  <span class="text-text-muted">// If count reaches 0, remove the reaction group entirely</span>
+});`} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Limits & Permissions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <ShieldCheck class="size-5 text-accent" />
+        <h2 id="limits" class="text-xl font-semibold">Limits & Permissions <a href="#limits" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Limit</span>
+              <span>Value</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">Unique emoji per message</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">20</span></span>
+              <span class="text-text-secondary text-[12px]">Maximum distinct emoji on a single message.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">Reactions per user per emoji</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">1</span></span>
+              <span class="text-text-secondary text-[12px]">Each user can react once with the same emoji. Duplicates return 409.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">userIds preview</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">3</span></span>
+              <span class="text-text-secondary text-[12px]">Max user IDs returned per reaction. Use <code>count</code> for the real total.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">Rate limit</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">60/min</span></span>
+              <span class="text-text-secondary text-[12px]">Sliding window per bot.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">BatchGet max messages</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">50</span></span>
+              <span class="text-text-secondary text-[12px]">Maximum message IDs per <code>/BatchGet</code> request. Excess IDs are silently truncated.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">Required permission</span>
+              <span class="font-mono text-[12px]"><span class="type-enum">AddReactions</span></span>
+              <span class="text-text-secondary text-[12px]">Checked on /Add. Removing own reaction has no permission requirement.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="type-property font-mono text-[12px]">SSE intent</span>
+              <span class="font-mono text-[12px]"><span class="type-enum">Reactions</span> (bit 3 = 8)</span>
+              <span class="text-text-secondary text-[12px]">Required to receive ReactionAdd / ReactionRemove events.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</DocsLayout>

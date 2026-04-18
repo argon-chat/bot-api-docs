@@ -31,6 +31,7 @@ const pageOrder = [
   { href: '/guides/voice/', label: 'Voice Streaming' },
   { href: '/guides/message-entities/', label: 'Message Entities' },
   { href: '/guides/controls/', label: 'Interactive Controls' },
+  { href: '/guides/reactions/', label: 'Reactions' },
   { href: '/guides/message-constructor/', label: 'Message Constructor' },
   { href: '/guides/permissions/', label: 'Permissions & Intents' },
   { href: '/guides/rate-limits/', label: 'Rate Limits' },
@@ -103,6 +104,13 @@ function formatVersion(v: number): string {
             current === '/guides/controls/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
         >
           Interactive Controls
+        </a>
+        <a
+          href="/guides/reactions/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/reactions/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Reactions
         </a>
         <a
           href="/guides/message-constructor/"

@@ -1,5 +1,21 @@
 [
   {
+    "version": "1.8.0",
+    "date": "2026-04-18",
+    "title": "Reactions",
+    "changes": [
+      { "type": "added", "interface": "IReactions", "description": "New IReactions/v1 interface — add, remove, and list emoji reactions on messages" },
+      { "type": "added", "interface": "IReactions", "description": "POST /Add — add a reaction to a message (max 20 unique emoji per message)" },
+      { "type": "added", "interface": "IReactions", "description": "DELETE /Remove — remove the bot's own reaction from a message" },
+      { "type": "added", "interface": "IReactions", "description": "GET /List — list all reactions on a message with count and user preview" },
+      { "type": "added", "interface": "IEvents", "description": "New ReactionAdd event — fired when a user adds a reaction (requires Reactions intent)" },
+      { "type": "added", "interface": "IEvents", "description": "New ReactionRemove event — fired when a user removes a reaction (requires Reactions intent)" },
+      { "type": "added", "interface": "IMessages", "description": "Message history now includes reactions array with emoji, count, and user preview (up to 3 IDs)" },
+      { "type": "added", "description": "Reaction user preview — userIds array capped at 3 entries on the wire; use count field for the full total" },
+      { "type": "added", "interface": "IReactions", "description": "Rate limit: 60 requests/min" }
+    ]
+  },
+  {
     "version": "1.7.0",
     "date": "2026-04-14",
     "title": "Control Archetype Constraints",
