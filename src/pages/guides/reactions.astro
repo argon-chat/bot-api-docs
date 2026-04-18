@@ -309,9 +309,9 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
           <div class="code-block text-[12px]">
             <pre set:html={`<span class="text-text-muted">// On reconnect or visibilitychange → "visible"</span>
 <span class="type-keyword">async function</span> refreshVisibleReactions(channelId: string, visibleIds: number[]) {
-  <span class="type-keyword">const</span> res = <span class="type-keyword">await</span> fetch(<span class="text-accent-2">\`/IReactions/v1/BatchGet\`</span>, {
+  <span class="type-keyword">const</span> res = <span class="type-keyword">await</span> fetch(<span class="text-accent-2">"/IReactions/v1/BatchGet"</span>, {
     method: <span class="text-accent-2">"POST"</span>,
-    headers: { <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">\`Bot \${token}\`</span>, <span class="text-accent-2">"Content-Type"</span>: <span class="text-accent-2">"application/json"</span> },
+    headers: { <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">"Bot " + token</span>, <span class="text-accent-2">"Content-Type"</span>: <span class="text-accent-2">"application/json"</span> },
     body: JSON.stringify({ channelId, messageIds: visibleIds })
   });
   <span class="type-keyword">const</span> { messages } = <span class="type-keyword">await</span> res.json();
