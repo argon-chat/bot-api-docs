@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.9.0",
+    "date": "2026-04-26",
+    "title": "Voice State on Interactions",
+    "changes": [
+      { "type": "added", "description": "New BotVoiceStateV1 DTO — contains channelId, joinedAt timestamp, and channel member state flags" },
+      { "type": "added", "interface": "IEvents", "description": "ControlInteraction event now includes nullable VoiceState — present when the interacting user is in a voice channel" },
+      { "type": "added", "interface": "IEvents", "description": "SelectInteraction event now includes nullable VoiceState" },
+      { "type": "added", "interface": "IEvents", "description": "ModalSubmit event now includes nullable VoiceState" },
+      { "type": "added", "interface": "IEvents", "description": "CommandInteraction event now includes nullable VoiceState" },
+      { "type": "changed", "interface": "IEvents", "description": "Contract updated for ControlInteraction, SelectInteraction, ModalSubmit, and CommandInteraction events (VoiceState field added)" }
+    ]
+  },
+  {
     "version": "1.8.0",
     "date": "2026-04-18",
     "title": "Reactions",

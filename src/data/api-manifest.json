@@ -12478,10 +12478,70 @@
           "discriminatorField": null,
           "discriminatorType": null,
           "variants": null
+        },
+        {
+          "name": "voiceState",
+          "type": "BotVoiceStateV1",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "joinedAt",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "state",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": [
+                "none",
+                "muted",
+                "mutedByServer",
+                "mutedHeadphones",
+                "mutedHeadphonesByServer",
+                "streaming"
+              ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
         }
       ],
       "payloadVariants": null,
-      "computedHash": "f9d0f44d7c397857e58d455bf0ffccbc164c20cc2382445abd3997a4d1c54f2c",
+      "computedHash": "db430d81971183b7dd04fecff054362dadcd1e887d0593c566bbd457dc9666f2",
       "declaredHash": null,
       "isStable": false
     },
@@ -12662,10 +12722,70 @@
           "discriminatorField": null,
           "discriminatorType": null,
           "variants": null
+        },
+        {
+          "name": "voiceState",
+          "type": "BotVoiceStateV1",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "joinedAt",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "state",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": [
+                "none",
+                "muted",
+                "mutedByServer",
+                "mutedHeadphones",
+                "mutedHeadphonesByServer",
+                "streaming"
+              ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
         }
       ],
       "payloadVariants": null,
-      "computedHash": "1f905e139e654843192b56e18b4b6ef94ddc6aef930e18279f34bdd57825b60c",
+      "computedHash": "9c0ee61f7f5ccd4e43e774536133f1d0749398e5231aa2266e7fd7cf5c44adc4",
       "declaredHash": null,
       "isStable": false
     },
@@ -14141,10 +14261,70 @@
           "discriminatorField": null,
           "discriminatorType": null,
           "variants": null
+        },
+        {
+          "name": "voiceState",
+          "type": "BotVoiceStateV1",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "joinedAt",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "state",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": [
+                "none",
+                "muted",
+                "mutedByServer",
+                "mutedHeadphones",
+                "mutedHeadphonesByServer",
+                "streaming"
+              ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
         }
       ],
       "payloadVariants": null,
-      "computedHash": "378d152e4d92c1d80eef466f0b1ec96b13ed2dc75f5f8ee5be36fcb7b62ac4e4",
+      "computedHash": "386a9a3e4d24a43f0db22e45433f5856e1cbebcf0db873614556bfaca6c530de",
       "declaredHash": null,
       "isStable": false
     },
@@ -14837,10 +15017,70 @@
           "discriminatorField": null,
           "discriminatorType": null,
           "variants": null
+        },
+        {
+          "name": "voiceState",
+          "type": "BotVoiceStateV1",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": [
+            {
+              "name": "channelId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "joinedAt",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "state",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": [
+                "none",
+                "muted",
+                "mutedByServer",
+                "mutedHeadphones",
+                "mutedHeadphonesByServer",
+                "streaming"
+              ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
         }
       ],
       "payloadVariants": null,
-      "computedHash": "70b3ba038621d1f26db79e49de6ef311e7229b06128839a1c92306b8803744c5",
+      "computedHash": "508724f346248647574eb675237922d2c5bb4f3c01021682c84d01843bf5511d",
       "declaredHash": null,
       "isStable": false
     },
@@ -17319,6 +17559,60 @@
           "isCircular": false,
           "properties": null,
           "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        }
+      ],
+      "previousVersionName": null,
+      "changes": null
+    },
+    {
+      "name": "BotVoiceStateV1",
+      "version": 1,
+      "shape": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "joinedAt",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": [
+            "none",
+            "muted",
+            "mutedByServer",
+            "mutedHeadphones",
+            "mutedHeadphonesByServer",
+            "streaming"
+          ],
           "isUnion": false,
           "discriminatorField": null,
           "discriminatorType": null,
