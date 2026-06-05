@@ -427,6 +427,16 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
         The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">data:</code> field contains the JSON payload described below.
       </p>
 
+      <div class="glass rounded-xl p-4 mb-6 border border-accent/20">
+        <p class="text-sm text-text-secondary">
+          Wherever a payload includes a <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">user</code> object, it carries an optional
+          <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">locale</code> field — the user's current app language as a
+          <a href="https://www.rfc-editor.org/info/bcp47" class="text-accent hover:underline">BCP-47</a> tag (e.g. <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">"en"</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">"ru"</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">"ja"</code>).
+          Use it to reply in the user's language or pick a voice in calls. It reflects the user's <em>live</em> session choice (it is not persisted),
+          so it can change between events and may be <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">null</code> when unknown.
+        </p>
+      </div>
+
       <!-- Quick nav by category -->
       <div class="flex flex-wrap gap-2 mb-8">
         {categories.map((cat: string) => (

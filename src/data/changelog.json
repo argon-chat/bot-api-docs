@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.10.0",
+    "date": "2026-06-05",
+    "title": "User Locale & GIF Messages",
+    "changes": [
+      { "type": "added", "description": "User objects now carry an optional locale field — the user's current app language as a BCP-47 tag (e.g. \"en\", \"ru\", \"ja\"). Use it to reply in the user's language or pick a voice in calls. It reflects the user's live session choice (not persisted), can change between events, and may be null when unknown." },
+      { "type": "added", "interface": "IEvents", "description": "locale is present on the user object in CommandInteraction, ControlInteraction, SelectInteraction, ModalSubmit, MemberJoin, MemberUpdate, PresenceUpdate, VoiceJoin, and VoiceLeave events" },
+      { "type": "added", "interface": "IMessages", "description": "Message senders now carry locale on the user object in MessageCreate events and message history" },
+      { "type": "added", "interface": "IEvents", "description": "CallIncoming event now includes a nullable fromLocale — the caller's language, for choosing a voice in calls" },
+      { "type": "added", "interface": "IMessages", "description": "New GIF message entity (type \"gif\") — messages can include GIFs with gifId, previewUrl, downloadUrl, width, height, fileId, and hmac" }
+    ]
+  },
+  {
     "version": "1.9.0",
     "date": "2026-04-26",
     "title": "Voice State on Interactions",

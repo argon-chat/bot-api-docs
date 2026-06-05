@@ -3418,6 +3418,19 @@
                       "variants": null
                     },
                     {
+                      "name": "downloadUrl",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
                       "name": "fileId",
                       "type": "string",
                       "isArray": false,
@@ -3536,7 +3549,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -3629,7 +3643,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -3709,7 +3724,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -3802,7 +3818,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -3908,7 +3925,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -3917,6 +3935,165 @@
                     },
                     {
                       "name": "version",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    }
+                  ]
+                },
+                {
+                  "name": "MessageEntityGif",
+                  "discriminatorValue": "gif",
+                  "properties": [
+                    {
+                      "name": "fileId",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": true,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "gifId",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "height",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "hmac",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "length",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "offset",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "previewUrl",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": [
+                        "hashtag",
+                        "mention",
+                        "mentionEveryone",
+                        "mentionRole",
+                        "email",
+                        "url",
+                        "monospace",
+                        "quote",
+                        "spoiler",
+                        "strikethrough",
+                        "bold",
+                        "italic",
+                        "underline",
+                        "fraction",
+                        "ordinal",
+                        "capitalized",
+                        "systemCallStarted",
+                        "systemCallEnded",
+                        "systemCallTimeout",
+                        "systemUserJoined",
+                        "attachment",
+                        "gif"
+                      ],
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "version",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "width",
                       "type": "int32",
                       "isArray": false,
                       "isNullable": false,
@@ -4001,7 +4178,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4081,7 +4259,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4161,7 +4340,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4254,7 +4434,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4347,7 +4528,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4427,7 +4609,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4507,7 +4690,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4600,7 +4784,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4680,7 +4865,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4760,7 +4946,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4879,7 +5066,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -4985,7 +5173,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -5091,7 +5280,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -5184,7 +5374,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -5290,7 +5481,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -5396,7 +5588,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -5940,6 +6133,19 @@
                           "variants": null
                         },
                         {
+                          "name": "downloadUrl",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
                           "name": "fileId",
                           "type": "string",
                           "isArray": false,
@@ -6058,7 +6264,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6151,7 +6358,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6231,7 +6439,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6324,7 +6533,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6430,7 +6640,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6439,6 +6650,165 @@
                         },
                         {
                           "name": "version",
+                          "type": "int32",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MessageEntityGif",
+                      "discriminatorValue": "gif",
+                      "properties": [
+                        {
+                          "name": "fileId",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": true,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "gifId",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "height",
+                          "type": "int32",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "hmac",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "length",
+                          "type": "int32",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "offset",
+                          "type": "int32",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "previewUrl",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "type",
+                          "type": "string",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": [
+                            "hashtag",
+                            "mention",
+                            "mentionEveryone",
+                            "mentionRole",
+                            "email",
+                            "url",
+                            "monospace",
+                            "quote",
+                            "spoiler",
+                            "strikethrough",
+                            "bold",
+                            "italic",
+                            "underline",
+                            "fraction",
+                            "ordinal",
+                            "capitalized",
+                            "systemCallStarted",
+                            "systemCallEnded",
+                            "systemCallTimeout",
+                            "systemUserJoined",
+                            "attachment",
+                            "gif"
+                          ],
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "version",
+                          "type": "int32",
+                          "isArray": false,
+                          "isNullable": false,
+                          "isCircular": false,
+                          "properties": null,
+                          "enumValues": null,
+                          "isUnion": false,
+                          "discriminatorField": null,
+                          "discriminatorType": null,
+                          "variants": null
+                        },
+                        {
+                          "name": "width",
                           "type": "int32",
                           "isArray": false,
                           "isNullable": false,
@@ -6523,7 +6893,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6603,7 +6974,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6683,7 +7055,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6776,7 +7149,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6869,7 +7243,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -6949,7 +7324,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7029,7 +7405,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7122,7 +7499,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7202,7 +7580,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7282,7 +7661,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7401,7 +7781,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7507,7 +7888,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7613,7 +7995,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7706,7 +8089,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7812,7 +8196,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -7918,7 +8303,8 @@
                             "systemCallEnded",
                             "systemCallTimeout",
                             "systemUserJoined",
-                            "attachment"
+                            "attachment",
+                            "gif"
                           ],
                           "isUnion": false,
                           "discriminatorField": null,
@@ -8427,6 +8813,19 @@
                       "variants": null
                     },
                     {
+                      "name": "downloadUrl",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
                       "name": "fileId",
                       "type": "string",
                       "isArray": false,
@@ -8545,7 +8944,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -8638,7 +9038,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -8718,7 +9119,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -8811,7 +9213,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -8917,7 +9320,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -8926,6 +9330,165 @@
                     },
                     {
                       "name": "version",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    }
+                  ]
+                },
+                {
+                  "name": "MessageEntityGif",
+                  "discriminatorValue": "gif",
+                  "properties": [
+                    {
+                      "name": "fileId",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": true,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "gifId",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "height",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "hmac",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "length",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "offset",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "previewUrl",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "type",
+                      "type": "string",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": [
+                        "hashtag",
+                        "mention",
+                        "mentionEveryone",
+                        "mentionRole",
+                        "email",
+                        "url",
+                        "monospace",
+                        "quote",
+                        "spoiler",
+                        "strikethrough",
+                        "bold",
+                        "italic",
+                        "underline",
+                        "fraction",
+                        "ordinal",
+                        "capitalized",
+                        "systemCallStarted",
+                        "systemCallEnded",
+                        "systemCallTimeout",
+                        "systemUserJoined",
+                        "attachment",
+                        "gif"
+                      ],
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "version",
+                      "type": "int32",
+                      "isArray": false,
+                      "isNullable": false,
+                      "isCircular": false,
+                      "properties": null,
+                      "enumValues": null,
+                      "isUnion": false,
+                      "discriminatorField": null,
+                      "discriminatorType": null,
+                      "variants": null
+                    },
+                    {
+                      "name": "width",
                       "type": "int32",
                       "isArray": false,
                       "isNullable": false,
@@ -9010,7 +9573,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9090,7 +9654,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9170,7 +9735,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9263,7 +9829,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9356,7 +9923,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9436,7 +10004,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9516,7 +10085,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9609,7 +10179,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9689,7 +10260,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9769,7 +10341,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9888,7 +10461,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -9994,7 +10568,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -10100,7 +10675,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -10193,7 +10769,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -10299,7 +10876,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -10405,7 +10983,8 @@
                         "systemCallEnded",
                         "systemCallTimeout",
                         "systemUserJoined",
-                        "attachment"
+                        "attachment",
+                        "gif"
                       ],
                       "isUnion": false,
                       "discriminatorField": null,
@@ -12093,6 +12672,19 @@
           "variants": null
         },
         {
+          "name": "fromLocale",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
           "name": "fromUserId",
           "type": "string",
           "isArray": false,
@@ -12107,7 +12699,7 @@
         }
       ],
       "payloadVariants": null,
-      "computedHash": "39cba6e5695266790b58b6e4ec6d95d5443e44229ad3a57b9d8513bb7a9db2b3",
+      "computedHash": "34230d8ea1aadb4f19c6779cf80de9db9dbcecc34e9a2a792694280d55e83b83",
       "declaredHash": null,
       "isStable": false
     },
@@ -12447,6 +13039,19 @@
               "variants": null
             },
             {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
               "name": "userId",
               "type": "string",
               "isArray": false,
@@ -12691,6 +13296,19 @@
               "variants": null
             },
             {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
               "name": "userId",
               "type": "string",
               "isArray": false,
@@ -12890,6 +13508,19 @@
               "variants": null
             },
             {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
               "name": "userId",
               "type": "string",
               "isArray": false,
@@ -13036,6 +13667,19 @@
                 "banned",
                 "deleted"
               ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
               "isUnion": false,
               "discriminatorField": null,
               "discriminatorType": null,
@@ -13727,7 +14371,8 @@
                     "systemCallEnded",
                     "systemCallTimeout",
                     "systemUserJoined",
-                    "attachment"
+                    "attachment",
+                    "gif"
                   ],
                   "isUnion": false,
                   "discriminatorField": null,
@@ -13895,6 +14540,19 @@
                     "banned",
                     "deleted"
                   ],
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "locale",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
                   "isUnion": false,
                   "discriminatorField": null,
                   "discriminatorType": null,
@@ -14184,6 +14842,19 @@
                 "banned",
                 "deleted"
               ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
               "isUnion": false,
               "discriminatorField": null,
               "discriminatorType": null,
@@ -14490,6 +15161,19 @@
                 "banned",
                 "deleted"
               ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
               "isUnion": false,
               "discriminatorField": null,
               "discriminatorType": null,
@@ -14973,6 +15657,19 @@
               "variants": null
             },
             {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
               "name": "userId",
               "type": "string",
               "isArray": false,
@@ -15289,6 +15986,19 @@
               "variants": null
             },
             {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
               "name": "userId",
               "type": "string",
               "isArray": false,
@@ -15409,6 +16119,19 @@
                 "banned",
                 "deleted"
               ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
               "isUnion": false,
               "discriminatorField": null,
               "discriminatorType": null,
@@ -16443,7 +17166,8 @@
             "systemCallEnded",
             "systemCallTimeout",
             "systemUserJoined",
-            "attachment"
+            "attachment",
+            "gif"
           ],
           "isUnion": false,
           "discriminatorField": null,
@@ -17104,7 +17828,8 @@
                 "systemCallEnded",
                 "systemCallTimeout",
                 "systemUserJoined",
-                "attachment"
+                "attachment",
+                "gif"
               ],
               "isUnion": false,
               "discriminatorField": null,
@@ -17272,6 +17997,19 @@
                 "banned",
                 "deleted"
               ],
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
               "isUnion": false,
               "discriminatorField": null,
               "discriminatorType": null,
@@ -17533,6 +18271,19 @@
             "banned",
             "deleted"
           ],
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
           "isUnion": false,
           "discriminatorField": null,
           "discriminatorType": null,
