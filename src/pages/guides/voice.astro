@@ -11,6 +11,7 @@ import LoudnessDemo from '../../components/LoudnessDemo.vue';
   { id: "audio-connect", title: "/audio/connect — Publish" },
   { id: "audio-subscribe", title: "/audio/subscribe — Subscribe" },
   { id: "audio-duplex", title: "/audio/duplex — Bidirectional" },
+  { id: "webtransport", title: "WebTransport (HTTP/3)" },
   { id: "step-by-step", title: "Step-by-Step Flow" },
   { id: "interactive-demo", title: "Interactive Demo" },
   { id: "audio-requirements", title: "Audio Requirements" },
@@ -94,6 +95,12 @@ import LoudnessDemo from '../../components/LoudnessDemo.vue';
             <div class="text-xs text-text-secondary">Publish + subscribe on one connection. Voice bots, echo bots.</div>
           </a>
         </div>
+
+        <p class="text-sm text-text-secondary mt-3">
+          <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">/audio/duplex</code> is also served over
+          <a href="#webtransport" class="text-accent hover:underline">WebTransport</a> — same parameters, same status messages,
+          audio carried as QUIC datagrams instead of WebSocket frames.
+        </p>
       </div>
     </section>
 
@@ -270,6 +277,115 @@ import LoudnessDemo from '../../components/LoudnessDemo.vue';
           <p class="text-sm text-text-secondary">
             <strong class="text-text-primary">Recommended for call bots.</strong> The <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ICalls/Accept</code> endpoint returns <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">audioBaseUrl</code> and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">callerId</code> — use them directly to build the duplex URL.
           </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WebTransport -->
+    <section>
+      <h2 id="webtransport" class="text-xl font-semibold mb-4">WebTransport (HTTP/3) <a href="#webtransport" class="anchor-link">#</a></h2>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          The duplex endpoint is also served over <strong class="text-text-primary">WebTransport</strong> — same path, same query parameters, same status messages.
+          Audio travels as QUIC <strong class="text-text-primary">datagrams</strong> instead of WebSocket frames, so a lost frame is simply lost
+          instead of holding up everything queued behind it. That is the right trade for live voice: a frame that arrives late is worth less than the one after it.
+        </p>
+
+        <div class="code-block text-[12px]">
+          <pre set:html={`https://ingress.argon.gl:12881<span class="text-accent">/audio/duplex</span>?token=<span class="text-accent-2">JWT</span>&target_identity=<span class="text-accent-2">user-guid</span>&target_track_source=<span class="text-accent-2">microphone</span>&frame_duration_ms=<span class="text-accent-2">20</span>`} />
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-oled-border bg-oled-surface/50 p-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <p class="text-sm text-text-secondary">
+            WebTransport listens on its own UDP port, separate from the WebSocket one — the port above is an example, take the real one from your deployment.
+            <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">StreamToken</code> still returns the WebSocket <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ingressUrl</code>;
+            only the scheme, host and port differ — every query parameter is the one you would have used on <a href="#audio-duplex" class="text-accent hover:underline">/audio/duplex</a>.
+          </p>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">Channels</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-oled-border-subtle">
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Channel</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Direction</th>
+                <th class="text-left py-2 px-3 text-text-muted font-medium">Carries</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-oled-border-subtle">
+                <td class="py-2 px-3 font-semibold text-text-primary">Datagrams</td>
+                <td class="py-2 px-3">Bot &harr; Room</td>
+                <td class="py-2 px-3">One raw Opus frame per datagram. The primary audio path in both directions.</td>
+              </tr>
+              <tr class="border-b border-oled-border-subtle">
+                <td class="py-2 px-3 font-semibold text-text-primary">Control stream</td>
+                <td class="py-2 px-3">Room &rarr; Bot</td>
+                <td class="py-2 px-3">Unidirectional stream opened by the server. First byte <code class="bg-oled-elevated px-1 rounded text-[11px]">0x00</code>, then newline delimited JSON — the same <code class="bg-oled-elevated px-1 rounded text-[11px]">ready</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">waiting</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">subscribed</code>, <code class="bg-oled-elevated px-1 rounded text-[11px]">target_left</code> and <code class="bg-oled-elevated px-1 rounded text-[11px]">error</code> messages the WebSocket sends as text frames.</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-semibold text-text-primary">Audio stream</td>
+                <td class="py-2 px-3">Bot &harr; Room</td>
+                <td class="py-2 px-3">Unidirectional stream. First byte <code class="bg-oled-elevated px-1 rounded text-[11px]">0x01</code>, then records of <code class="bg-oled-elevated px-1 rounded text-[11px]">[uint32 big endian size][Opus frame]</code>. The reliable fallback.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">What to know</h4>
+        <ul class="space-y-2 text-sm text-text-secondary list-disc pl-5">
+          <li>Read and drop the one byte type header before parsing a unidirectional stream — it is how you tell a control stream from an audio stream.</li>
+          <li>The server switches to the audio stream for frames too large for a datagram (roughly 1200 bytes), and for the whole session if your client never negotiated datagram support. You may send your own audio either way.</li>
+          <li>Inbound frames are queued 128 deep. A bot that sends faster than realtime has the excess dropped rather than buffered, so pace your sends at the frame duration you asked for.</li>
+          <li>No ping/pong. QUIC keeps the connection alive on its own every 20 seconds, and a session idle for 60 seconds is closed.</li>
+          <li>TLS is mandatory. A deployment started without a certificate generates a short lived ECDSA one and logs its SHA-256 — that fingerprint is what browsers accept through <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">serverCertificateHashes</code>.</li>
+        </ul>
+
+        <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-2">TypeScript</h4>
+        <div class="code-block text-[12px]">
+          <pre set:html={`<span class="text-accent-hover">const</span> wt = <span class="text-accent-hover">new</span> WebTransport(url);
+<span class="text-accent-hover">await</span> wt.ready;
+
+<span class="text-text-muted">// 1. control stream: newline delimited JSON, after a 0x00 header byte</span>
+(<span class="text-accent-hover">async</span> () => {
+  <span class="text-accent-hover">const</span> { value: stream } = <span class="text-accent-hover">await</span> wt.incomingUnidirectionalStreams.getReader().read();
+  <span class="text-accent-hover">const</span> reader = stream.pipeThrough(<span class="text-accent-hover">new</span> TextDecoderStream()).getReader();
+
+  <span class="text-accent-hover">let</span> buf = <span class="text-accent-2">""</span>;
+  <span class="text-accent-hover">for</span> (;;) {
+    <span class="text-accent-hover">const</span> { value, done } = <span class="text-accent-hover">await</span> reader.read();
+    <span class="text-accent-hover">if</span> (done) <span class="text-accent-hover">break</span>;
+
+    buf += value;
+    <span class="text-accent-hover">if</span> (buf.startsWith(<span class="text-accent-2">"\\u0000"</span>)) buf = buf.slice(1); <span class="text-text-muted">// stream type header</span>
+
+    <span class="text-accent-hover">let</span> nl;
+    <span class="text-accent-hover">while</span> ((nl = buf.indexOf(<span class="text-accent-2">"\\n"</span>)) >= 0) {
+      <span class="text-accent-hover">const</span> line = buf.slice(0, nl);
+      buf = buf.slice(nl + 1);
+      <span class="text-accent-hover">if</span> (line) onStatus(JSON.parse(line)); <span class="text-text-muted">// ready, subscribed, target_left, error</span>
+    }
+  }
+})();
+
+<span class="text-text-muted">// 2. room to bot: one Opus frame per datagram</span>
+(<span class="text-accent-hover">async</span> () => {
+  <span class="text-accent-hover">const</span> reader = wt.datagrams.readable.getReader();
+  <span class="text-accent-hover">for</span> (;;) {
+    <span class="text-accent-hover">const</span> { value, done } = <span class="text-accent-hover">await</span> reader.read();
+    <span class="text-accent-hover">if</span> (done) <span class="text-accent-hover">break</span>;
+    decodeOpusFrame(value);
+  }
+})();
+
+<span class="text-text-muted">// 3. bot to room: send frames paced at frame_duration_ms</span>
+<span class="text-accent-hover">const</span> writer = wt.datagrams.writable.getWriter();
+<span class="text-accent-hover">for await</span> (<span class="text-accent-hover">const</span> frame <span class="text-accent-hover">of</span> opusFrames) {
+  <span class="text-accent-hover">await</span> writer.write(frame);
+}`} />
         </div>
       </div>
     </section>
@@ -651,6 +767,10 @@ Content-Type: application/json
             Most WebSocket libraries respond to pings automatically. If yours doesn't, make sure to reply with a pong frame within 60 seconds or the server will disconnect the session.
           </p>
         </div>
+
+        <p class="text-sm text-text-secondary">
+          None of this applies to <a href="#webtransport" class="text-accent hover:underline">WebTransport</a>: QUIC keeps the connection alive itself, sending every 20 seconds and closing a session that has been idle for 60.
+        </p>
       </div>
     </section>
 
