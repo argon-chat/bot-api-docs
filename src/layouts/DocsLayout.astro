@@ -3,7 +3,8 @@ import Layout from './Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import fullManifest from '../data/api-manifest.json';
-const manifest = fullManifest.interfaces;
+import { interfaces } from '../data/botApi';
+const manifest = interfaces;
 
 interface TocEntry {
   id: string;
@@ -157,6 +158,13 @@ function formatVersion(v: number): string {
             current === '/docs/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
         >
           Overview
+        </a>
+        <a
+          href="/openapi.json"
+          download="argon-bot-api.openapi.json"
+          class="px-3 py-1.5 rounded-lg text-sm transition-colors text-text-secondary hover:text-text-primary hover:bg-oled-hover"
+        >
+          OpenAPI spec
         </a>
 
         {stableInterfaces.length > 0 && (

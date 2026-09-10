@@ -1,6 +1,7 @@
 ---
 import { Bot, BookOpen, History, Github, Compass, Sun, Moon, Search, Menu, X } from 'lucide-astro';
 import fullManifest from '../data/api-manifest.json';
+import { interfaces } from '../data/botApi';
 
 interface Props {
   current?: string;
@@ -9,7 +10,7 @@ const { current = '/' } = Astro.props;
 const isGuides = current.startsWith('/guides/');
 const isDocs = current.startsWith('/docs/');
 
-const manifest = fullManifest.interfaces;
+const manifest = interfaces;
 const stableInterfaces = manifest.filter((i: any) => i.isStable && !i.isDeprecated);
 const draftInterfaces = manifest.filter((i: any) => !i.isStable && !i.isDeprecated);
 

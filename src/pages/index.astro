@@ -4,8 +4,9 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { Bot, Zap, Radio, Terminal, Shield, Layers, Gauge, Mic, MessageSquare, Users, Palette, Keyboard, ArrowRight, BookOpen, Compass, Code, Hash, MousePointerClick } from 'lucide-astro';
 import fullManifest from '../data/api-manifest.json';
+import { interfaces } from '../data/botApi';
 
-const manifest = fullManifest.interfaces;
+const manifest = interfaces;
 const events = fullManifest.events;
 const intents = fullManifest.intents;
 const rateLimits = fullManifest.rateLimits;

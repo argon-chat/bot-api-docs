@@ -1,0 +1,5315 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Argon Bot API",
+    "description": "HTTP API for Argon bots. Every request carries a bot token as `Authorization: Bot <token>`; the token may also be given as the first path segment. Interfaces are versioned independently, so `/IMessages/v1/Send` and `/IMessages/v2/Send` can both exist.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://gateway.argon.zone",
+      "description": "Argon bot gateway"
+    }
+  ],
+  "paths": {
+    "/IArchetypes/v1/List": {
+      "get": {
+        "tags": [
+          "IArchetypes"
+        ],
+        "summary": "Lists all archetypes in a space. Returns id, name, colour, isMentionable, isDefault. Permissions are included only if the bot has the ManageArchetype entitlement.",
+        "operationId": "IArchetypes_v1_List",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchetypeListResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          }
+        ]
+      }
+    },
+    "/IArchetypes/v1/Get": {
+      "get": {
+        "tags": [
+          "IArchetypes"
+        ],
+        "summary": "Gets a single archetype by ID.",
+        "operationId": "IArchetypes_v1_Get",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "archetypeId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotArchetypeV1"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — Archetype not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "Archetype not found."
+          }
+        ]
+      }
+    },
+    "/IArchetypes/v1/ListMembers": {
+      "get": {
+        "tags": [
+          "IArchetypes"
+        ],
+        "summary": "Lists all members assigned to a specific archetype.",
+        "operationId": "IArchetypes_v1_ListMembers",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "archetypeId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchetypeMembersResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — Archetype not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "Archetype not found."
+          }
+        ]
+      }
+    },
+    "/IBotSelf/v1/GetMe": {
+      "get": {
+        "tags": [
+          "IBotSelf"
+        ],
+        "summary": "Returns the bot's own profile: user ID, username, display name, avatar, and email.",
+        "operationId": "IBotSelf_v1_GetMe",
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotSelfResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IBotSelf/v1/GetSpaces": {
+      "get": {
+        "tags": [
+          "IBotSelf"
+        ],
+        "summary": "Lists all spaces the bot has been added to.",
+        "operationId": "IBotSelf_v1_GetSpaces",
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotSpacesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ICalls/v20260401/Accept": {
+      "post": {
+        "tags": [
+          "ICalls"
+        ],
+        "summary": "Accepts an incoming call. Returns a LiveKit room token for joining the call audio. The bot must be the callee.",
+        "description": "Requires the `Connect` entitlement in the target space.\n\nRequires a privileged intent, which a bot has to be granted.",
+        "operationId": "ICalls_v20260401_Accept",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptCallRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptCallResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_callee` — This call is not directed at this bot.\n`not_verified` — This endpoint requires a verified bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`accept_failed` — Failed to accept call.\n`not_ringing` — Call is not in ringing state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "Connect",
+        "x-argon-privileged": true,
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "accept_failed",
+            "description": "Failed to accept call."
+          },
+          {
+            "status": 400,
+            "code": "not_ringing",
+            "description": "Call is not in ringing state."
+          },
+          {
+            "status": 403,
+            "code": "not_callee",
+            "description": "This call is not directed at this bot."
+          },
+          {
+            "status": 403,
+            "code": "not_verified",
+            "description": "This endpoint requires a verified bot."
+          }
+        ]
+      }
+    },
+    "/ICalls/v20260401/Reject": {
+      "post": {
+        "tags": [
+          "ICalls"
+        ],
+        "summary": "Rejects an incoming call with an optional reason.",
+        "description": "Requires the `Connect` entitlement in the target space.\n\nRequires a privileged intent, which a bot has to be granted.",
+        "operationId": "ICalls_v20260401_Reject",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectCallRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RejectCallResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_callee` — This call is not directed at this bot.\n`not_verified` — This endpoint requires a verified bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "Connect",
+        "x-argon-privileged": true,
+        "x-argon-errors": [
+          {
+            "status": 403,
+            "code": "not_callee",
+            "description": "This call is not directed at this bot."
+          },
+          {
+            "status": 403,
+            "code": "not_verified",
+            "description": "This endpoint requires a verified bot."
+          }
+        ]
+      }
+    },
+    "/ICalls/v20260401/Ringing": {
+      "get": {
+        "tags": [
+          "ICalls"
+        ],
+        "summary": "Lists all currently ringing calls for the bot.",
+        "description": "Requires the `Connect` entitlement in the target space.\n\nRequires a privileged intent, which a bot has to be granted.",
+        "operationId": "ICalls_v20260401_Ringing",
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RingingCallsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_verified` — This endpoint requires a verified bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "Connect",
+        "x-argon-privileged": true,
+        "x-argon-errors": [
+          {
+            "status": 403,
+            "code": "not_verified",
+            "description": "This endpoint requires a verified bot."
+          }
+        ]
+      }
+    },
+    "/IChannels/v1/List": {
+      "get": {
+        "tags": [
+          "IChannels"
+        ],
+        "summary": "Lists all channels in a space.",
+        "operationId": "IChannels_v1_List",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChannelListResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          }
+        ]
+      }
+    },
+    "/IChannels/v1/Create": {
+      "post": {
+        "tags": [
+          "IChannels"
+        ],
+        "summary": "Creates a new channel in a space. Specify name, type (text or voice), and optionally a channel group.",
+        "description": "Requires the `ManageChannels` entitlement in the target space.",
+        "operationId": "IChannels_v1_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChannelRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotChannel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "ManageChannels",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          }
+        ]
+      }
+    },
+    "/IChannels/v1/Delete": {
+      "delete": {
+        "tags": [
+          "IChannels"
+        ],
+        "summary": "Deletes a channel.",
+        "description": "Requires the `ManageChannels` entitlement in the target space.",
+        "operationId": "IChannels_v1_Delete",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "channelId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "ManageChannels",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          }
+        ]
+      }
+    },
+    "/ICommands/v1/Register": {
+      "post": {
+        "tags": [
+          "ICommands"
+        ],
+        "summary": "Registers a new slash command. Commands can be global or scoped to a specific space. Max 50 commands per scope.",
+        "operationId": "ICommands_v1_Register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterCommandRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRegisteredResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`command_limit` — Maximum 50 commands per scope.\n`invalid_description` — Description must be max 100 characters.\n`invalid_name` — Name must be 1-32 lowercase alphanumeric characters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "command_limit",
+            "description": "Maximum 50 commands per scope."
+          },
+          {
+            "status": 400,
+            "code": "invalid_description",
+            "description": "Description must be max 100 characters."
+          },
+          {
+            "status": 400,
+            "code": "invalid_name",
+            "description": "Name must be 1-32 lowercase alphanumeric characters."
+          }
+        ]
+      }
+    },
+    "/ICommands/v1/Update": {
+      "patch": {
+        "tags": [
+          "ICommands"
+        ],
+        "summary": "Updates an existing slash command's description, options, or default permission.",
+        "operationId": "ICommands_v1_Update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCommandRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotCommand"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — Command does not exist or is not owned by this bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "Command does not exist or is not owned by this bot."
+          }
+        ]
+      }
+    },
+    "/ICommands/v1/Delete": {
+      "delete": {
+        "tags": [
+          "ICommands"
+        ],
+        "summary": "Deletes a slash command by its commandId.",
+        "operationId": "ICommands_v1_Delete",
+        "parameters": [
+          {
+            "name": "commandId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — Command does not exist or is not owned by this bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "Command does not exist or is not owned by this bot."
+          }
+        ]
+      }
+    },
+    "/ICommands/v1/List": {
+      "get": {
+        "tags": [
+          "ICommands"
+        ],
+        "summary": "Lists all commands registered by this bot across all scopes.",
+        "operationId": "ICommands_v1_List",
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ICommands/v1/ListForSpace": {
+      "get": {
+        "tags": [
+          "ICommands"
+        ],
+        "summary": "Lists commands available in a specific space (global + space-scoped).",
+        "operationId": "ICommands_v1_ListForSpace",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IEvents/v1/Stream": {
+      "get": {
+        "tags": [
+          "IEvents"
+        ],
+        "summary": "Opens a persistent SSE connection. Pass intents as a bitmask to filter events. Supports reconnection via Last-Event-ID header or lastEventId query parameter.",
+        "operationId": "IEvents_v1_Stream",
+        "parameters": [
+          {
+            "name": "intents",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "lastEventId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotSseEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IInteractions/v1/Reply": {
+      "post": {
+        "tags": [
+          "IInteractions"
+        ],
+        "summary": "Reply to an interaction by sending a message to the channel. Optionally reply to a specific message via replyTo.",
+        "description": "Requires the `SendMessages` entitlement in the target space.",
+        "operationId": "IInteractions_v1_Reply",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplyResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "SendMessages"
+      }
+    },
+    "/IInteractions/v1/EditMessage": {
+      "patch": {
+        "tags": [
+          "IInteractions"
+        ],
+        "summary": "Edit the text or controls of a message previously sent by this bot.",
+        "operationId": "IInteractions_v1_EditMessage",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/IInteractions/v1/Ack": {
+      "post": {
+        "tags": [
+          "IInteractions"
+        ],
+        "summary": "Acknowledge an interaction. The client shows a brief confirmation.",
+        "operationId": "IInteractions_v1_Ack",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "`interaction_not_found` — Interaction does not exist or has expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "interaction_not_found",
+            "description": "Interaction does not exist or has expired."
+          }
+        ]
+      }
+    },
+    "/IInteractions/v1/Defer": {
+      "post": {
+        "tags": [
+          "IInteractions"
+        ],
+        "summary": "Defer an interaction. The client shows a loading state until the bot follows up.",
+        "operationId": "IInteractions_v1_Defer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeferRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "`interaction_not_found` — Interaction does not exist or has expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "interaction_not_found",
+            "description": "Interaction does not exist or has expired."
+          }
+        ]
+      }
+    },
+    "/IInteractions/v1/Modal": {
+      "post": {
+        "tags": [
+          "IInteractions"
+        ],
+        "summary": "Show a modal dialog to the user who triggered the interaction.",
+        "operationId": "IInteractions_v1_Modal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModalResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`interaction_not_found` — Interaction does not exist or has expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`validation_error` — Modal definition is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "validation_error",
+            "description": "Modal definition is invalid."
+          },
+          {
+            "status": 404,
+            "code": "interaction_not_found",
+            "description": "Interaction does not exist or has expired."
+          }
+        ]
+      }
+    },
+    "/IMembers/v1/Kick": {
+      "post": {
+        "tags": [
+          "IMembers"
+        ],
+        "summary": "Kicks a user from a channel.",
+        "description": "Requires the `KickMember` entitlement in the target space.",
+        "operationId": "IMembers_v1_Kick",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "channelId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KickResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`kick_failed` — Failed to kick user — they may not be in the channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "KickMember",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "kick_failed",
+            "description": "Failed to kick user — they may not be in the channel."
+          }
+        ]
+      }
+    },
+    "/IMessages/v1/Send": {
+      "post": {
+        "tags": [
+          "IMessages"
+        ],
+        "summary": "Sends a text message to a channel. Include a unique randomId for deduplication. Optionally reply to another message via replyTo.",
+        "description": "Requires the `SendMessages` entitlement in the target space.",
+        "operationId": "IMessages_v1_Send",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendMessageResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "SendMessages"
+      }
+    },
+    "/IMessages/v1/History": {
+      "get": {
+        "tags": [
+          "IMessages"
+        ],
+        "summary": "Gets message history for a channel. Supports pagination via from (message ID) and limit (1–100, default 50).",
+        "description": "Requires the `ReadHistory` entitlement in the target space.",
+        "operationId": "IMessages_v1_History",
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageHistoryResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "ReadHistory"
+      }
+    },
+    "/IReactions/v1/Add": {
+      "post": {
+        "tags": [
+          "IReactions"
+        ],
+        "summary": "Adds a reaction to a message. Each user can react once per emoji. Maximum 20 unique emoji per message.",
+        "description": "Requires the `AddReactions` entitlement in the target space.",
+        "operationId": "IReactions_v1_Add",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddReactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "`message_not_found` — Message does not exist in this channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`already_reacted` — Bot has already reacted with this emoji.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`reaction_limit_reached` — Maximum 20 unique emoji per message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`insufficient_permissions` — Bot does not have the AddReactions permission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "AddReactions",
+        "x-argon-errors": [
+          {
+            "status": 403,
+            "code": "insufficient_permissions",
+            "description": "Bot does not have the AddReactions permission."
+          },
+          {
+            "status": 404,
+            "code": "message_not_found",
+            "description": "Message does not exist in this channel."
+          },
+          {
+            "status": 409,
+            "code": "already_reacted",
+            "description": "Bot has already reacted with this emoji."
+          },
+          {
+            "status": 422,
+            "code": "reaction_limit_reached",
+            "description": "Maximum 20 unique emoji per message."
+          }
+        ]
+      }
+    },
+    "/IReactions/v1/Remove": {
+      "delete": {
+        "tags": [
+          "IReactions"
+        ],
+        "summary": "Removes the bot's reaction from a message. Only the bot's own reaction can be removed.",
+        "operationId": "IReactions_v1_Remove",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveReactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "`message_not_found` — Message does not exist in this channel.\n`reaction_not_found` — Bot has not reacted with this emoji.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "message_not_found",
+            "description": "Message does not exist in this channel."
+          },
+          {
+            "status": 404,
+            "code": "reaction_not_found",
+            "description": "Bot has not reacted with this emoji."
+          }
+        ]
+      }
+    },
+    "/IReactions/v1/List": {
+      "get": {
+        "tags": [
+          "IReactions"
+        ],
+        "summary": "Lists all reactions on a message. Returns emoji, count, and a preview of user IDs (up to 3).",
+        "operationId": "IReactions_v1_List",
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "messageId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListReactionsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`message_not_found` — Message does not exist in this channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "message_not_found",
+            "description": "Message does not exist in this channel."
+          }
+        ]
+      }
+    },
+    "/IReactions/v1/BatchGet": {
+      "post": {
+        "tags": [
+          "IReactions"
+        ],
+        "summary": "Returns current reactions for up to 50 messages in a single channel. Ideal for refreshing visible messages after reconnect.",
+        "operationId": "IReactions_v1_BatchGet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchGetReactionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchGetReactionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ISpaces/v1/Get": {
+      "get": {
+        "tags": [
+          "ISpaces"
+        ],
+        "summary": "Gets space details — name, description, and community flag.",
+        "operationId": "ISpaces_v1_Get",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotSpaceDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ISpaces/v1/ListMembers": {
+      "get": {
+        "tags": [
+          "ISpaces"
+        ],
+        "summary": "Lists all members of a space with their username, display name, and roles.",
+        "description": "Requires a privileged intent, which a bot has to be granted.",
+        "operationId": "ISpaces_v1_ListMembers",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberListResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-privileged": true
+      }
+    },
+    "/ISpaces/v1/GetMember": {
+      "get": {
+        "tags": [
+          "ISpaces"
+        ],
+        "summary": "Gets a single member's details.",
+        "operationId": "ISpaces_v1_GetMember",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotMember"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ITyping/v1/Start": {
+      "post": {
+        "tags": [
+          "ITyping"
+        ],
+        "summary": "Triggers a typing indicator in a channel. The indicator auto-expires after 8 seconds. Call repeatedly to keep it active. Supported kinds: typing, thinking, uploading, searching.",
+        "description": "Requires the `SendMessages` entitlement in the target space.",
+        "operationId": "ITyping_v1_Start",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTypingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "`invalid_kind` — Unknown typing kind. Supported: typing, thinking, uploading, searching.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "SendMessages",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "invalid_kind",
+            "description": "Unknown typing kind. Supported: typing, thinking, uploading, searching."
+          }
+        ]
+      }
+    },
+    "/ITyping/v1/Stop": {
+      "post": {
+        "tags": [
+          "ITyping"
+        ],
+        "summary": "Explicitly stops the typing indicator in a channel. Optional — the indicator expires automatically after 8 seconds.",
+        "operationId": "ITyping_v1_Stop",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StopTypingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/IVoiceEgress/v20260401/SubscribeTrack": {
+      "post": {
+        "tags": [
+          "IVoiceEgress"
+        ],
+        "summary": "Subscribes to a user's audio track in a voice channel. Returns a LiveKit token and WebSocket URL for receiving the audio stream.",
+        "description": "Requires the `Connect` entitlement in the target space.\n\nRequires a privileged intent, which a bot has to be granted.",
+        "operationId": "IVoiceEgress_v20260401_SubscribeTrack",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeTrackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribeTrackResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.\n`not_verified` — This endpoint requires a verified bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.\n`not_voice_channel` — Channel is not a voice channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`channel_not_found` — Channel does not exist in this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "Connect",
+        "x-argon-privileged": true,
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 400,
+            "code": "not_voice_channel",
+            "description": "Channel is not a voice channel."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 403,
+            "code": "not_verified",
+            "description": "This endpoint requires a verified bot."
+          },
+          {
+            "status": 404,
+            "code": "channel_not_found",
+            "description": "Channel does not exist in this space."
+          }
+        ]
+      }
+    },
+    "/IVoiceEgress/v20260401/UnsubscribeTrack": {
+      "delete": {
+        "tags": [
+          "IVoiceEgress"
+        ],
+        "summary": "Unsubscribes from a previously subscribed audio track.",
+        "description": "Requires the `Connect` entitlement in the target space.\n\nRequires a privileged intent, which a bot has to be granted.",
+        "operationId": "IVoiceEgress_v20260401_UnsubscribeTrack",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnsubscribeTrackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_verified` — This endpoint requires a verified bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "Connect",
+        "x-argon-privileged": true,
+        "x-argon-errors": [
+          {
+            "status": 403,
+            "code": "not_verified",
+            "description": "This endpoint requires a verified bot."
+          }
+        ]
+      }
+    },
+    "/IVoice/v1/StreamToken": {
+      "post": {
+        "tags": [
+          "IVoice"
+        ],
+        "summary": "Gets a LiveKit JWT token and WebSocket ingress URL for streaming audio into a voice channel. The bot must be a member of the space, and the channel must be a voice channel.",
+        "description": "Requires the `Connect` entitlement in the target space.",
+        "operationId": "IVoice_v1_StreamToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceStreamTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceStreamTokenResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.\n`not_voice_channel` — Channel is not a voice channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`channel_not_found` — Channel does not exist in this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "Connect",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 400,
+            "code": "not_voice_channel",
+            "description": "Channel is not a voice channel."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 404,
+            "code": "channel_not_found",
+            "description": "Channel does not exist in this space."
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AcceptCallRequest": {
+        "required": [
+          "callId"
+        ],
+        "type": "object",
+        "properties": {
+          "callId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AcceptCallResponse": {
+        "required": [
+          "token",
+          "roomName",
+          "callerId",
+          "audioBaseUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "roomName": {
+            "type": "string"
+          },
+          "callerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "audioBaseUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "AckRequest": {
+        "required": [
+          "interactionId"
+        ],
+        "type": "object",
+        "properties": {
+          "interactionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AddReactionRequest": {
+        "required": [
+          "channelId",
+          "messageId",
+          "emoji"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "emoji": {
+            "type": "string"
+          }
+        }
+      },
+      "ArchetypeListResponse": {
+        "required": [
+          "archetypes"
+        ],
+        "type": "object",
+        "properties": {
+          "archetypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotArchetypeV1"
+            }
+          }
+        }
+      },
+      "ArchetypeMemberV1": {
+        "required": [
+          "userId",
+          "username",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "ArchetypeMembersResponse": {
+        "required": [
+          "archetypeId",
+          "members"
+        ],
+        "type": "object",
+        "properties": {
+          "archetypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchetypeMemberV1"
+            }
+          }
+        }
+      },
+      "BatchGetReactionsRequest": {
+        "required": [
+          "channelId",
+          "messageIds"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "messageIds": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "BatchGetReactionsResponse": {
+        "required": [
+          "messages"
+        ],
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageReactionsDto"
+            }
+          }
+        }
+      },
+      "BotApiError": {
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BotArchetypeV1": {
+        "required": [
+          "archetypeId",
+          "spaceId",
+          "name",
+          "colour",
+          "isMentionable",
+          "isDefault"
+        ],
+        "type": "object",
+        "properties": {
+          "archetypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "colour": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "isMentionable": {
+            "type": "boolean"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "permissions": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "BotChannel": {
+        "required": [
+          "channelId",
+          "spaceId",
+          "name",
+          "description",
+          "channelType",
+          "groupId"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "channelType": {
+            "type": "string"
+          },
+          "groupId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "BotCommand": {
+        "required": [
+          "commandId",
+          "name",
+          "description",
+          "spaceId",
+          "defaultPermission",
+          "options"
+        ],
+        "type": "object",
+        "properties": {
+          "commandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "defaultPermission": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotCommandOption"
+            }
+          }
+        }
+      },
+      "BotCommandOption": {
+        "required": [
+          "name",
+          "description",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/BotCommandOptionType"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommandChoice"
+            },
+            "nullable": true
+          },
+          "subOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotCommandOption"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "BotCommandOptionType": {
+        "type": "integer"
+      },
+      "BotControlV1": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ControlType"
+          },
+          "variant": {
+            "type": "integer",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ButtonVariant"
+              }
+            ],
+            "nullable": true
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          },
+          "labelLocalizations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
+            "type": "object",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OklchColor"
+              }
+            ],
+            "nullable": true
+          },
+          "disabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "customId": {
+            "type": "string",
+            "nullable": true
+          },
+          "placeholder": {
+            "type": "string",
+            "nullable": true
+          },
+          "minValues": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxValues": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectOptionV1"
+            },
+            "nullable": true
+          },
+          "requiredArchetypeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "BotEventType": {
+        "type": "integer"
+      },
+      "BotMember": {
+        "required": [
+          "userId",
+          "spaceId",
+          "username",
+          "displayName",
+          "archetypeIds"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "archetypeIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "BotSelfResponse": {
+        "required": [
+          "botId",
+          "userId",
+          "username",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "botId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "BotSpaceBase": {
+        "required": [
+          "spaceId",
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BotSpaceDetail": {
+        "required": [
+          "spaceId",
+          "name",
+          "description",
+          "isCommunity"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCommunity": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BotSpacesResponse": {
+        "required": [
+          "spaces"
+        ],
+        "type": "object",
+        "properties": {
+          "spaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotSpaceBase"
+            }
+          }
+        }
+      },
+      "BotSseEvent": {
+        "required": [
+          "id",
+          "type",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/BotEventType"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "data": { }
+        }
+      },
+      "ButtonVariant": {
+        "type": "integer"
+      },
+      "ChannelListResponse": {
+        "required": [
+          "channels"
+        ],
+        "type": "object",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotChannel"
+            }
+          }
+        }
+      },
+      "ChannelType": {
+        "type": "integer"
+      },
+      "CommandChoice": {
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": { }
+        }
+      },
+      "CommandListResponse": {
+        "required": [
+          "commands"
+        ],
+        "type": "object",
+        "properties": {
+          "commands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotCommand"
+            }
+          }
+        }
+      },
+      "CommandRegisteredResponse": {
+        "required": [
+          "commandId",
+          "name",
+          "spaceId"
+        ],
+        "type": "object",
+        "properties": {
+          "commandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "ControlRowV1": {
+        "required": [
+          "controls"
+        ],
+        "type": "object",
+        "properties": {
+          "controls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotControlV1"
+            }
+          }
+        }
+      },
+      "ControlType": {
+        "type": "integer"
+      },
+      "CreateChannelRequest": {
+        "required": [
+          "spaceId",
+          "name",
+          "description",
+          "channelType"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "channelType": {
+            "$ref": "#/components/schemas/ChannelType"
+          },
+          "groupId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "DeferRequest": {
+        "required": [
+          "interactionId"
+        ],
+        "type": "object",
+        "properties": {
+          "interactionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "DeletedResponse": {
+        "required": [
+          "deleted"
+        ],
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EditMessageRequest": {
+        "required": [
+          "channelId",
+          "messageId"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "controls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControlRowV1"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "EntityType": {
+        "type": "integer"
+      },
+      "KickResponse": {
+        "required": [
+          "kicked"
+        ],
+        "type": "object",
+        "properties": {
+          "kicked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ListReactionsResponse": {
+        "required": [
+          "reactions"
+        ],
+        "type": "object",
+        "properties": {
+          "reactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReactionDto"
+            }
+          }
+        }
+      },
+      "MemberListResponse": {
+        "required": [
+          "members"
+        ],
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotMember"
+            }
+          }
+        }
+      },
+      "MessageDto": {
+        "required": [
+          "messageId",
+          "channelId",
+          "spaceId",
+          "text",
+          "creatorId",
+          "createdAt",
+          "replyTo",
+          "entities"
+        ],
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "creatorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "replyTo": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64",
+            "nullable": true
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/MessageEntityAttachment"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityBold"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityCapitalized"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityEmail"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityFraction"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityGif"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityHashTag"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityItalic"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityLinkPreview"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMention"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMentionEveryone"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMentionRole"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMonospace"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityOrdinal"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityQuote"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySpoiler"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityStrikethrough"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallEnded"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallStarted"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallTimeout"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemUserJoined"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityUnderline"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityUrl"
+                }
+              ]
+            }
+          },
+          "controls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControlRowV1"
+            },
+            "nullable": true
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReactionDto"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "MessageEntityAttachment": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "fileId",
+          "fileName",
+          "fileSize",
+          "contentType",
+          "width",
+          "height",
+          "thumbHash",
+          "downloadUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "width": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "height": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "thumbHash": {
+            "type": "string",
+            "nullable": true
+          },
+          "downloadUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityBold": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityCapitalized": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityEmail": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "email": {
+            "type": "string"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityFraction": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "numerator",
+          "denominator"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "numerator": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "denominator": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityGif": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "gifId",
+          "hmac",
+          "fileId",
+          "width",
+          "height",
+          "previewUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "gifId": {
+            "type": "string"
+          },
+          "hmac": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "width": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "height": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "previewUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityHashTag": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "hashtag"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "hashtag": {
+            "type": "string"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityItalic": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityLinkPreview": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "url",
+          "title",
+          "description",
+          "siteName",
+          "imageUrl",
+          "canonicalUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "siteName": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "canonicalUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityMention": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityMentionEveryone": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityMentionRole": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "archetypeId"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "archetypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityMonospace": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityOrdinal": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityQuote": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "quotedUserId"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "quotedUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntitySpoiler": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityStrikethrough": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntitySystemCallEnded": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "callerId",
+          "callId",
+          "durationSeconds"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "callerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "callId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "durationSeconds": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntitySystemCallStarted": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "callerId",
+          "callId"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "callerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "callId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntitySystemCallTimeout": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "callerId",
+          "callId"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "callerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "callId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntitySystemUserJoined": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "userId",
+          "inviterId"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inviterId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityUnderline": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "colour"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "colour": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageEntityUrl": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "domain",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "uint32"
+          }
+        }
+      },
+      "MessageHistoryResponse": {
+        "required": [
+          "messages"
+        ],
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageDto"
+            }
+          }
+        }
+      },
+      "MessageReactionsDto": {
+        "required": [
+          "messageId",
+          "reactions"
+        ],
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReactionDto"
+            }
+          }
+        }
+      },
+      "ModalComponentType": {
+        "type": "integer"
+      },
+      "ModalComponentV1": {
+        "required": [
+          "type",
+          "customId",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ModalComponentType"
+          },
+          "customId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "style": {
+            "type": "integer",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TextInputStyle"
+              }
+            ],
+            "nullable": true
+          },
+          "placeholder": {
+            "type": "string",
+            "nullable": true
+          },
+          "minLength": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxLength": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "required": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectOptionV1"
+            },
+            "nullable": true
+          },
+          "minValues": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxValues": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32",
+            "nullable": true
+          },
+          "default": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ModalDefinitionV1": {
+        "required": [
+          "customId",
+          "title",
+          "components"
+        ],
+        "type": "object",
+        "properties": {
+          "customId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalComponentV1"
+            }
+          }
+        }
+      },
+      "ModalRequest": {
+        "required": [
+          "interactionId",
+          "modal"
+        ],
+        "type": "object",
+        "properties": {
+          "interactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "modal": {
+            "$ref": "#/components/schemas/ModalDefinitionV1"
+          }
+        }
+      },
+      "ModalResponse": {
+        "required": [
+          "modalInteractionId"
+        ],
+        "type": "object",
+        "properties": {
+          "modalInteractionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "OklchColor": {
+        "required": [
+          "l",
+          "c",
+          "h"
+        ],
+        "type": "object",
+        "properties": {
+          "l": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "format": "float"
+          },
+          "c": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "format": "float"
+          },
+          "h": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "format": "float"
+          }
+        }
+      },
+      "ReactionDto": {
+        "required": [
+          "emoji",
+          "count",
+          "userIds"
+        ],
+        "type": "object",
+        "properties": {
+          "emoji": {
+            "type": "string"
+          },
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int32"
+          },
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "RegisterCommandRequest": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotCommandOption"
+            },
+            "nullable": true
+          },
+          "defaultPermission": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "RejectCallRequest": {
+        "required": [
+          "callId",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "callId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RejectCallResponse": {
+        "required": [
+          "rejected"
+        ],
+        "type": "object",
+        "properties": {
+          "rejected": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RemoveReactionRequest": {
+        "required": [
+          "channelId",
+          "messageId",
+          "emoji"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "emoji": {
+            "type": "string"
+          }
+        }
+      },
+      "ReplyRequest": {
+        "required": [
+          "channelId",
+          "text",
+          "randomId"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "randomId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "replyTo": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64",
+            "nullable": true
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/MessageEntityAttachment"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityBold"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityCapitalized"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityEmail"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityFraction"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityGif"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityHashTag"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityItalic"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityLinkPreview"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMention"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMentionEveryone"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMentionRole"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMonospace"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityOrdinal"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityQuote"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySpoiler"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityStrikethrough"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallEnded"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallStarted"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallTimeout"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemUserJoined"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityUnderline"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityUrl"
+                }
+              ]
+            },
+            "nullable": true
+          },
+          "controls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControlRowV1"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ReplyResponse": {
+        "required": [
+          "messageId"
+        ],
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          }
+        }
+      },
+      "RingingCall": {
+        "required": [
+          "callId",
+          "callerId"
+        ],
+        "type": "object",
+        "properties": {
+          "callId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "callerId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "RingingCallsResponse": {
+        "required": [
+          "calls"
+        ],
+        "type": "object",
+        "properties": {
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RingingCall"
+            }
+          }
+        }
+      },
+      "SelectOptionV1": {
+        "required": [
+          "label",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "default": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "SendMessageRequest": {
+        "required": [
+          "channelId",
+          "text",
+          "randomId"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "randomId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          },
+          "replyTo": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64",
+            "nullable": true
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/MessageEntityAttachment"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityBold"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityCapitalized"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityEmail"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityFraction"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityGif"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityHashTag"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityItalic"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityLinkPreview"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMention"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMentionEveryone"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMentionRole"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityMonospace"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityOrdinal"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityQuote"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySpoiler"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityStrikethrough"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallEnded"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallStarted"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemCallTimeout"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntitySystemUserJoined"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityUnderline"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityUrl"
+                }
+              ]
+            },
+            "nullable": true
+          },
+          "controls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControlRowV1"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "SendMessageResponse": {
+        "required": [
+          "messageId"
+        ],
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "format": "int64"
+          }
+        }
+      },
+      "SendTypingRequest": {
+        "required": [
+          "channelId"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StopTypingRequest": {
+        "required": [
+          "channelId"
+        ],
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "SubscribeTrackRequest": {
+        "required": [
+          "spaceId",
+          "channelId",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "SubscribeTrackResponse": {
+        "required": [
+          "token",
+          "wsUrl",
+          "roomName",
+          "trackId"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "wsUrl": {
+            "type": "string"
+          },
+          "roomName": {
+            "type": "string"
+          },
+          "trackId": {
+            "type": "string"
+          }
+        }
+      },
+      "TextInputStyle": {
+        "type": "integer"
+      },
+      "UnsubscribeTrackRequest": {
+        "required": [
+          "trackId"
+        ],
+        "type": "object",
+        "properties": {
+          "trackId": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCommandRequest": {
+        "required": [
+          "commandId"
+        ],
+        "type": "object",
+        "properties": {
+          "commandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotCommandOption"
+            },
+            "nullable": true
+          },
+          "defaultPermission": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "VoiceStreamTokenRequest": {
+        "required": [
+          "spaceId",
+          "channelId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "VoiceStreamTokenResponse": {
+        "required": [
+          "token",
+          "ingressUrl",
+          "roomName"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "ingressUrl": {
+            "type": "string"
+          },
+          "roomName": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BotToken": {
+        "type": "apiKey",
+        "description": "Bot token, sent as `Authorization: Bot <token>`.",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "BotToken": [ ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "IArchetypes",
+      "description": "List and inspect archetypes (roles) in a space. Permissions are hidden unless the bot has ManageArchetype entitlement."
+    },
+    {
+      "name": "IBotSelf",
+      "description": "Get information about the authenticated bot and its spaces."
+    },
+    {
+      "name": "ICalls",
+      "description": "Receive and manage incoming calls. Verified bots only."
+    },
+    {
+      "name": "IChannels",
+      "description": "Create, list, and delete channels within a space."
+    },
+    {
+      "name": "ICommands",
+      "description": "Register, update, list, and delete slash commands for your bot."
+    },
+    {
+      "name": "IEvents",
+      "description": "Subscribe to real-time events via Server-Sent Events (SSE). Receive messages, member changes, voice activity, and more."
+    },
+    {
+      "name": "IInteractions",
+      "description": "Respond to slash-command, control, and select interactions. Supports ack, defer, modal, reply, and edit."
+    },
+    {
+      "name": "IMembers",
+      "description": "Manage space members: kick users from channels."
+    },
+    {
+      "name": "IMessages",
+      "description": "Send messages and retrieve message history from channels."
+    },
+    {
+      "name": "IReactions",
+      "description": "Add and remove emoji reactions on messages."
+    },
+    {
+      "name": "ISpaces",
+      "description": "Get space details and member information."
+    },
+    {
+      "name": "ITyping",
+      "description": "Send typing indicators to channels. Typing status automatically expires after 8 seconds."
+    },
+    {
+      "name": "IVoice",
+      "description": "Get voice streaming tokens for audio ingress. Bots stream Opus audio directly to a WebSocket endpoint — no WebRTC needed."
+    },
+    {
+      "name": "IVoiceEgress",
+      "description": "Subscribe to individual voice tracks for audio egress. Verified bots only."
+    }
+  ]
+}
