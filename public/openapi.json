@@ -771,7 +771,7 @@
             }
           },
           "400": {
-            "description": "`missing_space_id` — spaceId is required.",
+            "description": "`missing_space_id` — spaceId is required.\n`validation_error` — The channel name, description, type or group is invalid.",
             "content": {
               "application/json": {
                 "schema": {
@@ -787,6 +787,11 @@
             "status": 400,
             "code": "missing_space_id",
             "description": "spaceId is required."
+          },
+          {
+            "status": 400,
+            "code": "validation_error",
+            "description": "The channel name, description, type or group is invalid."
           },
           {
             "status": 403,
@@ -896,7 +901,7 @@
         "tags": [
           "ICommands"
         ],
-        "summary": "Registers a new slash command. Commands can be global or scoped to a specific space. Max 50 commands per scope.",
+        "summary": "Registers a slash command, or updates the bot's command of the same name in the same scope. Commands can be global or scoped to a specific space. Max 50 commands per scope.",
         "operationId": "ICommands_v1_Register",
         "requestBody": {
           "content": {
@@ -1270,7 +1275,7 @@
         "tags": [
           "IInteractions"
         ],
-        "summary": "Reply to an interaction by sending a message to the channel. Optionally reply to a specific message via replyTo.",
+        "summary": "Reply to an interaction by sending a message to the channel. Optionally reply to a specific message via replyTo. Not available in announcement channels.",
         "description": "Requires the `SendMessages` entitlement in the target space.",
         "operationId": "IInteractions_v1_Reply",
         "requestBody": {
@@ -1661,7 +1666,7 @@
         "tags": [
           "IMessages"
         ],
-        "summary": "Sends a text message to a channel. Include a unique randomId for deduplication. Optionally reply to another message via replyTo.",
+        "summary": "Sends a text message to a channel. Include a unique randomId for deduplication. Optionally reply to another message via replyTo. Bots cannot post in announcement channels.",
         "description": "Requires the `SendMessages` entitlement in the target space.",
         "operationId": "IMessages_v1_Send",
         "requestBody": {
