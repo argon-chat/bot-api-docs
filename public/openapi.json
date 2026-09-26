@@ -1873,7 +1873,7 @@
             }
           },
           "403": {
-            "description": "`insufficient_permissions` — Bot does not have the AddReactions permission.",
+            "description": "`insufficient_permissions` — Bot does not have the AddReactions permission.\n`reactions_disabled` — Reactions are turned off in this announcement channel.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1889,6 +1889,11 @@
             "status": 403,
             "code": "insufficient_permissions",
             "description": "Bot does not have the AddReactions permission."
+          },
+          {
+            "status": 403,
+            "code": "reactions_disabled",
+            "description": "Reactions are turned off in this announcement channel."
           },
           {
             "status": 404,
