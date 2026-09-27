@@ -20,6 +20,9 @@ export interface TypeProperty {
   isCircular: boolean;
   properties?: TypeProperty[] | null;
   enumValues?: string[] | null;
+  /** A form field that may be left out; forms have no null. */
+  isOptional?: boolean;
+  description?: string | null;
 }
 
 export interface RouteDoc {
@@ -28,7 +31,7 @@ export interface RouteDoc {
   description: string | null;
   permission: string | null;
   isPrivileged: boolean;
-  requestIn: 'body' | 'query' | null;
+  requestIn: 'body' | 'form' | 'query' | null;
   requestTypeName: string | null;
   requestTypeShape: TypeProperty[] | null;
   responseTypeName: string | null;
@@ -64,6 +67,9 @@ function typeName(schema: any): string {
 
   if (schema?.oneOf?.length)
     return schema.oneOf.map((variant: any) => typeName(variant)).join(' | ');
+
+  // OpenAPI spells a form's file part as a binary string.
+  if (schema?.format === 'binary') return 'file';
 
   return schema?.format ?? schema?.type ?? 'any';
 }
@@ -117,6 +123,50 @@ function describeParameters(parameters: any[]): TypeProperty[] {
   });
 }
 
+const FORM = 'multipart/form-data';
+
+/**
+ * A form reads as its fields, each a text part except the files. The parts an `attach://` field may
+ * name are the form's additional properties, listed last as `<part>`.
+ */
+function describeForm(schema: any): TypeProperty[] {
+  const resolved = resolve(schema);
+  const required: string[] = resolved.required ?? [];
+
+  const fields: TypeProperty[] = Object.entries(resolved.properties ?? {}).map(([name, raw]: [string, any]) => {
+    const isArray = raw.type === 'array';
+    const value   = isArray ? raw.items ?? {} : raw;
+
+    return {
+      name,
+      type: typeName(value),
+      isArray,
+      isNullable: false,
+      isOptional: !required.includes(name),
+      isCircular: false,
+      properties: null,
+      enumValues: resolve(value).enum ?? null,
+      description: raw.description ?? null,
+    };
+  });
+
+  const parts = resolved.additionalProperties;
+  if (parts && typeof parts === 'object')
+    fields.push({
+      name: '<part>',
+      type: typeName(parts),
+      isArray: false,
+      isNullable: false,
+      isOptional: true,
+      isCircular: false,
+      properties: null,
+      enumValues: null,
+      description: parts.description ?? null,
+    });
+
+  return fields;
+}
+
 function jsonSchemaOf(content: any): any | null {
   const media = content?.['application/json'] ?? Object.values(content ?? {})[0];
   return (media as any)?.schema ?? null;
@@ -124,10 +174,11 @@ function jsonSchemaOf(content: any): any | null {
 
 function toRoute(path: string, method: string, operation: any): RouteDoc {
   const parameters = operation.parameters ?? [];
-  const bodySchema = jsonSchemaOf(operation.requestBody?.content);
+  const formSchema = operation.requestBody?.content?.[FORM]?.schema ?? null;
+  const bodySchema = formSchema ? null : jsonSchemaOf(operation.requestBody?.content);
   const okSchema   = jsonSchemaOf(operation.responses?.['200']?.content);
 
-  const requestIn = bodySchema ? 'body' : parameters.length > 0 ? 'query' : null;
+  const requestIn = formSchema ? 'form' : bodySchema ? 'body' : parameters.length > 0 ? 'query' : null;
 
   return {
     method: method.toUpperCase(),
@@ -136,12 +187,14 @@ function toRoute(path: string, method: string, operation: any): RouteDoc {
     permission: operation['x-argon-permission'] ?? null,
     isPrivileged: operation['x-argon-privileged'] === true,
     requestIn,
-    requestTypeName: bodySchema ? typeName(bodySchema) : requestIn === 'query' ? 'query' : null,
-    requestTypeShape: bodySchema
-      ? describeProperties(bodySchema, new Set([refName(bodySchema) ?? '']))
-      : requestIn === 'query'
-        ? describeParameters(parameters)
-        : null,
+    requestTypeName: formSchema ? FORM : bodySchema ? typeName(bodySchema) : requestIn === 'query' ? 'query' : null,
+    requestTypeShape: formSchema
+      ? describeForm(formSchema)
+      : bodySchema
+        ? describeProperties(bodySchema, new Set([refName(bodySchema) ?? '']))
+        : requestIn === 'query'
+          ? describeParameters(parameters)
+          : null,
     responseTypeName: okSchema ? typeName(okSchema) : null,
     responseTypeShape: okSchema ? describeProperties(okSchema, new Set([refName(okSchema) ?? ''])) : null,
     errors: operation['x-argon-errors'] ?? [],

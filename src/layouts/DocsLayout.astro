@@ -33,6 +33,7 @@ const pageOrder = [
   { href: '/guides/message-entities/', label: 'Message Entities' },
   { href: '/guides/controls/', label: 'Interactive Controls' },
   { href: '/guides/reactions/', label: 'Reactions' },
+  { href: '/guides/stickers-and-emoji/', label: 'Stickers & Custom Emoji' },
   { href: '/guides/message-constructor/', label: 'Message Constructor' },
   { href: '/guides/permissions/', label: 'Permissions & Intents' },
   { href: '/guides/rate-limits/', label: 'Rate Limits' },
@@ -112,6 +113,13 @@ function formatVersion(v: number): string {
             current === '/guides/reactions/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
         >
           Reactions
+        </a>
+        <a
+          href="/guides/stickers-and-emoji/"
+          class:list={["px-3 py-1.5 rounded-lg text-sm transition-colors",
+            current === '/guides/stickers-and-emoji/' ? 'text-accent bg-accent-subtle' : 'text-text-secondary hover:text-text-primary hover:bg-oled-hover']}
+        >
+          Stickers &amp; Custom Emoji
         </a>
         <a
           href="/guides/message-constructor/"

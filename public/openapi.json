@@ -1270,6 +1270,1093 @@
         }
       }
     },
+    "/IExpressions/v1/List": {
+      "get": {
+        "tags": [
+          "IExpressions"
+        ],
+        "summary": "Lists the space's packs with their items. Pass the version you hold as known: packs is null while it is still current.",
+        "operationId": "IExpressions_v1_List",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "known",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpressionsListResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          }
+        ]
+      }
+    },
+    "/IExpressions/v1/GetQuota": {
+      "get": {
+        "tags": [
+          "IExpressions"
+        ],
+        "summary": "How many packs, stickers and emoji the space holds against its limits, which grow with its boost level.",
+        "operationId": "IExpressions_v1_GetQuota",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotQuotaV1"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          }
+        ]
+      }
+    },
+    "/IExpressions/v1/GetPack": {
+      "get": {
+        "tags": [
+          "IExpressions"
+        ],
+        "summary": "Gets one pack with its items, by packId or by slug.",
+        "operationId": "IExpressions_v1_GetPack",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "packId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotExpressionPackV1"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request` — The form could not be read: a field is missing or malformed, or an attach:// reference names no part.\n`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — The pack, item or file does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "invalid_request",
+            "description": "The form could not be read: a field is missing or malformed, or an attach:// reference names no part."
+          },
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "The pack, item or file does not exist."
+          }
+        ]
+      }
+    },
+    "/IExpressions/v1/CreatePack": {
+      "post": {
+        "tags": [
+          "IExpressions"
+        ],
+        "summary": "Creates a sticker or emoji pack. Repeating it with the slug of a pack this bot made returns that pack. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "description": "Requires the `CreateExpressions` entitlement in the target space.",
+        "operationId": "IExpressions_v1_CreatePack",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.\n`space_rate_limited` — The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotExpressionPackV1"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`insufficient_permissions` — Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder.\n`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_format` — A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate).\n`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`quota_exceeded` — The space's packs or slots, the pack, or the bot's unclaimed uploads are full.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`name_taken` — The slug or the emoji name is already used in this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "CreateExpressions",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "invalid_format",
+            "description": "A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate)."
+          },
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "insufficient_permissions",
+            "description": "Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 409,
+            "code": "name_taken",
+            "description": "The slug or the emoji name is already used in this space."
+          },
+          {
+            "status": 422,
+            "code": "quota_exceeded",
+            "description": "The space's packs or slots, the pack, or the bot's unclaimed uploads are full."
+          },
+          {
+            "status": 429,
+            "code": "space_rate_limited",
+            "description": "The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After."
+          }
+        ]
+      }
+    },
+    "/IExpressions/v1/UpdatePack": {
+      "patch": {
+        "tags": [
+          "IExpressions"
+        ],
+        "summary": "Changes the title or the cover item of a pack this bot made. Fields left out are kept. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "description": "Requires the `CreateExpressions` entitlement in the target space.",
+        "operationId": "IExpressions_v1_UpdatePack",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.\n`space_rate_limited` — The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotExpressionPackV1"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`insufficient_permissions` — Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder.\n`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_format` — A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate).\n`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — The pack, item or file does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "CreateExpressions",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "invalid_format",
+            "description": "A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate)."
+          },
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "insufficient_permissions",
+            "description": "Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "The pack, item or file does not exist."
+          },
+          {
+            "status": 429,
+            "code": "space_rate_limited",
+            "description": "The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After."
+          }
+        ]
+      }
+    },
+    "/IExpressions/v1/AddItem": {
+      "post": {
+        "tags": [
+          "IExpressions"
+        ],
+        "summary": "Adds a sticker or emoji to a pack (multipart). file, and thumb for an animated item (a first-frame WEBP of the same size), are parts, attach://<part> references or fileIds from IFiles/Upload. PNG is stored as WEBP. Each call adds a new item; deduplicating a re-import is the bot's job, e.g. keep tg:<file_unique_id> as a keyword and check List first. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "description": "Requires the `CreateExpressions` entitlement in the target space.",
+        "operationId": "IExpressions_v1_AddItem",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "spaceId",
+                  "packId",
+                  "name",
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "spaceId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "packId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "A file: the part of this name itself, or a text field holding `attach://<name>` (another part of the request) or the `fileId` of an `IFiles/Upload`.",
+                    "format": "binary"
+                  },
+                  "emoji": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "nullable": true
+                  },
+                  "keywords": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "nullable": true
+                  },
+                  "textColor": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "thumb": {
+                    "type": "string",
+                    "description": "A file: the part of this name itself, or a text field holding `attach://<name>` (another part of the request) or the `fileId` of an `IFiles/Upload`.",
+                    "format": "binary"
+                  }
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "description": "A part an `attach://<name>` reference names.",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.\n`space_rate_limited` — The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotExpressionItemV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_format` — A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate).\n`invalid_request` — The form could not be read: a field is missing or malformed, or an attach:// reference names no part.\n`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "`too_large` — The request, or a file in it, is over the size limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`insufficient_permissions` — Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder.\n`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — The pack, item or file does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`content_rejected` — Moderation refused the file.\n`quota_exceeded` — The space's packs or slots, the pack, or the bot's unclaimed uploads are full.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`name_taken` — The slug or the emoji name is already used in this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "CreateExpressions",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "invalid_format",
+            "description": "A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate)."
+          },
+          {
+            "status": 400,
+            "code": "invalid_request",
+            "description": "The form could not be read: a field is missing or malformed, or an attach:// reference names no part."
+          },
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "insufficient_permissions",
+            "description": "Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "The pack, item or file does not exist."
+          },
+          {
+            "status": 409,
+            "code": "name_taken",
+            "description": "The slug or the emoji name is already used in this space."
+          },
+          {
+            "status": 413,
+            "code": "too_large",
+            "description": "The request, or a file in it, is over the size limit."
+          },
+          {
+            "status": 422,
+            "code": "content_rejected",
+            "description": "Moderation refused the file."
+          },
+          {
+            "status": 422,
+            "code": "quota_exceeded",
+            "description": "The space's packs or slots, the pack, or the bot's unclaimed uploads are full."
+          },
+          {
+            "status": 429,
+            "code": "space_rate_limited",
+            "description": "The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After."
+          }
+        ]
+      }
+    },
+    "/IExpressions/v1/UpdateItem": {
+      "patch": {
+        "tags": [
+          "IExpressions"
+        ],
+        "summary": "Changes the name, associated emoji, keywords or text colouring of an item this bot made. Fields left out are kept. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "description": "Requires the `CreateExpressions` entitlement in the target space.",
+        "operationId": "IExpressions_v1_UpdateItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.\n`space_rate_limited` — The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotExpressionItemV1"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`insufficient_permissions` — Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder.\n`not_a_member` — Bot is not a member of this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_format` — A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate).\n`missing_space_id` — spaceId is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — The pack, item or file does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`name_taken` — The slug or the emoji name is already used in this space.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "CreateExpressions",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "invalid_format",
+            "description": "A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate)."
+          },
+          {
+            "status": 400,
+            "code": "missing_space_id",
+            "description": "spaceId is required."
+          },
+          {
+            "status": 403,
+            "code": "insufficient_permissions",
+            "description": "Bot lacks CreateExpressions in this space, or the pack or item is not one it made. Bots never delete or reorder."
+          },
+          {
+            "status": 403,
+            "code": "not_a_member",
+            "description": "Bot is not a member of this space."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "The pack, item or file does not exist."
+          },
+          {
+            "status": 409,
+            "code": "name_taken",
+            "description": "The slug or the emoji name is already used in this space."
+          },
+          {
+            "status": 429,
+            "code": "space_rate_limited",
+            "description": "The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After."
+          }
+        ]
+      }
+    },
+    "/IFiles/v1/Upload": {
+      "post": {
+        "tags": [
+          "IFiles"
+        ],
+        "summary": "Uploads a sticker, emoji or thumbnail file (multipart: file, purpose) for IExpressions/AddItem to take by fileId, any number of times, within 24 hours. PNG, WEBP, TGS, Lottie JSON or WEBM; thumb takes WEBP only.",
+        "operationId": "IFiles_v1_Upload",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file",
+                  "purpose"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "A file: the part of this name itself, or a text field holding `attach://<name>` (another part of the request). A fileId is not accepted here.",
+                    "format": "binary"
+                  },
+                  "purpose": {
+                    "enum": [
+                      "sticker",
+                      "emoji",
+                      "thumb"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "description": "A part an `attach://<name>` reference names.",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotFileV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_format` — A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate).\n`invalid_request` — The form could not be read: a field is missing or malformed, or an attach:// reference names no part.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "`too_large` — The request, or a file in it, is over the size limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`quota_exceeded` — The space's packs or slots, the pack, or the bot's unclaimed uploads are full.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "invalid_format",
+            "description": "A title, slug, name, emoji, keyword or external id is not acceptable, or the file is not (format, dimensions, duration, frame rate)."
+          },
+          {
+            "status": 400,
+            "code": "invalid_request",
+            "description": "The form could not be read: a field is missing or malformed, or an attach:// reference names no part."
+          },
+          {
+            "status": 413,
+            "code": "too_large",
+            "description": "The request, or a file in it, is over the size limit."
+          },
+          {
+            "status": 422,
+            "code": "quota_exceeded",
+            "description": "The space's packs or slots, the pack, or the bot's unclaimed uploads are full."
+          }
+        ]
+      }
+    },
+    "/IFiles/v1/Get": {
+      "get": {
+        "tags": [
+          "IFiles"
+        ],
+        "summary": "Describes a file the bot uploaded or owns, or any sticker or emoji file: its size, type and a download URL.",
+        "operationId": "IFiles_v1_Get",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotFileV1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — The pack, item or file does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "The pack, item or file does not exist."
+          }
+        ]
+      }
+    },
     "/IInteractions/v1/Reply": {
       "post": {
         "tags": [
@@ -1300,7 +2387,7 @@
             }
           },
           "429": {
-            "description": "`rate_limited` — You are being rate limited.",
+            "description": "`rate_limited` — You are being rate limited.\n`slow_mode` — The channel is holding messages back; retry later.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1728,7 +2815,7 @@
             }
           },
           "429": {
-            "description": "`rate_limited` — You are being rate limited.",
+            "description": "`rate_limited` — You are being rate limited.\n`slow_mode` — The channel is holding messages back; retry later.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3235,6 +4322,289 @@
       "BotEventType": {
         "type": "integer"
       },
+      "BotExpressionFormat": {
+        "enum": [
+          "static",
+          "lottie",
+          "video"
+        ],
+        "type": "string"
+      },
+      "BotExpressionItemV1": {
+        "required": [
+          "itemId",
+          "packId",
+          "spaceId",
+          "kind",
+          "format",
+          "name",
+          "url",
+          "thumbUrl",
+          "width",
+          "height",
+          "fileSize",
+          "emoji",
+          "keywords",
+          "textColor",
+          "sortOrder",
+          "creatorId",
+          "createdByBot"
+        ],
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "packId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/BotExpressionKind"
+          },
+          "format": {
+            "$ref": "#/components/schemas/BotExpressionFormat"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "thumbUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "width": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "height": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "fileSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "emoji": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "textColor": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "creatorId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdByBot": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BotExpressionKind": {
+        "enum": [
+          "sticker",
+          "emoji"
+        ],
+        "type": "string"
+      },
+      "BotExpressionPackV1": {
+        "required": [
+          "packId",
+          "spaceId",
+          "kind",
+          "title",
+          "slug",
+          "coverItemId",
+          "sortOrder",
+          "version",
+          "items",
+          "creatorId",
+          "createdByBot"
+        ],
+        "type": "object",
+        "properties": {
+          "packId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/BotExpressionKind"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "coverItemId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotExpressionItemV1"
+            }
+          },
+          "creatorId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdByBot": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BotFileV1": {
+        "required": [
+          "fileId",
+          "size",
+          "contentType",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "size": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "BotItemsPerPackV1": {
+        "required": [
+          "sticker",
+          "emoji"
+        ],
+        "type": "object",
+        "properties": {
+          "sticker": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "emoji": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "BotMember": {
         "required": [
           "userId",
@@ -3265,6 +4635,75 @@
               "type": "string",
               "format": "uuid"
             }
+          }
+        }
+      },
+      "BotQuotaUsageV1": {
+        "required": [
+          "used",
+          "max"
+        ],
+        "type": "object",
+        "properties": {
+          "used": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "max": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "BotQuotaV1": {
+        "required": [
+          "packs",
+          "stickers",
+          "emoji",
+          "itemsPerPack",
+          "boostLevel"
+        ],
+        "type": "object",
+        "properties": {
+          "packs": {
+            "$ref": "#/components/schemas/BotQuotaUsageV1"
+          },
+          "stickers": {
+            "$ref": "#/components/schemas/BotQuotaUsageV1"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/BotQuotaUsageV1"
+          },
+          "itemsPerPack": {
+            "$ref": "#/components/schemas/BotItemsPerPackV1"
+          },
+          "boostLevel": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
           }
         }
       },
@@ -3496,6 +4935,30 @@
           }
         }
       },
+      "CreatePackRequest": {
+        "required": [
+          "spaceId",
+          "kind",
+          "title",
+          "slug"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/BotExpressionKind"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
       "DeferRequest": {
         "required": [
           "interactionId"
@@ -3557,6 +5020,25 @@
       },
       "EntityType": {
         "type": "integer"
+      },
+      "ExpressionsListResponse": {
+        "required": [
+          "version",
+          "packs"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "packs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotExpressionPackV1"
+            },
+            "nullable": true
+          }
+        }
       },
       "KickResponse": {
         "required": [
@@ -6411,6 +7893,71 @@
           }
         }
       },
+      "UpdateItemRequest": {
+        "required": [
+          "spaceId",
+          "itemId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "emoji": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "textColor": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "UpdatePackRequest": {
+        "required": [
+          "spaceId",
+          "packId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "packId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "coverItemId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
       "VoiceStreamTokenRequest": {
         "required": [
           "spaceId",
@@ -6486,6 +8033,14 @@
     {
       "name": "IEvents",
       "description": "Subscribe to real-time events via Server-Sent Events (SSE). Receive messages, member changes, voice activity, and more."
+    },
+    {
+      "name": "IExpressions",
+      "description": "Read a space's sticker and custom emoji packs and add to them. Bots change only the packs and items they made, and never delete or reorder. Writing takes CreateExpressions among the bot's required entitlements; a space that installed the bot before it asked for it grants that only once the owner approves."
+    },
+    {
+      "name": "IFiles",
+      "description": "Upload sticker and emoji files once and use them by fileId, like Telegram's uploadStickerFile. An upload is kept for 24 hours; at most 100 unclaimed uploads per bot."
     },
     {
       "name": "IInteractions",

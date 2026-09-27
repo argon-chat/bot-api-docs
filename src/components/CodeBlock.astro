@@ -1,0 +1,16 @@
+---
+// A code sample in the site's code block, highlighted by Shiki through Astro's <Code>. Both colour
+// schemes are emitted as CSS variables (defaultColor false); global.css picks one by html.dark.
+import { Code } from 'astro:components';
+
+interface Props {
+  code: string;
+  lang: 'ts' | 'bash' | 'json' | 'http';
+}
+
+const { code, lang } = Astro.props;
+---
+
+<div class="code-block text-[12px]">
+  <Code code={code} lang={lang} themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
+</div>

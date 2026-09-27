@@ -1,6 +1,6 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
-import { Type, Sparkles, AtSign, Link, Paperclip, Phone } from 'lucide-astro';
+import { Type, Sparkles, AtSign, Link, Paperclip, Phone, Sticker, AlertTriangle } from 'lucide-astro';
 
 const entities = [
   { name: 'Bold',           type: 'bold',            extra: null,           group: 'Formatting' },
@@ -37,6 +37,7 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
 <DocsLayout title="Message Entities — Argon Bot API" current="/guides/message-entities/" toc={[
   { id: "how-entities-work", title: "How Entities Work" },
   { id: "entity-types", title: "Entity Types" },
+  { id: "stickers-and-custom-emoji", title: "Stickers & Custom Emoji" },
 ]}>
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Message Entities</h1>
@@ -158,6 +159,53 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
         </section>
       );
     })}
+
+    <!-- Stickers & custom emoji -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Sticker class="size-5 text-accent" />
+        <h2 id="stickers-and-custom-emoji" class="text-xl font-semibold">Stickers &amp; Custom Emoji <a href="#stickers-and-custom-emoji" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Messages from people can carry two more entity types, which V1 of the Bot API does not expose:
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header">
+              <span>Entity Type</span>
+              <span>What it marks</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="font-mono text-[12px]"><span class="type-enum">&quot;sticker&quot;</span></span>
+              <span class="text-[12px] text-text-secondary">A message that is one sticker: empty text and this entity alone.</span>
+            </div>
+            <div class="type-grid-row">
+              <span class="font-mono text-[12px]"><span class="type-enum">&quot;customEmoji&quot;</span></span>
+              <span class="text-[12px] text-text-secondary">Exactly one <code>:name:</code> in the text, drawn as the space's custom emoji of that name.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-xl border border-status-degraded/20 bg-status-degraded-subtle p-4">
+          <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+          <div class="text-sm text-text-secondary space-y-2">
+            <p><strong class="text-text-primary">Bots cannot send them today.</strong> A request whose <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">entities</code> holds either type is refused with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">400</code>.</p>
+            <p>
+              <strong class="text-text-primary">Nor do bots receive them.</strong> In <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">messageCreate</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">messageEdit</code>
+              and message history these entities are left out: a custom emoji stays in the text as its <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">:name:</code>,
+              and a sticker message arrives with empty text and no entities.
+            </p>
+            <p>
+              Bots can read and add to a space's packs through <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IExpressions</code> —
+              see <a href="/guides/stickers-and-emoji/" class="text-accent hover:underline">Stickers &amp; Custom Emoji</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Notes -->
     <section>

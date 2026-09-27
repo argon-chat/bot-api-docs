@@ -1,0 +1,1293 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import { Sticker, FileImage, Gauge, ShieldCheck, Upload, Import, AlertTriangle, Pencil, Database, Zap, MessageSquare } from 'lucide-astro';
+
+const packExample = `{
+  "packId": "7c9e6679-...",
+  "spaceId": "aaaabbbb-...",
+  "kind": "sticker",
+  "title": "Hot Cherry",
+  "slug": "hotcherry",
+  "coverItemId": null,
+  "sortOrder": 0,
+  "version": 2,
+  "creatorId": "d3b07384-...",
+  "createdByBot": true,
+  "items": [
+    {
+      "itemId": "9b2f4a1e-...",
+      "packId": "7c9e6679-...",
+      "spaceId": "aaaabbbb-...",
+      "kind": "sticker",
+      "format": "lottie",
+      "name": "Hot Cherry 1",
+      "url": ".../files/0d6c1f2e-...",
+      "thumbUrl": ".../files/41ab77c0-...",
+      "width": 512,
+      "height": 512,
+      "fileSize": 38112,
+      "emoji": ["🍒"],
+      "keywords": ["tg:AgADBQADwDZPEw"],
+      "textColor": false,
+      "sortOrder": 0,
+      "creatorId": "d3b07384-...",
+      "createdByBot": true
+    }
+  ]
+}`;
+
+const quotaRequest = `GET /IExpressions/v1/GetQuota?spaceId=aaaabbbb-...
+Authorization: Bot YOUR_TOKEN`;
+
+const quotaResponse = `{
+  "packs":        { "used": 1, "max": 10 },
+  "stickers":     { "used": 4, "max": 18 },
+  "emoji":        { "used": 0, "max": 120 },
+  "itemsPerPack": { "sticker": 120, "emoji": 200 },
+  "boostLevel":   1
+}`;
+
+const uploadRequest = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -F "purpose=sticker" \
+     -F "file=@wave.webp" \
+     https://gateway.argon.zone/IFiles/v1/Upload`;
+
+const uploadResponse = `{
+  "fileId": "5f1d0c3a-...",
+  "size": 23120,
+  "contentType": "image/webp",
+  "url": ".../files/5f1d0c3a-..."
+}`;
+
+const attachRequest = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -F "spaceId=aaaabbbb-..." \
+     -F "packId=7c9e6679-..." \
+     -F "name=Spin" \
+     -F "file=attach://clip" \
+     -F "thumb=attach://first_frame" \
+     -F "clip=@spin.webm" \
+     -F "first_frame=@spin.webp" \
+     https://gateway.argon.zone/IExpressions/v1/AddItem`;
+
+const stepQuota = String.raw`curl -H "Authorization: Bot YOUR_TOKEN" \
+     "https://gateway.argon.zone/IExpressions/v1/GetQuota?spaceId=aaaabbbb-..."
+
+# free sticker slots = stickers.max - stickers.used`;
+
+const stepCreatePack = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"spaceId":"aaaabbbb-...","kind":"sticker","title":"Hot Cherry","slug":"hotcherry"}' \
+     https://gateway.argon.zone/IExpressions/v1/CreatePack`;
+
+const stepCreatePackResponse = `{
+  "packId": "7c9e6679-...",
+  "spaceId": "aaaabbbb-...",
+  "kind": "sticker",
+  "title": "Hot Cherry",
+  "slug": "hotcherry",
+  "coverItemId": null,
+  "sortOrder": 0,
+  "version": 1,
+  "items": [],
+  "creatorId": "d3b07384-...",
+  "createdByBot": true
+}`;
+
+const stepList = String.raw`curl -H "Authorization: Bot YOUR_TOKEN" \
+     "https://gateway.argon.zone/IExpressions/v1/List?spaceId=aaaabbbb-..."
+
+# every packs[].items[].keywords entry that starts with "tg:" is done`;
+
+const stepTelegram = String.raw`curl "https://api.telegram.org/botTG_TOKEN/getStickerSet?name=HotCherry"
+# result.title, result.sticker_type, result.stickers[]:
+#   file_id, file_unique_id, emoji, is_animated, is_video, needs_repainting
+
+curl "https://api.telegram.org/botTG_TOKEN/getFile?file_id=CAACAgIAAxkBAAE..."
+# result.file_path: "stickers/file_12.tgs"
+
+curl -o 1.tgs "https://api.telegram.org/file/botTG_TOKEN/stickers/file_12.tgs"`;
+
+const stepAddItem = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -F "spaceId=aaaabbbb-..." \
+     -F "packId=7c9e6679-..." \
+     -F "name=Hot Cherry 1" \
+     -F "emoji=🍒" \
+     -F "keywords=tg:AgADBQADwDZPEw" \
+     -F "file=@1.tgs" \
+     https://gateway.argon.zone/IExpressions/v1/AddItem`;
+
+const importScript = String.raw`// import-telegram-set.ts — Bun, or Node 18+ (global fetch, FormData, Blob)
+const ARGON = "https://gateway.argon.zone";
+const TG = "https://api.telegram.org";
+const ARGON_AUTH = "Bot " + process.env.ARGON_TOKEN;
+const TG_BOT = "bot" + process.env.TG_TOKEN;   // any Telegram bot: getStickerSet reads public sets
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+class ArgonError extends Error {
+  constructor(readonly status: number, readonly code: string) { super(code); }
+}
+
+// One Argon call. Both 429s are waited out: rate_limited (this bot's window for the
+// interface) and space_rate_limited (the budget all bots share in the space).
+async function argon(method: string, path: string, body?: object | FormData): Promise<any> {
+  const form = body instanceof FormData;
+  for (;;) {
+    const res = await fetch(ARGON + path, {
+      method,
+      headers: body && !form
+        ? { Authorization: ARGON_AUTH, "Content-Type": "application/json" }
+        : { Authorization: ARGON_AUTH },
+      body: form ? body : body ? JSON.stringify(body) : undefined,
+    });
+    if (res.status === 429) {
+      await sleep(Number(res.headers.get("Retry-After") ?? 60) * 1000);
+      continue;
+    }
+    const data = await res.json();
+    if (!res.ok) throw new ArgonError(res.status, data.error);
+    return data;
+  }
+}
+
+async function telegram(method: string, params: Record<string, string>): Promise<any> {
+  const res = await fetch(TG + "/" + TG_BOT + "/" + method + "?" + new URLSearchParams(params));
+  const data = await res.json();
+  if (!data.ok) throw new Error(method + ": " + data.description);
+  return data.result;
+}
+
+async function download(fileId: string): Promise<Blob> {
+  const file = await telegram("getFile", { file_id: fileId });
+  const res = await fetch(TG + "/file/" + TG_BOT + "/" + file.file_path);
+  return await res.blob();
+}
+
+export async function importSet(spaceId: string, setName: string) {
+  const set = await telegram("getStickerSet", { name: setName });
+  const kind = set.sticker_type === "custom_emoji" ? "emoji" : "sticker";
+  const slug = setName.toLowerCase();   // Telegram set names are [A-Za-z0-9_], up to 64
+
+  // 1. Room: the space's free slots for this kind.
+  const quota = await argon("GET", "/IExpressions/v1/GetQuota?spaceId=" + spaceId);
+  const slots = kind === "emoji" ? quota.emoji : quota.stickers;
+  let room = slots.max - slots.used;
+
+  // 2. The pack. Asking again with the same slug returns the pack this bot made.
+  const pack = await argon("POST", "/IExpressions/v1/CreatePack",
+    { spaceId, kind, title: set.title.slice(0, 64).trim(), slug });
+
+  // 3. What an earlier run added: every imported item carries tg:<file_unique_id>.
+  const { packs } = await argon("GET", "/IExpressions/v1/List?spaceId=" + spaceId);
+  const done = new Set<string>(packs.flatMap((p: any) => p.items)
+    .flatMap((i: any) => i.keywords).filter((k: string) => k.startsWith("tg:")));
+
+  // Emoji names are [a-z0-9_] and unique in the space; sticker names are plain text.
+  let n = pack.items.length;
+  const nameFor = (i: number) =>
+    kind === "emoji" ? slug.slice(0, 24) + "_" + i : set.title.slice(0, 24).trim() + " " + i;
+
+  for (const sticker of set.stickers) {
+    const key = "tg:" + sticker.file_unique_id;
+    if (done.has(key)) continue;
+    if (room <= 0) {
+      console.warn("No slots left in the space: boost it or remove items");
+      return;
+    }
+
+    // 4. Download, and 5. add it with the file as an inline part.
+    const ext = sticker.is_animated ? "tgs" : sticker.is_video ? "webm" : "webp";
+    const form = new FormData();
+    form.append("spaceId", spaceId);
+    form.append("packId", pack.packId);
+    if (sticker.emoji) form.append("emoji", sticker.emoji);
+    form.append("keywords", key);
+    if (sticker.needs_repainting) form.append("textColor", "true");
+    form.append("file", await download(sticker.file_id), sticker.file_unique_id + "." + ext);
+
+    // 6. Refusals. The 429s never get here; argon() waits them out.
+    for (let attempt = 1; ; attempt++) {
+      form.set("name", nameFor(++n));
+      try {
+        await argon("POST", "/IExpressions/v1/AddItem", form);
+        done.add(key);
+        room--;
+        break;
+      } catch (e) {
+        if (!(e instanceof ArgonError)) throw e;
+        // A person's emoji already has this name: try the next number.
+        if (e.code === "name_taken" && attempt < 5) continue;
+        // This file breaks a rule, or moderation refused it; it will be refused again.
+        if (["invalid_format", "too_large", "content_rejected", "name_taken"].includes(e.code)) {
+          console.warn("Skipped " + key + ": " + e.code);
+          break;
+        }
+        // The pack (120 stickers, 200 emoji) or the space is full.
+        if (e.code === "quota_exceeded") {
+          console.warn("Quota reached; the rest of the set was not imported");
+          return;
+        }
+        throw e;   // insufficient_permissions, not_found, invalid_request: a fault to fix
+      }
+    }
+  }
+}`;
+
+const updateItemRequest = `PATCH /IExpressions/v1/UpdateItem
+Authorization: Bot YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "spaceId": "aaaabbbb-...",
+  "itemId": "9b2f4a1e-...",
+  "keywords": ["tg:AgADBQADwDZPEw", "cherry", "love"]
+}`;
+
+const listRequest = `GET /IExpressions/v1/List?spaceId=aaaabbbb-...&known=3F9A0C1B7E22D4A5
+Authorization: Bot YOUR_TOKEN`;
+
+const listResponse = `{
+  "version": "3F9A0C1B7E22D4A5",
+  "packs": null
+}`;
+
+const eventExample = `{
+  "spaceId": "aaaabbbb-...",
+  "version": "3F9A0C1B7E22D4A5",
+  "baseVersion": "C04D19E8A7B3F210",
+  "delta": {
+    "type": "itemUpserted",
+    "packId": "7c9e6679-...",
+    "itemId": "9b2f4a1e-...",
+    "item": {
+      "itemId": "9b2f4a1e-...",
+      "packId": "7c9e6679-...",
+      "kind": "sticker",
+      "format": "lottie",
+      "name": "Hot Cherry 1",
+      "url": ".../files/0d6c1f2e-...",
+      "thumbUrl": ".../files/41ab77c0-...",
+      "createdByBot": true
+    }
+  }
+}`;
+
+const syncScript = String.raw`// Per space: the version token you hold and the packs it stands for.
+const spaces = new Map<string, { version: string; packs: any[] }>();
+
+async function reload(spaceId: string) {
+  const held = spaces.get(spaceId);
+  const known = held ? "&known=" + held.version : "";
+  const res = await argon("GET", "/IExpressions/v1/List?spaceId=" + spaceId + known);
+  // packs is null when the version you sent is still current.
+  spaces.set(spaceId, { version: res.version, packs: res.packs ?? held!.packs });
+}
+
+es.addEventListener("expressionsUpdate", (e) => {
+  const { spaceId, version, baseVersion, delta } = JSON.parse(e.data);
+  const held = spaces.get(spaceId);
+
+  // Nothing held, a missed change, or one V1 has no delta for: read the list again.
+  if (!held || !delta || baseVersion !== held.version || !apply(held.packs, delta))
+    return reload(spaceId);
+
+  held.version = version;
+});
+
+// false when the delta names a pack you do not hold.
+function apply(packs: any[], d: any): boolean {
+  if (d.type === "packUpserted") {
+    // The pack comes without its items: keep the ones you hold.
+    const old = packs.find((p) => p.packId === d.pack.packId);
+    if (old) Object.assign(old, { ...d.pack, items: old.items });
+    else packs.push(d.pack);
+    return true;
+  }
+  if (d.type === "packsReordered") {
+    for (const p of packs) if (p.kind === d.kind) p.sortOrder = d.ordered.indexOf(p.packId);
+    return true;
+  }
+
+  const pack = packs.find((p) => p.packId === d.packId);
+  if (!pack) return false;
+
+  switch (d.type) {
+    case "packDeleted":
+      packs.splice(packs.indexOf(pack), 1);
+      return true;
+    case "itemUpserted":
+      pack.items = [...pack.items.filter((i: any) => i.itemId !== d.itemId), d.item];
+      break;
+    case "itemDeleted":
+      pack.items = pack.items.filter((i: any) => i.itemId !== d.itemId);
+      break;
+    case "itemsReordered":
+      for (const i of pack.items) i.sortOrder = d.ordered.indexOf(i.itemId);
+      break;
+    default:
+      return false;   // a type added later: the list is the safe answer
+  }
+  pack.items.sort((a: any, b: any) => a.sortOrder - b.sortOrder);
+  return true;
+}`;
+---
+
+<DocsLayout title="Stickers & Custom Emoji — Argon Bot API" current="/guides/stickers-and-emoji/" toc={[
+  { id: "packs-and-items", title: "Packs & Items" },
+  { id: "formats", title: "Formats & Limits" },
+  { id: "quotas", title: "Quotas" },
+  { id: "access", title: "Who May Change What" },
+  { id: "files", title: "Files" },
+  { id: "telegram-import", title: "Import a Telegram Set" },
+  { id: "import-room", title: "1. Check the room", depth: 1 },
+  { id: "import-pack", title: "2. Create the pack", depth: 1 },
+  { id: "import-dedupe", title: "3. Skip what is there", depth: 1 },
+  { id: "import-download", title: "4. Download from Telegram", depth: 1 },
+  { id: "import-add", title: "5. Add each sticker", depth: 1 },
+  { id: "import-errors", title: "6. Handle refusals", depth: 1 },
+  { id: "import-script", title: "Complete script", depth: 1 },
+  { id: "updating", title: "Updating Packs & Items" },
+  { id: "reading", title: "Reading & the Version Token" },
+  { id: "events", title: "Real-time Events" },
+  { id: "in-messages", title: "In Messages" },
+  { id: "limits", title: "Limits & Permissions" },
+]}>
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Stickers &amp; Custom Emoji</h1>
+    <p class="text-text-secondary text-lg">
+      Read a space's sticker and custom emoji packs, create packs of your own and fill them — for example by importing a Telegram sticker set.
+      Files go up once through <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles</code> or inline with the request,
+      and changes arrive in real time via the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Expressions</code> intent.
+    </p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Packs & Items -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Sticker class="size-5 text-accent" />
+        <h2 id="packs-and-items" class="text-xl font-semibold">Packs &amp; Items <a href="#packs-and-items" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Stickers and custom emoji are called <strong class="text-text-primary">expressions</strong>. They live in <strong class="text-text-primary">packs</strong> that belong to a space,
+          and every pack holds one <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">kind</code> of <strong class="text-text-primary">item</strong>:
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 2fr">
+              <span>Kind</span>
+              <span>What it is</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"sticker"</span></span>
+              <span class="text-text-secondary text-[12px]">A 512 px image or animation sent as a message of its own.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"emoji"</span></span>
+              <span class="text-text-secondary text-[12px]">A 100×100 custom emoji used inline in text as <code>:name:</code>, and as a reaction.</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-text-secondary">
+          Each item has a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">format</code>:
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">static</code> (WEBP),
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">lottie</code> (TGS, gzipped Lottie JSON) or
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">video</code> (WEBM, VP9).
+          The rules and sizes are Telegram's, so a Telegram sticker set imports file for file.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example — a pack with one item (BotExpressionPackV1)</h4>
+          <CodeBlock code={packExample} lang="json" />
+        </div>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <p class="text-sm text-text-secondary">
+            <strong>Files travel as URLs.</strong> An item carries <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">url</code> and,
+            for an animated item, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">thumbUrl</code> (its first frame as WEBP; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">null</code> for a static one).
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">createdByBot</code> is set when a bot account added the pack or item;
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">creatorId</code> is that account's user ID.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formats & Limits -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <FileImage class="size-5 text-accent" />
+        <h2 id="formats" class="text-xl font-semibold">Formats &amp; Limits <a href="#formats" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          The server reads the file's own signature, not its name or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Content-Type</code>, and checks it when an item is added.
+          A file that breaks a rule is refused with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>; one over its size with
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">too_large</code>. Sizes are in KB of 1024 bytes.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span>Sticker</span>
+              <span>File</span>
+              <span>Max size</span>
+              <span>Rules</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">static</span></span>
+              <span class="text-text-secondary text-[12px]">PNG or WEBP, a single frame</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">512 KB</span></span>
+              <span class="text-text-secondary text-[12px]">One side exactly 512 px, the other at most 512. A PNG is stored as lossless WEBP, and the WEBP has to fit the size.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">lottie</span></span>
+              <span class="text-text-secondary text-[12px]">TGS, or plain Lottie JSON (gzipped by the server)</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">64 KB</span></span>
+              <span class="text-text-secondary text-[12px]">Canvas exactly 512×512, at most 3 s and 60 fps, none of the <a href="#lottie-features" class="text-accent hover:underline">forbidden features</a>. The size is the gzipped one; plain JSON may arrive up to 4 MB.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">video</span></span>
+              <span class="text-text-secondary text-[12px]">WEBM, VP9, one video track, no audio</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">256 KB</span></span>
+              <span class="text-text-secondary text-[12px]">One side exactly 512 px, the other at most 512; at most 3 s and 30 fps (Telegram's 33 ms frames pass).</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span>Emoji</span>
+              <span>File</span>
+              <span>Max size</span>
+              <span>Rules</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">static</span></span>
+              <span class="text-text-secondary text-[12px]">PNG or WEBP, a single frame</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">128 KB</span></span>
+              <span class="text-text-secondary text-[12px]">Exactly 100×100. A PNG is stored as lossless WEBP.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">lottie</span></span>
+              <span class="text-text-secondary text-[12px]">TGS, or plain Lottie JSON</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">64 KB</span></span>
+              <span class="text-text-secondary text-[12px]">Canvas exactly 100×100, at most 3 s and 60 fps, none of the forbidden features.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">video</span></span>
+              <span class="text-text-secondary text-[12px]">WEBM, VP9, one video track, no audio</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">256 KB</span></span>
+              <span class="text-text-secondary text-[12px]">Exactly 100×100, at most 3 s and 30 fps.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span>Thumbnail</span>
+              <span>File</span>
+              <span>Max size</span>
+              <span>Rules</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 0.9fr 1.3fr 0.7fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-property">thumb</span></span>
+              <span class="text-text-secondary text-[12px]">WEBP, a single frame</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">128 KB</span></span>
+              <span class="text-text-secondary text-[12px]">The first frame of an animated item, at exactly the item's width and height. Never sent for a static item. See <a href="#thumb" class="text-accent hover:underline">when to send one</a>.</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="lottie-features" class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Forbidden in Lottie / TGS</h4>
+          <p class="text-sm text-text-secondary mb-3">Telegram's list. A file that uses any of these is refused with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>:</p>
+          <ul class="text-sm text-text-secondary space-y-1 list-disc list-inside">
+            <li>Expressions (script on an animated property)</li>
+            <li>3D layers (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ddd</code>), on the animation or a layer</li>
+            <li>Solid, image, text, audio and camera layers</li>
+            <li>Masks, layer effects, auto-orient, time remapping and time stretching</li>
+            <li>Image assets, linked or embedded</li>
+            <li>Gradient strokes, repeaters, merge paths and star / polygon shapes</li>
+          </ul>
+        </div>
+
+        <h3 class="text-lg font-semibold pt-2">Names &amp; metadata</h3>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 2fr">
+              <span>Field</span>
+              <span>Rule</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">name <span class="text-text-faint">(emoji)</span></span>
+              <span class="text-text-secondary text-[12px]"><code>[a-z0-9_]</code>, 2–32 characters, unique among all the space's emoji — it is the <code>:name:</code> people type. A taken name returns <code>409 name_taken</code>.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">name <span class="text-text-faint">(sticker)</span></span>
+              <span class="text-text-secondary text-[12px]">2–30 characters of plain text: no leading or trailing spaces, no control characters. Need not be unique.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">emoji</span>
+              <span class="text-text-secondary text-[12px]">0–20 associated Unicode emoji, each non-blank and at most 32 characters. Pickers search by them.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">keywords</span>
+              <span class="text-text-secondary text-[12px]">Up to 20, non-blank, at most <strong>64 characters all together</strong>. Pickers search by them too.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">textColor</span>
+              <span class="text-text-secondary text-[12px]">The emoji is drawn in the text colour, like Telegram's <code>needs_repainting</code>. Meant for single-colour emoji; defaults to <code>false</code>.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">title <span class="text-text-faint">(pack)</span></span>
+              <span class="text-text-secondary text-[12px]">1–64 characters of plain text.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">slug <span class="text-text-faint">(pack)</span></span>
+              <span class="text-text-secondary text-[12px]"><code>[a-z0-9_]</code>, 1–64 characters, unique in the space across both kinds. Set once: the Bot API cannot change it.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quotas -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Gauge class="size-5 text-accent" />
+        <h2 id="quotas" class="text-xl font-semibold">Quotas <a href="#quotas" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          A space holds a limited number of packs and items. The item slots grow with the space's <strong class="text-text-primary">boost level</strong>;
+          a full space, a full pack or too many packs refuse the next addition with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">422 quota_exceeded</code>.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr">
+              <span>Boost level</span>
+              <span>0</span>
+              <span>1</span>
+              <span>2</span>
+              <span>3</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr">
+              <span class="type-property font-mono text-[12px]">Sticker slots</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">6</span></span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">18</span></span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">36</span></span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">72</span></span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr">
+              <span class="type-property font-mono text-[12px]">Emoji slots</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">60</span></span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">120</span></span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">180</span></span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">300</span></span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-text-secondary">
+          On top of the slots: at most <strong class="text-text-primary">10 packs</strong> per space (stickers and emoji together),
+          <strong class="text-text-primary">120 stickers</strong> per sticker pack and <strong class="text-text-primary">200 emoji</strong> per emoji pack — Telegram's set sizes.
+          These are the defaults; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GetQuota</code> tells you what applies to the space right now.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <CodeBlock code={quotaRequest} lang="http" />
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response (BotQuotaV1)</h4>
+          <CodeBlock code={quotaResponse} lang="json" />
+        </div>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-status-degraded">
+          <p class="text-sm text-text-secondary">
+            <strong>A space without boosts holds 6 stickers.</strong> Read <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GetQuota</code> before an import
+            and tell the user how much of the set fits, rather than stopping part way through with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">quota_exceeded</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Access -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <ShieldCheck class="size-5 text-accent" />
+        <h2 id="access" class="text-xl font-semibold">Who May Change What <a href="#access" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Reading — <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">List</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GetPack</code>,
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GetQuota</code> — only needs the bot to be a member of the space.
+          Writing — <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">CreatePack</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">UpdatePack</code>,
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">UpdateItem</code> — needs the
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">CreateExpressions</code> permission, and even then a bot is held to three rules:
+        </p>
+
+        <div class="space-y-3">
+          <div class="glass rounded-xl p-4">
+            <p class="text-sm text-text-secondary">
+              <strong class="text-text-primary">Only its own.</strong> A bot updates only the packs and items it created (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">creatorId</code> is the bot);
+              updating a person's pack or item returns <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">403 insufficient_permissions</code>.
+              Adding is not limited that way: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> takes any pack of the space, and the item it makes is the bot's.
+            </p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-sm text-text-secondary">
+              <strong class="text-text-primary">Never delete, never reorder.</strong> There are no routes for it, and the server refuses a bot either way.
+              Removing a pack or item is left to members with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ManageExpressions</code>.
+            </p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-sm text-text-secondary">
+              <strong class="text-text-primary">ManageExpressions adds nothing.</strong> For people it opens everyone's packs; granting it to a bot changes none of the above.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="text-lg font-semibold pt-2">Getting CreateExpressions</h3>
+        <p class="text-text-secondary">
+          A bot's permissions in a space come from its <strong class="text-text-primary">required entitlements</strong>, set on the app's
+          <strong class="text-text-primary">Entitlements</strong> tab in the <a href="https://console.argon.gl" target="_blank" rel="noopener" class="text-accent hover:underline">Developer Console</a>.
+          Installing the bot creates a locked role holding exactly those.
+        </p>
+
+        <div class="space-y-3">
+          <div class="flex items-start gap-3">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">1</span>
+            <p class="text-sm text-text-secondary">Add <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">CreateExpressions</code> to the required entitlements. Spaces that install the bot from now on grant it at once.</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">2</span>
+            <p class="text-sm text-text-secondary">
+              Spaces that installed it earlier keep the old set: the bot shows as pending approval in the space's bot settings until the <strong class="text-text-primary">owner approves</strong> it again.
+              Until then writes return <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">403 insufficient_permissions</code>.
+            </p>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-[11px] font-bold text-accent mt-0.5">3</span>
+            <p class="text-sm text-text-secondary">
+              When the bot connects to the <a href="/guides/events/" class="text-accent hover:underline">event stream</a>, the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ready</code> event marks
+              every such space with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">pendingApproval: true</code>, and a
+              <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">botEntitlementsUpdated</code> event follows for each
+              (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">requiredEntitlements</code> vs <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">grantedEntitlements</code>) — the cue to ask the owner.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Files -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Upload class="size-5 text-accent" />
+        <h2 id="files" class="text-xl font-semibold">Files <a href="#files" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> is a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">multipart/form-data</code> request,
+          read the way Telegram reads one. Every field is a text part; a list is the field repeated once per value (or one field holding a JSON array); a boolean is
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">true</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">false</code>.
+          The <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">file</code> and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">thumb</code> fields take a file in one of three ways:
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1.2fr 2fr">
+              <span>You send</span>
+              <span>Meaning</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="font-mono text-[12px] text-text-secondary">a file part named <span class="type-property">file</span></span>
+              <span class="text-text-secondary text-[12px]">The part is the file. The simplest form.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-property">file</span>=<span class="text-accent-2">attach://clip</span></span>
+              <span class="text-text-secondary text-[12px]">A text field naming another part of the same request (<code>clip</code>). A name that matches no part returns <code>400 invalid_request</code>.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-property">file</span>=<span class="text-accent-2">5f1d0c3a-...</span></span>
+              <span class="text-text-secondary text-[12px]">The <code>fileId</code> of an earlier <code>IFiles/Upload</code>. Unknown or expired returns <code>404 not_found</code>.</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-text-secondary">
+          A request carries at most <strong class="text-text-primary">5 MB</strong> in total; more is refused with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">413 too_large</code>.
+          Every item gets its own copy of the file, so the same file can make any number of items.
+        </p>
+
+        <h3 class="text-lg font-semibold pt-2">Uploading once with IFiles</h3>
+        <p class="text-text-secondary">
+          Like Telegram's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">uploadStickerFile</code>:
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">POST /IFiles/v1/Upload</code> takes a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">file</code> part
+          and a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">purpose</code>, and returns a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code>
+          that <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> takes in place of the part — in any space, any number of times, for <strong class="text-text-primary">24 hours</strong>.
+          Useful when one file goes into several spaces, or when you want uploads and additions apart.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Upload</h4>
+          <CodeBlock code={uploadRequest} lang="bash" />
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response (BotFileV1)</h4>
+          <CodeBlock code={uploadResponse} lang="json" />
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 2fr">
+              <span>purpose</span>
+              <span>Takes</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"sticker"</span> / <span class="type-enum">"emoji"</span></span>
+              <span class="text-text-secondary text-[12px]">PNG, WEBP, TGS, Lottie JSON or WEBM, up to 4 MB (a plain Lottie JSON is judged by its gzipped size later).</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"thumb"</span></span>
+              <span class="text-text-secondary text-[12px]">WEBP only, up to 128 KB. Anything else is <code>400 invalid_format</code>.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <p class="text-sm text-text-secondary">
+            <strong>Upload checks the type and the size, nothing more.</strong> Dimensions, duration, frame rate and Lottie features are checked when
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> uses the file, against the kind of the pack it goes into.
+            A bot holds at most <strong>100 unused uploads</strong> at a time — the next returns <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">422 quota_exceeded</code>.
+            An upload stops counting once an item is made from it, and is deleted 24 hours after it was sent.
+          </p>
+        </div>
+
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IFiles/v1/Get?fileId=…</code> describes a file the bot uploaded, or any sticker or emoji file:
+          its <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">size</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">contentType</code> and a download
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">url</code>. Anything else is <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">404 not_found</code>.
+        </p>
+
+        <h3 id="thumb" class="text-lg font-semibold pt-2">The thumbnail <a href="#thumb" class="anchor-link">#</a></h3>
+        <p class="text-text-secondary">
+          An animated item (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">lottie</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">video</code>)
+          needs a still first frame: pickers show it and moderation judges it. <strong class="text-text-primary">Argon draws that frame itself</strong>, so <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">thumb</code> is optional:
+        </p>
+        <ul class="text-sm text-text-secondary space-y-2 list-disc list-inside">
+          <li><strong class="text-text-primary">Static item</strong> — never send <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">thumb</code>; it is refused with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>.</li>
+          <li><strong class="text-text-primary">Animated item, no thumb</strong> — the server renders frame 0 and stores it as the thumbnail.</li>
+          <li><strong class="text-text-primary">Animated item with a thumb</strong> — it still has to be valid (WEBP, one frame, exactly the item's size, at most 128 KB) or the whole request fails with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>; the frame the server draws replaces it.</li>
+          <li><strong class="text-text-primary">When the server cannot draw the format</strong> — a deployment without the renderer, or a file it fails to read — the client's thumb is used, and an animated item without one is refused with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>.</li>
+        </ul>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-status-degraded">
+          <p class="text-sm text-text-secondary">
+            <strong>Telegram's own <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">thumbnail</code> will not do</strong> — it is smaller than the sticker.
+            If you need a thumb, render frame 0 at full size: rlottie or any Lottie renderer for TGS, and for WEBM, for example
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ffmpeg -c:v libvpx-vp9 -i sticker.webm -frames:v 1 -c:v libwebp -quality 80 thumb.webp</code>
+            (the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">libvpx-vp9</code> decoder keeps the transparency).
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">An animated sticker with its thumbnail, both as named parts</h4>
+          <CodeBlock code={attachRequest} lang="bash" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Telegram import -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Import class="size-5 text-accent" />
+        <h2 id="telegram-import" class="text-xl font-semibold">Import a Telegram Sticker Set <a href="#telegram-import" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          A walkthrough with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">curl</code>, then the same as one TypeScript script.
+          It needs your Argon bot token with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">CreateExpressions</code> in the space, and the token of any Telegram bot
+          (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">TG_TOKEN</code>) to read a public set from the Telegram Bot API.
+        </p>
+      </div>
+
+      <div class="mt-8 space-y-10">
+
+        <!-- Step 1 -->
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-xs font-bold text-accent">1</div>
+            <h3 id="import-room" class="text-lg font-semibold">Check the room <a href="#import-room" class="anchor-link">#</a></h3>
+          </div>
+          <div class="space-y-3">
+            <p class="text-text-secondary">
+              Read the set from Telegram (step 4) and the space's quota. A set of 30 stickers does not fit a space that has 6 slots; say so before you start.
+            </p>
+            <CodeBlock code={stepQuota} lang="bash" />
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-xs font-bold text-accent">2</div>
+            <h3 id="import-pack" class="text-lg font-semibold">Create the pack <a href="#import-pack" class="anchor-link">#</a></h3>
+          </div>
+          <div class="space-y-3">
+            <p class="text-text-secondary">
+              A Telegram set's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">sticker_type</code> of <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">custom_emoji</code>
+              makes an <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">emoji</code> pack; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">regular</code> and
+              <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">mask</code> make a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">sticker</code> pack.
+              The set's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">name</code>, lower-cased, is a valid slug.
+            </p>
+            <CodeBlock code={stepCreatePack} lang="bash" />
+            <p class="text-sm text-text-muted">The response is the pack; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">packId</code> is what <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> needs.</p>
+            <CodeBlock code={stepCreatePackResponse} lang="json" />
+            <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+              <p class="text-sm text-text-secondary">
+                <strong>CreatePack is safe to repeat.</strong> Called again by the same bot with the same slug and kind, it returns the pack it made — with its items —
+                and changes nothing, so a re-run of an import needs no bookkeeping to find its pack. The same slug held by someone else's pack, or by your pack of the other kind,
+                is <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">409 name_taken</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-xs font-bold text-accent">3</div>
+            <h3 id="import-dedupe" class="text-lg font-semibold">Skip what is already there <a href="#import-dedupe" class="anchor-link">#</a></h3>
+          </div>
+          <div class="space-y-3">
+            <p class="text-text-secondary">
+              <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> is <strong class="text-text-primary">not</strong> idempotent: each call adds a new item, even with the same file.
+              Keeping re-imports from doubling up is the bot's job. Give every imported item the keyword
+              <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">tg:&lt;file_unique_id&gt;</code> — Telegram's ID that stays the same for the same file —
+              and before adding, read <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">List</code> and skip every sticker whose key is already present.
+            </p>
+            <CodeBlock code={stepList} lang="bash" />
+            <p class="text-sm text-text-muted">
+              Keywords share 64 characters per item, and a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">tg:</code> key takes about 20 of them; keep the rest short.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-xs font-bold text-accent">4</div>
+            <h3 id="import-download" class="text-lg font-semibold">Download from Telegram <a href="#import-download" class="anchor-link">#</a></h3>
+          </div>
+          <div class="space-y-3">
+            <p class="text-text-secondary">
+              <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">getStickerSet</code> lists the stickers; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">getFile</code>
+              turns each <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">file_id</code> into a path to download. The files are already in Argon's formats —
+              WEBP, TGS (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">is_animated</code>) or WEBM (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">is_video</code>) — so they go up unchanged.
+            </p>
+            <CodeBlock code={stepTelegram} lang="bash" />
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-xs font-bold text-accent">5</div>
+            <h3 id="import-add" class="text-lg font-semibold">Add each sticker <a href="#import-add" class="anchor-link">#</a></h3>
+          </div>
+          <div class="space-y-3">
+            <p class="text-text-secondary">
+              One <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> per sticker, the file as a part. Carry Telegram's
+              <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">emoji</code> over as the associated emoji, the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">tg:</code> key as a keyword,
+              and for custom emoji <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">needs_repainting</code> as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">textColor</code>.
+              Telegram gives stickers no names, so make them: free text for a sticker, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">[a-z0-9_]</code> unique in the space for an emoji.
+            </p>
+            <CodeBlock code={stepAddItem} lang="bash" />
+            <p class="text-sm text-text-muted">
+              The response is the new item (<a href="#packs-and-items" class="text-accent hover:underline">BotExpressionItemV1</a>).
+              More associated emoji or keywords: repeat the field (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">-F "emoji=🍒" -F "emoji=❤️"</code>), or send one field holding a JSON array.
+              The file can also be an <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attach://</code> reference or a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code> — see <a href="#files" class="text-accent hover:underline">Files</a>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-subtle border border-accent/20 text-xs font-bold text-accent">6</div>
+            <h3 id="import-errors" class="text-lg font-semibold">Handle refusals <a href="#import-errors" class="anchor-link">#</a></h3>
+          </div>
+          <div class="space-y-3">
+            <p class="text-text-secondary">
+              Branch on the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">error</code> code (see <a href="/guides/error-handling/" class="text-accent hover:underline">Error Handling</a>).
+              Some refusals are about one sticker and the import goes on; others end it.
+            </p>
+
+            <div class="glass rounded-2xl overflow-hidden">
+              <div class="type-grid">
+                <div class="type-grid-header" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span>Status</span>
+                  <span>Code</span>
+                  <span>What to do</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">400</span>
+                  <span class="font-mono text-[12px] text-red-300">invalid_format</span>
+                  <span class="text-text-secondary text-[12px]">A name, emoji or keyword breaks its rule, or the file does (dimensions, duration, frame rate, a Lottie feature, a thumb where none belongs). Skip the sticker and log it.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">400</span>
+                  <span class="font-mono text-[12px] text-red-300">invalid_request</span>
+                  <span class="text-text-secondary text-[12px]">The form could not be read: a required field is missing or malformed, or an <code>attach://</code> names no part. A bug in the request — stop.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">403</span>
+                  <span class="font-mono text-[12px] text-red-300">insufficient_permissions</span>
+                  <span class="text-text-secondary text-[12px]">No <code>CreateExpressions</code> in this space yet — the owner has not approved it. (On an update, also: the pack or item is not the bot's.) Stop and tell the user.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">404</span>
+                  <span class="font-mono text-[12px] text-red-300">not_found</span>
+                  <span class="text-text-secondary text-[12px]">The pack is gone (a person deleted it), or a <code>fileId</code> is unknown or older than 24 hours. Re-create or re-upload.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">409</span>
+                  <span class="font-mono text-[12px] text-red-300">name_taken</span>
+                  <span class="text-text-secondary text-[12px]">The emoji name is used in the space (or, on <code>CreatePack</code>, the slug). Pick another name and retry.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">413</span>
+                  <span class="font-mono text-[12px] text-red-300">too_large</span>
+                  <span class="text-text-secondary text-[12px]">The request is over 5 MB, or the file over its format's size. Skip the sticker.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">422</span>
+                  <span class="font-mono text-[12px] text-red-300">quota_exceeded</span>
+                  <span class="text-text-secondary text-[12px]">The pack is full, the space's slots are, the space has 10 packs, or the bot holds 100 unused uploads. Stop; <code>GetQuota</code> says which.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-amber-400">422</span>
+                  <span class="font-mono text-[12px] text-red-300">content_rejected</span>
+                  <span class="text-text-secondary text-[12px]">Moderation refused the file (an animated one is judged by its first frame). Skip it; the same file is refused again, and each refusal is recorded against the bot.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-red-400">429</span>
+                  <span class="font-mono text-[12px] text-red-300">rate_limited</span>
+                  <span class="text-text-secondary text-[12px]">This bot's window for the interface — <code>IExpressions</code> 60/min, <code>IFiles</code> 30/min. Wait <code>Retry-After</code> seconds and send the same request again.</span>
+                </div>
+                <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+                  <span class="font-mono text-[12px] text-red-400">429</span>
+                  <span class="font-mono text-[12px] text-red-300">space_rate_limited</span>
+                  <span class="text-text-secondary text-[12px]">All bots together have made 120 changes in this space this minute. <code>Retry-After: 60</code>; wait and send it again.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass rounded-2xl p-5 border-l-2 border-status-degraded">
+              <p class="text-sm text-text-secondary">
+                <strong>Two different 429s.</strong> <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">rate_limited</code> is your bot's own limit, across all spaces.
+                <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">space_rate_limited</code> is the space's budget for sticker and emoji changes, shared by every bot in it
+                (people have a budget of their own). An <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> refused for its file —
+                <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">too_large</code> or
+                <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">content_rejected</code> — has already used one change of that budget. See <a href="/guides/rate-limits/#space-budget" class="text-accent hover:underline">Rate Limits</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complete script -->
+        <div>
+          <h3 id="import-script" class="text-lg font-semibold mb-3">Complete script <a href="#import-script" class="anchor-link">#</a></h3>
+          <p class="text-text-secondary mb-3">
+            The six steps in one function. Run it again after a failure or when the set grows: it skips what it added before.
+          </p>
+          <div class="glass rounded-2xl p-5">
+            <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">TypeScript (Bun / Node.js)</h4>
+            <CodeBlock code={importScript} lang="ts" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Updating -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Pencil class="size-5 text-accent" />
+        <h2 id="updating" class="text-xl font-semibold">Updating Packs &amp; Items <a href="#updating" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">PATCH /IExpressions/v1/UpdatePack</code> changes the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">title</code>
+          or the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">coverItemId</code> (an item of that pack) of a pack the bot made.
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">PATCH /IExpressions/v1/UpdateItem</code> changes the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">name</code>,
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">emoji</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">keywords</code> or
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">textColor</code> of an item the bot made. Both are JSON. A field left out — or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">null</code> — is kept;
+          an empty list clears <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">emoji</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">keywords</code>.
+          A list you send replaces the old one, so send the whole list — including the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">tg:</code> key.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <CodeBlock code={updateItemRequest} lang="http" />
+        </div>
+
+        <p class="text-text-secondary">
+          Both answer with the pack or item as it now is. A request that changes nothing succeeds without counting against the space's budget.
+          The file of an item cannot be replaced: add a new item, and ask a member with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ManageExpressions</code> to remove the old one.
+        </p>
+      </div>
+    </section>
+
+    <!-- Reading -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Database class="size-5 text-accent" />
+        <h2 id="reading" class="text-xl font-semibold">Reading &amp; the Version Token <a href="#reading" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IExpressions/v1/List</code> returns every pack of the space with its items, sorted by kind and order, and a
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">version</code> token that changes whenever any pack or item does.
+          Keep the token and pass it back as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">known</code>: while nothing changed, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">packs</code>
+          comes back <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">null</code> and costs nothing to send.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <CodeBlock code={listRequest} lang="http" />
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response — still current</h4>
+          <CodeBlock code={listResponse} lang="json" />
+        </div>
+
+        <p class="text-text-secondary">
+          The token is opaque: compare it for equality, never parse it. For one pack, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IExpressions/v1/GetPack</code>
+          takes <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">packId</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">slug</code> (one of them is required) and answers
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">404 not_found</code> for a pack the space does not have.
+        </p>
+      </div>
+    </section>
+
+    <!-- Events -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Zap class="size-5 text-accent" />
+        <h2 id="events" class="text-xl font-semibold">Real-time Events <a href="#events" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          The <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Expressions</code> intent (bit 14, value <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">16384</code>) delivers
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">expressionsUpdate</code> whenever a pack or item of a space the bot is in changes — including the bot's own changes.
+          It is not privileged and is part of the default (all non-privileged) intents.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span>Field</span>
+              <span>Type</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">spaceId</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">The space whose packs changed.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">version</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">The token after this change — what <code>List</code> would return now.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">baseVersion</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+              <span class="text-text-secondary text-[12px]">The token the change was made on. Apply <code>delta</code> only if it equals the token you hold.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">delta</span>
+              <span class="font-mono text-[12px]"><span class="type-name">BotExpressionsDeltaV1</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+              <span class="text-text-secondary text-[12px]">The change, flattened. <code>null</code> for a change V1 has no shape for — re-read <code>List</code>.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span>delta.type</span>
+              <span>Fields set</span>
+              <span>Meaning</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"packUpserted"</span></span>
+              <span class="font-mono text-[12px] text-text-secondary">pack, packId</span>
+              <span class="text-text-secondary text-[12px]">A pack was created or changed. <code>pack.items</code> is empty — keep the items you hold.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"packDeleted"</span></span>
+              <span class="font-mono text-[12px] text-text-secondary">packId</span>
+              <span class="text-text-secondary text-[12px]">A pack and all its items were removed.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"itemUpserted"</span></span>
+              <span class="font-mono text-[12px] text-text-secondary">item, packId, itemId</span>
+              <span class="text-text-secondary text-[12px]">An item was added or changed.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"itemDeleted"</span></span>
+              <span class="font-mono text-[12px] text-text-secondary">packId, itemId</span>
+              <span class="text-text-secondary text-[12px]">An item was removed.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"packsReordered"</span></span>
+              <span class="font-mono text-[12px] text-text-secondary">kind, ordered</span>
+              <span class="text-text-secondary text-[12px]"><code>ordered</code> is every pack ID of that kind, in the new order.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-enum">"itemsReordered"</span></span>
+              <span class="font-mono text-[12px] text-text-secondary">packId, ordered</span>
+              <span class="text-text-secondary text-[12px]"><code>ordered</code> is every item ID of the pack, in the new order.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">SSE example — event: expressionsUpdate, data:</h4>
+          <CodeBlock code={eventExample} lang="json" />
+        </div>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <p class="text-sm text-text-secondary">
+            <strong>The rule:</strong> if <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">baseVersion</code> is the token you hold and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">delta</code> is not
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">null</code>, apply the delta and hold <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">version</code>.
+            Otherwise — you missed an event, or just started — call <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">List</code> with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">known</code> and take what it returns.
+            Fields a delta type does not use are empty; ignore them.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Keeping a space's packs in sync (TypeScript, argon() from the script above)</h4>
+          <CodeBlock code={syncScript} lang="ts" />
+        </div>
+      </div>
+    </section>
+
+    <!-- In messages -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <MessageSquare class="size-5 text-accent" />
+        <h2 id="in-messages" class="text-xl font-semibold">In Messages <a href="#in-messages" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="flex items-start gap-3 rounded-xl border border-status-degraded/20 bg-status-degraded-subtle p-4">
+        <AlertTriangle class="size-4 text-status-degraded mt-0.5 shrink-0" />
+        <p class="text-sm text-text-secondary">
+          <strong class="text-text-primary">Bots cannot send stickers or custom emoji yet.</strong> People's messages carry them as
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">sticker</code> and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">customEmoji</code> entities,
+          but V1 of the Bot API neither accepts nor delivers them. See <a href="/guides/message-entities/#stickers-and-custom-emoji" class="text-accent hover:underline">Message Entities</a> for what a bot sees instead.
+        </p>
+      </div>
+    </section>
+
+    <!-- Limits & Permissions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <ShieldCheck class="size-5 text-accent" />
+        <h2 id="limits" class="text-xl font-semibold">Limits &amp; Permissions <a href="#limits" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="type-grid">
+          <div class="type-grid-header" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span>Limit</span>
+            <span>Value</span>
+            <span>Description</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Packs per space</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">10</span></span>
+            <span class="text-text-secondary text-[12px]">Stickers and emoji together.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Items per pack</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">120 / 200</span></span>
+            <span class="text-text-secondary text-[12px]">Stickers / emoji.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Slots per space</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">6–72 / 60–300</span></span>
+            <span class="text-text-secondary text-[12px]">Stickers / emoji, by boost level. <code>GetQuota</code> has the current numbers.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Request size</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">5 MB</span></span>
+            <span class="text-text-secondary text-[12px]"><code>IFiles/Upload</code> and <code>AddItem</code>, all parts together.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Uploads</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">100 · 24 h</span></span>
+            <span class="text-text-secondary text-[12px]">Unused uploads a bot may hold, and how long an upload lives.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Rate limit</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">60/min · 30/min</span></span>
+            <span class="text-text-secondary text-[12px]"><code>IExpressions</code> · <code>IFiles</code>, sliding window per bot.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Space budget</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">120/min</span></span>
+            <span class="text-text-secondary text-[12px]">Changes by all bots in one space; <code>space_rate_limited</code> past it.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Required permission</span>
+            <span class="font-mono text-[12px]"><span class="type-enum">CreateExpressions</span></span>
+            <span class="text-text-secondary text-[12px]">For every write. Reading needs membership only.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">SSE intent</span>
+            <span class="font-mono text-[12px]"><span class="type-enum">Expressions</span> (bit 14 = 16384)</span>
+            <span class="text-text-secondary text-[12px]">Required to receive <code>expressionsUpdate</code>.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section class="glass rounded-2xl p-6">
+      <h3 class="font-semibold mb-3">Next Steps</h3>
+      <div class="flex flex-col gap-2">
+        <a href="/docs/IExpressions/" class="text-sm text-accent hover:underline">→ IExpressions API Reference — every route, field and error</a>
+        <a href="/docs/IFiles/" class="text-sm text-accent hover:underline">→ IFiles API Reference — uploads by fileId</a>
+        <a href="/guides/events/" class="text-sm text-accent hover:underline">→ Real-time Events (SSE) — connecting and intents</a>
+      </div>
+    </section>
+
+  </div>
+</DocsLayout>

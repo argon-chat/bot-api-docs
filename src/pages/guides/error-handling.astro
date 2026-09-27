@@ -7,6 +7,7 @@ import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
   { id: "response-shape", title: "Response Shape" },
   { id: "http-status-codes", title: "HTTP Status Codes" },
   { id: "common-error-codes", title: "Common Error Codes" },
+  { id: "expression-error-codes", title: "Sticker & Emoji Error Codes" },
   { id: "best-practices", title: "Best Practices" },
 ]}>
   <div class="animate-fade-in-up">
@@ -92,6 +93,14 @@ import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
           <span class="text-[12px] text-text-secondary">Conflict — resource already exists (e.g. bot already installed).</span>
         </div>
         <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">413</span>
+          <span class="text-[12px] text-text-secondary">Payload too large — the request, or a file in it, is over the size limit.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">422</span>
+          <span class="text-[12px] text-text-secondary">Unprocessable — the request is well-formed but refused: a limit is reached or moderation rejected a file.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 80px 1fr">
           <span class="font-mono text-[12px] text-red-400 font-semibold">429</span>
           <span class="text-[12px] text-text-secondary">Rate limited — too many requests. Back off and retry after the indicated period.</span>
         </div>
@@ -138,6 +147,70 @@ import { AlertTriangle, ArrowRight, FileJson } from 'lucide-astro';
         <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
           <span class="font-mono text-[12px] text-red-300">not_voice_channel</span>
           <span class="text-[12px] text-text-secondary">The channel exists but is not a voice channel. Voice operations require voice-type channels.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">insufficient_permissions</span>
+          <span class="text-[12px] text-text-secondary">The bot's role in the space lacks the permission the endpoint needs, or the object is not the bot's to change.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">invalid_request</span>
+          <span class="text-[12px] text-text-secondary">A multipart form could not be read: a required field is missing or malformed, or an <code>attach://</code> reference names no part of the request.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">too_large</span>
+          <span class="text-[12px] text-text-secondary">413 — the request, or a file in it, is over the size limit.</span>
+        </div>
+        <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-300">rate_limited</span>
+          <span class="text-[12px] text-text-secondary">429 — the bot's window for this interface is empty. Wait <code>Retry-After</code> seconds; the body also carries <code>retry_after</code>.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sticker & emoji error codes -->
+    <section>
+      <h2 id="expression-error-codes" class="text-xl font-semibold mb-4">Sticker &amp; Emoji Error Codes <a href="#expression-error-codes" class="anchor-link">#</a></h2>
+
+      <p class="text-text-secondary mb-4">
+        Returned by <a href="/docs/IExpressions/" class="text-accent hover:underline">IExpressions</a> and <a href="/docs/IFiles/" class="text-accent hover:underline">IFiles</a>.
+        What to do about each while importing a set is in <a href="/guides/stickers-and-emoji/#import-errors" class="text-accent hover:underline">Stickers &amp; Custom Emoji</a>.
+      </p>
+
+      <div class="type-grid">
+        <div class="type-grid-header" style="grid-template-columns: 60px 1fr 2fr">
+          <span>Status</span>
+          <span>Code</span>
+          <span>Description</span>
+        </div>
+        <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1fr 2fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">400</span>
+          <span class="font-mono text-[12px] text-red-300">invalid_format</span>
+          <span class="text-[12px] text-text-secondary">A title, slug, name, emoji or keyword is not acceptable, or the file is not (format, dimensions, duration, frame rate, Lottie features).</span>
+        </div>
+        <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1fr 2fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">409</span>
+          <span class="font-mono text-[12px] text-red-300">name_taken</span>
+          <span class="text-[12px] text-text-secondary">The pack slug or the emoji name is already used in the space.</span>
+        </div>
+        <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1fr 2fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">413</span>
+          <span class="font-mono text-[12px] text-red-300">too_large</span>
+          <span class="text-[12px] text-text-secondary">The request is over 5 MB, or the file over the size its format allows.</span>
+        </div>
+        <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1fr 2fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">422</span>
+          <span class="font-mono text-[12px] text-red-300">quota_exceeded</span>
+          <span class="text-[12px] text-text-secondary">The space's packs or item slots, the pack, or the bot's 100 unused uploads are full.</span>
+        </div>
+        <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1fr 2fr">
+          <span class="font-mono text-[12px] text-amber-400 font-semibold">422</span>
+          <span class="font-mono text-[12px] text-red-300">content_rejected</span>
+          <span class="text-[12px] text-text-secondary">Moderation refused the file. Sending it again gets the same answer.</span>
+        </div>
+        <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1fr 2fr">
+          <span class="font-mono text-[12px] text-red-400 font-semibold">429</span>
+          <span class="font-mono text-[12px] text-red-300">space_rate_limited</span>
+          <span class="text-[12px] text-text-secondary">The bots' budget for sticker and emoji changes in this space is spent for the minute. <code>Retry-After: 60</code>. See <a href="/guides/rate-limits/#space-budget" class="text-accent hover:underline">Rate Limits</a>.</span>
         </div>
       </div>
     </section>

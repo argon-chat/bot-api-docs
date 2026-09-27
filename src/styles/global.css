@@ -259,6 +259,23 @@ h3[id]:hover .anchor-link {
   }
 }
 
+/* ── Shiki (astro:components <Code>): colours come as variables, the scheme picks them ── */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+  text-decoration: var(--shiki-light-text-decoration);
+}
+
+html.dark .astro-code,
+html.dark .astro-code span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style);
+  font-weight: var(--shiki-dark-font-weight);
+  text-decoration: var(--shiki-dark-text-decoration);
+}
+
 /* ── Inline code overflow fix ── */
 code {
   overflow-wrap: break-word;

@@ -1,5 +1,21 @@
 [
   {
+    "version": "1.11.0",
+    "date": "2026-09-27",
+    "title": "Stickers & Custom Emoji",
+    "changes": [
+      { "type": "added", "interface": "IExpressions", "description": "New IExpressions/v1 interface — read a space's sticker and custom emoji packs and add to them" },
+      { "type": "added", "interface": "IExpressions", "description": "GET /List (with the known version token: packs is null while current), GET /GetPack (by packId or slug), GET /GetQuota (packs, sticker and emoji slots by boost level)" },
+      { "type": "added", "interface": "IExpressions", "description": "POST /CreatePack — idempotent by slug for the same bot; PATCH /UpdatePack — title and cover of the bot's own packs" },
+      { "type": "added", "interface": "IExpressions", "description": "POST /AddItem (multipart) — PNG, WEBP, TGS, Lottie JSON or WEBM with Telegram's limits; the file as a part, an attach:// reference or a fileId; thumb optional, the server draws first frames; PATCH /UpdateItem — name, emoji, keywords, textColor of the bot's own items" },
+      { "type": "added", "interface": "IFiles", "description": "New IFiles/v1 interface — POST /Upload returns a fileId that AddItem takes for 24 hours (at most 100 unused per bot); GET /Get describes a file and gives its URL" },
+      { "type": "added", "description": "New CreateExpressions permission for bots. Bots change only the packs and items they made and never delete or reorder; spaces that installed a bot before it required CreateExpressions grant it once the owner approves" },
+      { "type": "added", "interface": "IEvents", "description": "New Expressions intent (bit 14 = 16384, non-privileged) and ExpressionsUpdate event — spaceId, version, baseVersion and a delta: packUpserted, packDeleted, itemUpserted, itemDeleted, packsReordered or itemsReordered" },
+      { "type": "added", "description": "New error codes: invalid_format, invalid_request, too_large (413), quota_exceeded and content_rejected (422), name_taken (409), and space_rate_limited (429, Retry-After: 60) for the per-space budget of 120 bot changes a minute" },
+      { "type": "added", "description": "Rate limits: IExpressions 60 requests/min, IFiles 30 requests/min" }
+    ]
+  },
+  {
     "version": "1.10.0",
     "date": "2026-06-05",
     "title": "User Locale & GIF Messages",

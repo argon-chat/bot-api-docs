@@ -451,6 +451,25 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
         return (
           <div class="mb-10" id={`cat-${cat.toLowerCase()}`}>
             <h3 class="text-lg font-semibold mb-4 text-text-muted">{cat}</h3>
+            {cat === 'Expressions' && (
+              <div class="glass rounded-xl p-4 mb-6 border border-accent/20">
+                <p class="text-sm text-text-secondary">
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">expressionsUpdate</code> needs the <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">Expressions</code> intent
+                  (bit 14, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">16384</code>) and fires for every change to a space's sticker or custom emoji packs, the bot's own included.
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">baseVersion</code> and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">delta</code> may be <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">null</code>.
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">delta.type</code> is one of
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">packUpserted</code> (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">pack</code>, sent without its items),
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">packDeleted</code> (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">packId</code>),
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">itemUpserted</code> (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">item</code>),
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">itemDeleted</code> (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">packId</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">itemId</code>),
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">packsReordered</code> (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">kind</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ordered</code>) and
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">itemsReordered</code> (<code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">packId</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">ordered</code>).
+                  Apply the delta only when <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">baseVersion</code> is the version you hold; otherwise re-read
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">IExpressions/List</code>.
+                  See <a href="/guides/stickers-and-emoji/#events" class="text-accent hover:underline">Stickers &amp; Custom Emoji</a> for the full sync loop.
+                </p>
+              </div>
+            )}
             <div class="space-y-6">
               {catEvents.map((evt: any) => {
                 const eventAnchor = toCamelCase(evt.name);
@@ -618,6 +637,7 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
         <a href="/guides/voice/" class="text-sm text-accent hover:underline">→ Voice Streaming — stream audio into voice channels</a>
         <a href="/docs/IEvents/" class="text-sm text-accent hover:underline">→ IEvents API Reference — endpoint details and types</a>
         <a href="/docs/IMessages/" class="text-sm text-accent hover:underline">→ IMessages API Reference — send and query messages</a>
+        <a href="/guides/stickers-and-emoji/#events" class="text-sm text-accent hover:underline">→ Stickers &amp; Custom Emoji — keep a space's packs in sync with expressionsUpdate</a>
       </div>
     </section>
   </div>

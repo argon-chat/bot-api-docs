@@ -1,15 +1,35 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import fullManifest from '../../data/api-manifest.json';
+import CodeBlock from '../../components/CodeBlock.astro';
 import { Gauge, Clock, Zap, Shield } from 'lucide-astro';
 
 const rateLimits = fullManifest.rateLimits;
+
+const rateLimitedResponse = `HTTP/1.1 429 Too Many Requests
+Retry-After: 4
+X-RateLimit-Remaining: 0
+
+{
+  "error": "rate_limited",
+  "retry_after": 3.2,
+  "message": "You are being rate limited."
+}`;
+
+const spaceRateLimitedResponse = `HTTP/1.1 429 Too Many Requests
+Retry-After: 60
+
+{
+  "error": "space_rate_limited",
+  "message": "The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After."
+}`;
 ---
 
 <DocsLayout title="Rate Limits — Argon Bot API" current="/guides/rate-limits/" toc={[
   { id: "how-it-works", title: "How It Works" },
   { id: "per-interface-limits", title: "Per-Interface Limits" },
   { id: "handling-429", title: "Handling 429 Responses" },
+  { id: "space-budget", title: "Space Budget for Stickers & Emoji" },
   { id: "verified-bot-limits", title: "Verified Bot Limits" },
 ]}>
   <div class="animate-fade-in-up">
@@ -91,6 +111,8 @@ const rateLimits = fullManifest.rateLimits;
           When a bucket is empty, the server returns <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">429 Too Many Requests</code>.
         </p>
 
+        <CodeBlock code={rateLimitedResponse} lang="http" />
+
         <div class="glass rounded-xl p-4">
           <p class="text-sm text-text-secondary">
             <strong class="text-text-primary">Check the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Retry-After</code> header</strong> —
@@ -107,6 +129,57 @@ const rateLimits = fullManifest.rateLimits;
           <p class="text-sm text-text-secondary">
             <strong class="text-text-primary">Queue non-urgent work</strong> —
             batch operations when possible instead of sending many small requests.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Space budget -->
+    <section>
+      <h2 id="space-budget" class="text-xl font-semibold mb-4">Space Budget for Stickers &amp; Emoji <a href="#space-budget" class="anchor-link">#</a></h2>
+      <div class="space-y-3">
+        <p class="text-text-secondary">
+          Sticker and custom emoji work has a second limit on top of the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IExpressions</code> (60/min)
+          and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles</code> (30/min) windows above. Each space allows
+          <strong class="text-text-primary">120 changes per minute from all bots together</strong> — a budget kept apart from the people's, so bots and members never starve each other.
+          Past it, a change returns <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">429</code> with its own code:
+        </p>
+
+        <CodeBlock code={spaceRateLimitedResponse} lang="http" />
+
+        <div class="type-grid">
+          <div class="type-grid-header" style="grid-template-columns: 1fr 1.2fr 1.2fr">
+            <span></span>
+            <span>rate_limited</span>
+            <span>space_rate_limited</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1fr 1.2fr 1.2fr">
+            <span class="text-[12px] text-text-muted">Counts</span>
+            <span class="text-[12px] text-text-secondary">Every request of one bot to one interface, in every space</span>
+            <span class="text-[12px] text-text-secondary">Changes by every bot in one space</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1fr 1.2fr 1.2fr">
+            <span class="text-[12px] text-text-muted">Window</span>
+            <span class="text-[12px] text-text-secondary">Sliding, per the table above</span>
+            <span class="text-[12px] text-text-secondary">Fixed: a minute from the first change; once spent, a minute from the first refusal</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1fr 1.2fr 1.2fr">
+            <span class="text-[12px] text-text-muted">Retry-After</span>
+            <span class="text-[12px] text-text-secondary">Seconds until a permit frees up</span>
+            <span class="text-[12px] text-text-secondary">Always 60 — the budget is back at the latest a minute after the refusal</span>
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-4">
+          <p class="text-sm text-text-secondary">
+            <strong class="text-text-primary">What counts as a change</strong> — <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">CreatePack</code>,
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">UpdatePack</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> and
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">UpdateItem</code>. Reads never count, and neither do a repeated <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">CreatePack</code>
+            that returns the bot's existing pack or an update that changes nothing. An <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddItem</code> refused for its file
+            (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">too_large</code>,
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">content_rejected</code>) has already counted. Branch on the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">error</code>
+            code, not the status: both limits answer <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">429</code>, and both are waited out the same way.
+            See <a href="/guides/stickers-and-emoji/#import-errors" class="text-accent hover:underline">Stickers &amp; Custom Emoji</a>.
           </p>
         </div>
       </div>
