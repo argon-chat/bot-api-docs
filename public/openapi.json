@@ -1318,9 +1318,46 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "`cannot_send` — Bot may not post this message in this channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`validation_error` — The message is not valid for this channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
           }
         },
-        "x-argon-permission": "SendMessages"
+        "x-argon-permission": "SendMessages",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "validation_error",
+            "description": "The message is not valid for this channel."
+          },
+          {
+            "status": 403,
+            "code": "cannot_send",
+            "description": "Bot may not post this message in this channel."
+          },
+          {
+            "status": 429,
+            "code": "slow_mode",
+            "description": "The channel is holding messages back; retry later."
+          }
+        ]
       }
     },
     "/IInteractions/v1/EditMessage": {
@@ -1709,9 +1746,46 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "`cannot_send` — Bot may not post this message in this channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`validation_error` — The message is not valid for this channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
           }
         },
-        "x-argon-permission": "SendMessages"
+        "x-argon-permission": "SendMessages",
+        "x-argon-errors": [
+          {
+            "status": 400,
+            "code": "validation_error",
+            "description": "The message is not valid for this channel."
+          },
+          {
+            "status": 403,
+            "code": "cannot_send",
+            "description": "Bot may not post this message in this channel."
+          },
+          {
+            "status": 429,
+            "code": "slow_mode",
+            "description": "The channel is holding messages back; retry later."
+          }
+        ]
       }
     },
     "/IMessages/v1/History": {

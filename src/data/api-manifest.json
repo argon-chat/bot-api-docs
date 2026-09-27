@@ -424,6 +424,7 @@
             "externalStickers",
             "useCommands",
             "postEmbeddedLinks",
+            "createExpressions",
             "connect",
             "speak",
             "video",
@@ -444,7 +445,8 @@
             "manageEvents",
             "manageBehaviour",
             "manageServer",
-            "manageMessages"
+            "manageMessages",
+            "manageExpressions"
           ],
           "isUnion": false,
           "discriminatorField": null,
@@ -473,6 +475,7 @@
             "externalStickers",
             "useCommands",
             "postEmbeddedLinks",
+            "createExpressions",
             "connect",
             "speak",
             "video",
@@ -493,7 +496,8 @@
             "manageEvents",
             "manageBehaviour",
             "manageServer",
-            "manageMessages"
+            "manageMessages",
+            "manageExpressions"
           ],
           "isUnion": false,
           "discriminatorField": null,
@@ -2733,6 +2737,59 @@
               "discriminatorField": null,
               "discriminatorType": null,
               "variants": null
+            },
+            {
+              "name": "webhook",
+              "type": "BotWebhookV1",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "avatarFileId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "webhookId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                }
+              ],
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
             }
           ],
           "enumValues": null,
@@ -3527,6 +3584,7 @@
                 "externalStickers",
                 "useCommands",
                 "postEmbeddedLinks",
+                "createExpressions",
                 "connect",
                 "speak",
                 "video",
@@ -3547,7 +3605,8 @@
                 "manageEvents",
                 "manageBehaviour",
                 "manageServer",
-                "manageMessages"
+                "manageMessages",
+                "manageExpressions"
               ],
               "isUnion": false,
               "discriminatorField": null,
@@ -6504,6 +6563,59 @@
           "discriminatorField": null,
           "discriminatorType": null,
           "variants": null
+        },
+        {
+          "name": "webhook",
+          "type": "BotWebhookV1",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": [
+            {
+              "name": "avatarFileId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "webhookId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
         }
       ],
       "previousVersionName": null,
@@ -6782,6 +6894,53 @@
             "mutedHeadphonesByServer",
             "streaming"
           ],
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        }
+      ],
+      "previousVersionName": null,
+      "changes": null
+    },
+    {
+      "name": "BotWebhookV1",
+      "version": 1,
+      "shape": [
+        {
+          "name": "avatarFileId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "webhookId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
           "isUnion": false,
           "discriminatorField": null,
           "discriminatorType": null,
