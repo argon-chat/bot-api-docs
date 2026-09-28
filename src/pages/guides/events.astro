@@ -451,6 +451,30 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
         return (
           <div class="mb-10" id={`cat-${cat.toLowerCase()}`}>
             <h3 class="text-lg font-semibold mb-4 text-text-muted">{cat}</h3>
+            {cat === 'Messages' && (
+              <div class="glass rounded-xl p-4 mb-6 border border-accent/20">
+                <p class="text-sm text-text-secondary">
+                  A message with files carries them as <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">message.attachments</code> —
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">fileId</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">url</code>,
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">fileName</code>, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">size</code>,
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">contentType</code>, and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">width</code> /
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">height</code> for an image — and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">null</code> there without files.
+                  Its <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">attachment</code> entities carry the same <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">url</code>.
+                  See <a href="/guides/files/#reading" class="text-accent hover:underline">Files &amp; Attachments</a>.
+                </p>
+              </div>
+            )}
+            {cat === 'Reactions' && (
+              <div class="glass rounded-xl p-4 mb-6 border border-accent/20">
+                <p class="text-sm text-text-secondary">
+                  For a custom emoji, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">emoji</code> reads <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">:name:</code>,
+                  <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">customEmojiId</code> is its item ID, <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">emojiName</code> its name
+                  and <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">emojiUrl</code> its file — <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">null</code> once the emoji is deleted.
+                  For a Unicode emoji all three are <code class="bg-oled-elevated px-1 rounded font-mono text-[11px]">null</code>.
+                  See <a href="/guides/reactions/#custom-emoji" class="text-accent hover:underline">Reactions</a>.
+                </p>
+              </div>
+            )}
             {cat === 'Expressions' && (
               <div class="glass rounded-xl p-4 mb-6 border border-accent/20">
                 <p class="text-sm text-text-secondary">
@@ -637,6 +661,8 @@ client.DefaultRequestHeaders.Add(<span class="text-accent-2">"Authorization"</sp
         <a href="/guides/voice/" class="text-sm text-accent hover:underline">→ Voice Streaming — stream audio into voice channels</a>
         <a href="/docs/IEvents/" class="text-sm text-accent hover:underline">→ IEvents API Reference — endpoint details and types</a>
         <a href="/docs/IMessages/" class="text-sm text-accent hover:underline">→ IMessages API Reference — send and query messages</a>
+        <a href="/guides/files/" class="text-sm text-accent hover:underline">→ Files &amp; Attachments — attachments on messages</a>
+        <a href="/guides/reactions/#events" class="text-sm text-accent hover:underline">→ Reactions — reactionAdd and reactionRemove, custom emoji included</a>
         <a href="/guides/stickers-and-emoji/#events" class="text-sm text-accent hover:underline">→ Stickers &amp; Custom Emoji — keep a space's packs in sync with expressionsUpdate</a>
       </div>
     </section>

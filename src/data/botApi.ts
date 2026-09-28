@@ -31,7 +31,8 @@ export interface RouteDoc {
   description: string | null;
   permission: string | null;
   isPrivileged: boolean;
-  requestIn: 'body' | 'form' | 'query' | null;
+  /** `bodyOrForm`: JSON, or a multipart form with the same fields (IMessages/Send). */
+  requestIn: 'body' | 'form' | 'bodyOrForm' | 'query' | null;
   requestTypeName: string | null;
   requestTypeShape: TypeProperty[] | null;
   responseTypeName: string | null;
@@ -100,6 +101,7 @@ function describeProperties(schema: any, seen: Set<string>): TypeProperty[] | nu
       isCircular,
       properties: nested,
       enumValues: resolve(value).enum ?? null,
+      description: raw.description ?? value.description ?? null,
     };
   });
 }
@@ -174,11 +176,14 @@ function jsonSchemaOf(content: any): any | null {
 
 function toRoute(path: string, method: string, operation: any): RouteDoc {
   const parameters = operation.parameters ?? [];
-  const formSchema = operation.requestBody?.content?.[FORM]?.schema ?? null;
-  const bodySchema = formSchema ? null : jsonSchemaOf(operation.requestBody?.content);
+  const content    = operation.requestBody?.content ?? null;
+  const formSchema = content?.[FORM]?.schema ?? null;
+  // A route that reads JSON or a form with the same fields is shown by its JSON body, which has the nesting.
+  const bothWays   = formSchema !== null && content?.['application/json'] !== undefined;
+  const bodySchema = formSchema && !bothWays ? null : jsonSchemaOf(content);
   const okSchema   = jsonSchemaOf(operation.responses?.['200']?.content);
 
-  const requestIn = formSchema ? 'form' : bodySchema ? 'body' : parameters.length > 0 ? 'query' : null;
+  const requestIn = bothWays ? 'bodyOrForm' : formSchema ? 'form' : bodySchema ? 'body' : parameters.length > 0 ? 'query' : null;
 
   return {
     method: method.toUpperCase(),
@@ -187,8 +192,8 @@ function toRoute(path: string, method: string, operation: any): RouteDoc {
     permission: operation['x-argon-permission'] ?? null,
     isPrivileged: operation['x-argon-privileged'] === true,
     requestIn,
-    requestTypeName: formSchema ? FORM : bodySchema ? typeName(bodySchema) : requestIn === 'query' ? 'query' : null,
-    requestTypeShape: formSchema
+    requestTypeName: requestIn === 'form' ? FORM : bodySchema ? typeName(bodySchema) : requestIn === 'query' ? 'query' : null,
+    requestTypeShape: requestIn === 'form'
       ? describeForm(formSchema)
       : bodySchema
         ? describeProperties(bodySchema, new Set([refName(bodySchema) ?? '']))

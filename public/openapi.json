@@ -1569,7 +1569,7 @@
         "tags": [
           "IExpressions"
         ],
-        "summary": "Creates a sticker or emoji pack. Repeating it with the slug of a pack this bot made returns that pack. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "summary": "Creates a sticker or emoji pack. Repeating it with the slug of a pack this bot made returns that pack. Needs CreateExpressions.",
         "description": "Requires the `CreateExpressions` entitlement in the target space.",
         "operationId": "IExpressions_v1_CreatePack",
         "requestBody": {
@@ -1699,7 +1699,7 @@
         "tags": [
           "IExpressions"
         ],
-        "summary": "Changes the title or the cover item of a pack this bot made. Fields left out are kept. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "summary": "Changes the title or the cover item of a pack this bot made. Fields left out are kept. Needs CreateExpressions.",
         "description": "Requires the `CreateExpressions` entitlement in the target space.",
         "operationId": "IExpressions_v1_UpdatePack",
         "requestBody": {
@@ -1814,7 +1814,7 @@
         "tags": [
           "IExpressions"
         ],
-        "summary": "Adds a sticker or emoji to a pack (multipart). file, and thumb for an animated item (a first-frame WEBP of the same size), are parts, attach://<part> references or fileIds from IFiles/Upload. PNG is stored as WEBP. Each call adds a new item; deduplicating a re-import is the bot's job, e.g. keep tg:<file_unique_id> as a keyword and check List first. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "summary": "Adds a sticker or emoji to a pack (multipart). file is a part, an attach://<part> reference or a fileId from IFiles/Upload. PNG is stored as WEBP. Each call adds a new item; deduplicating repeated uploads is the bot's job. Needs CreateExpressions.",
         "description": "Requires the `CreateExpressions` entitlement in the target space.",
         "operationId": "IExpressions_v1_AddItem",
         "requestBody": {
@@ -1862,11 +1862,6 @@
                   "textColor": {
                     "type": "boolean",
                     "nullable": true
-                  },
-                  "thumb": {
-                    "type": "string",
-                    "description": "A file: the part of this name itself, or a text field holding `attach://<name>` (another part of the request) or the `fileId` of an `IFiles/Upload`.",
-                    "format": "binary"
                   }
                 },
                 "additionalProperties": {
@@ -1969,6 +1964,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "`render_unavailable` — The server cannot render this animated format at the moment. Retry later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
           }
         },
         "x-argon-permission": "CreateExpressions",
@@ -2027,6 +2032,11 @@
             "status": 429,
             "code": "space_rate_limited",
             "description": "The bots' budget for sticker and emoji changes in this space is spent for the minute; see Retry-After."
+          },
+          {
+            "status": 503,
+            "code": "render_unavailable",
+            "description": "The server cannot render this animated format at the moment. Retry later."
           }
         ]
       }
@@ -2036,7 +2046,7 @@
         "tags": [
           "IExpressions"
         ],
-        "summary": "Changes the name, associated emoji, keywords or text colouring of an item this bot made. Fields left out are kept. Needs CreateExpressions; existing installs grant it after the owner re-approves the bot.",
+        "summary": "Changes the name, associated emoji, keywords or text colouring of an item this bot made. Fields left out are kept. Needs CreateExpressions.",
         "description": "Requires the `CreateExpressions` entitlement in the target space.",
         "operationId": "IExpressions_v1_UpdateItem",
         "requestBody": {
@@ -2166,7 +2176,7 @@
         "tags": [
           "IFiles"
         ],
-        "summary": "Uploads a sticker, emoji or thumbnail file (multipart: file, purpose) for IExpressions/AddItem to take by fileId, any number of times, within 24 hours. PNG, WEBP, TGS, Lottie JSON or WEBM; thumb takes WEBP only.",
+        "summary": "Uploads a file (multipart: file, purpose) to be taken by fileId, any number of times, within 24 hours. sticker and emoji: PNG, WEBP, TGS, Lottie JSON or WEBM, for IExpressions/AddItem. attachment: any type up to 10 MiB, keeping the part's file name and content type, for IMessages/Send.",
         "operationId": "IFiles_v1_Upload",
         "requestBody": {
           "content": {
@@ -2187,7 +2197,7 @@
                     "enum": [
                       "sticker",
                       "emoji",
-                      "thumb"
+                      "attachment"
                     ],
                     "type": "string"
                   }
@@ -2790,12 +2800,17 @@
         "tags": [
           "IMessages"
         ],
-        "summary": "Sends a text message to a channel. Include a unique randomId for deduplication. Optionally reply to another message via replyTo. Bots cannot post in announcement channels.",
+        "summary": "Sends a message to a channel. Include a unique randomId for deduplication; reply to another message via replyTo. attachments (at most 10, AttachFiles) are fileIds from IFiles/Upload with purpose attachment, or, in a multipart request with the same fields, parts, attach://<part> references or parts named attachments; the parts of one request share its 10 MiB limit. The response describes the attachments. Bots cannot post in announcement channels.",
         "description": "Requires the `SendMessages` entitlement in the target space.",
         "operationId": "IMessages_v1_Send",
         "requestBody": {
           "content": {
             "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            },
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/SendMessageRequest"
               }
@@ -2834,8 +2849,8 @@
               }
             }
           },
-          "403": {
-            "description": "`cannot_send` — Bot may not post this message in this channel.",
+          "400": {
+            "description": "`invalid_format` — An attached file is empty.\n`invalid_request` — The form could not be read: a field is missing or malformed, or an attach:// reference names no part.\n`validation_error` — The message is not valid for this channel.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2844,8 +2859,28 @@
               }
             }
           },
-          "400": {
-            "description": "`validation_error` — The message is not valid for this channel.",
+          "413": {
+            "description": "`too_large` — The request, or a file in it, is over the size limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`cannot_send` — Bot may not post this message in this channel.\n`insufficient_permissions` — Bot does not have AttachFiles permission in this channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found` — An attachment's fileId names no upload of this bot with purpose attachment, or one over 24 hours old.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2859,6 +2894,16 @@
         "x-argon-errors": [
           {
             "status": 400,
+            "code": "invalid_format",
+            "description": "An attached file is empty."
+          },
+          {
+            "status": 400,
+            "code": "invalid_request",
+            "description": "The form could not be read: a field is missing or malformed, or an attach:// reference names no part."
+          },
+          {
+            "status": 400,
             "code": "validation_error",
             "description": "The message is not valid for this channel."
           },
@@ -2866,6 +2911,21 @@
             "status": 403,
             "code": "cannot_send",
             "description": "Bot may not post this message in this channel."
+          },
+          {
+            "status": 403,
+            "code": "insufficient_permissions",
+            "description": "Bot does not have AttachFiles permission in this channel."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "An attachment's fileId names no upload of this bot with purpose attachment, or one over 24 hours old."
+          },
+          {
+            "status": 413,
+            "code": "too_large",
+            "description": "The request, or a file in it, is over the size limit."
           },
           {
             "status": 429,
@@ -3086,6 +3146,190 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RemoveReactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "`message_not_found` — Message does not exist in this channel.\n`reaction_not_found` — Bot has not reacted with this emoji.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-errors": [
+          {
+            "status": 404,
+            "code": "message_not_found",
+            "description": "Message does not exist in this channel."
+          },
+          {
+            "status": 404,
+            "code": "reaction_not_found",
+            "description": "Bot has not reacted with this emoji."
+          }
+        ]
+      }
+    },
+    "/IReactions/v1/AddCustom": {
+      "post": {
+        "tags": [
+          "IReactions"
+        ],
+        "summary": "Adds a custom emoji reaction (itemId: an emoji item, see IExpressions/List); its emoji reads :name:. Any bot may react with an emoji of the space the message is in. An emoji of another space is for verified bots only; others get 403 insufficient_permissions.",
+        "description": "Requires the `AddReactions` entitlement in the target space.",
+        "operationId": "IReactions_v1_AddCustom",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomReactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "`unauthorized` — Missing, malformed or revoked bot token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`rate_limited` — You are being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "`message_not_found` — Message does not exist in this channel.\n`not_found` — The custom emoji does not exist or was deleted, or the channel takes no reactions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`already_reacted` — Bot has already reacted with this emoji.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`reaction_limit_reached` — Maximum 20 unique emoji per message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`insufficient_permissions` — Bot does not have the AddReactions permission, or the emoji belongs to another space and the bot is not verified.\n`reactions_disabled` — Reactions are turned off in this announcement channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-argon-permission": "AddReactions",
+        "x-argon-errors": [
+          {
+            "status": 403,
+            "code": "insufficient_permissions",
+            "description": "Bot does not have the AddReactions permission, or the emoji belongs to another space and the bot is not verified."
+          },
+          {
+            "status": 403,
+            "code": "reactions_disabled",
+            "description": "Reactions are turned off in this announcement channel."
+          },
+          {
+            "status": 404,
+            "code": "message_not_found",
+            "description": "Message does not exist in this channel."
+          },
+          {
+            "status": 404,
+            "code": "not_found",
+            "description": "The custom emoji does not exist or was deleted, or the channel takes no reactions."
+          },
+          {
+            "status": 409,
+            "code": "already_reacted",
+            "description": "Bot has already reacted with this emoji."
+          },
+          {
+            "status": 422,
+            "code": "reaction_limit_reached",
+            "description": "Maximum 20 unique emoji per message."
+          }
+        ]
+      }
+    },
+    "/IReactions/v1/RemoveCustom": {
+      "post": {
+        "tags": [
+          "IReactions"
+        ],
+        "summary": "Removes the bot's custom emoji reaction, also after the emoji was deleted.",
+        "operationId": "IReactions_v1_RemoveCustom",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomReactionRequest"
               }
             }
           },
@@ -4089,6 +4333,83 @@
           }
         }
       },
+      "BotAttachmentV1": {
+        "required": [
+          "fileId",
+          "url",
+          "fileName",
+          "size",
+          "contentType",
+          "width",
+          "height"
+        ],
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "size": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "width": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "int32",
+            "nullable": true
+          },
+          "height": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
       "BotChannel": {
         "required": [
           "channelId",
@@ -4339,7 +4660,6 @@
           "format",
           "name",
           "url",
-          "thumbUrl",
           "width",
           "height",
           "fileSize",
@@ -4374,10 +4694,6 @@
             "type": "string"
           },
           "url": {
-            "type": "string",
-            "nullable": true
-          },
-          "thumbUrl": {
             "type": "string",
             "nullable": true
           },
@@ -4569,6 +4885,10 @@
           },
           "url": {
             "type": "string"
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -4959,6 +5279,41 @@
           }
         }
       },
+      "CustomReactionRequest": {
+        "required": [
+          "spaceId",
+          "channelId",
+          "messageId",
+          "itemId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "messageId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int64"
+          },
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "DeferRequest": {
         "required": [
           "interactionId"
@@ -5229,6 +5584,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ReactionDto"
+            },
+            "nullable": true
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotAttachmentV1"
             },
             "nullable": true
           }
@@ -7330,6 +7692,11 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          "customEmojiId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         }
       },
@@ -7756,6 +8123,20 @@
               "$ref": "#/components/schemas/ControlRowV1"
             },
             "nullable": true
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "A file: the part of this name itself, or a text field holding `attach://<name>` (another part of the request) or the `fileId` of an `IFiles/Upload`.",
+              "format": "binary"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "description": "A file: the part of this name itself, or a text field holding `attach://<name>` (another part of the request) or the `fileId` of an `IFiles/Upload`.",
+              "format": "binary"
+            },
+            "nullable": true
           }
         }
       },
@@ -7776,6 +8157,13 @@
               }
             ],
             "format": "int64"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotAttachmentV1"
+            },
+            "nullable": true
           }
         }
       },
@@ -8036,11 +8424,11 @@
     },
     {
       "name": "IExpressions",
-      "description": "Read a space's sticker and custom emoji packs and add to them. Bots change only the packs and items they made, and never delete or reorder. Writing takes CreateExpressions among the bot's required entitlements; a space that installed the bot before it asked for it grants that only once the owner approves."
+      "description": "Read a space's sticker and custom emoji packs and add to them. Bots change only the packs and items they made, and never delete or reorder. Writing takes CreateExpressions among the bot's required entitlements."
     },
     {
       "name": "IFiles",
-      "description": "Upload sticker and emoji files once and use them by fileId, like Telegram's uploadStickerFile. An upload is kept for 24 hours; at most 100 unclaimed uploads per bot."
+      "description": "Upload files once and use them by fileId: stickers and emoji for IExpressions/AddItem, attachments for IMessages/Send. An upload is kept for 24 hours; at most 100 unused uploads per bot."
     },
     {
       "name": "IInteractions",
@@ -8052,11 +8440,11 @@
     },
     {
       "name": "IMessages",
-      "description": "Send messages and retrieve message history from channels."
+      "description": "Send messages with text and files, and retrieve message history from channels."
     },
     {
       "name": "IReactions",
-      "description": "Add and remove emoji reactions on messages."
+      "description": "Add and remove emoji reactions on messages, unicode or custom."
     },
     {
       "name": "ISpaces",

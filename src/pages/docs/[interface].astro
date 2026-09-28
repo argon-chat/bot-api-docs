@@ -109,13 +109,13 @@ function buildCurlExample(route: any, fullPath: string): string {
     const query = (route.requestTypeShape ?? []).map((p: TypeProperty) => `${p.name}=...`).join('&');
     if (query) url = `"${url}?${query}"`;
   } else if (route.requestIn === 'form') {
-    // The required fields only: an optional file such as a thumbnail is not always accepted.
+    // The required fields only; the optional ones are described in the table above.
     for (const f of (route.requestTypeShape ?? []) as TypeProperty[]) {
       if (f.isOptional) continue;
       const value = f.type === 'file' ? `@./${f.name}` : f.enumValues?.[0] ?? '...';
       parts.push(`     -F "${f.name}=${value}"`);
     }
-  } else if (route.requestIn === 'body') {
+  } else if (route.requestIn === 'body' || route.requestIn === 'bodyOrForm') {
     parts.push(`     -H "Content-Type: application/json"`);
     parts.push(`     -d '${buildExampleJson(route.requestTypeShape)}'`);
   }
@@ -221,8 +221,11 @@ function exampleValue(prop: TypeProperty): any {
               <div>
                 <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                   {route.requestIn === 'query' ? 'Query Parameters' : route.requestIn === 'form' ? 'Form Fields' : 'Request Body'}
-                  {(route.requestIn === 'body' || route.requestIn === 'form') && (
+                  {(route.requestIn === 'body' || route.requestIn === 'form' || route.requestIn === 'bodyOrForm') && (
                     <span class="text-[10px] font-mono font-normal text-text-faint ml-2">{route.requestTypeName}</span>
+                  )}
+                  {route.requestIn === 'bodyOrForm' && (
+                    <span class="text-[10px] font-mono font-normal text-text-faint ml-2">JSON or multipart/form-data</span>
                   )}
                 </h4>
                 {route.requestIn === 'form' && (
@@ -232,7 +235,17 @@ function exampleValue(prop: TypeProperty): any {
                     <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[10px]">attach://&lt;part&gt;</code> that names another part of the request.
                     Where a route reuses uploads, it also takes the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[10px]">fileId</code> of an
                     <a href="/docs/IFiles/#Upload" class="text-accent hover:underline">IFiles/Upload</a>.
-                    See <a href="/guides/stickers-and-emoji/#files" class="text-accent hover:underline">Stickers &amp; Custom Emoji → Files</a>.
+                    See <a href="/guides/files/#multipart" class="text-accent hover:underline">Files &amp; Attachments → Multipart requests</a>.
+                  </p>
+                )}
+                {route.requestIn === 'bodyOrForm' && (
+                  <p class="text-xs text-text-secondary mb-3">
+                    Send the body as JSON, or as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[10px]">multipart/form-data</code> with the same fields —
+                    each a text part, a list repeated once per value or given as one JSON array, and an object or a list of objects as its JSON.
+                    In JSON a <span class="font-mono type-keyword">file</span> is the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[10px]">fileId</code> of an
+                    <a href="/docs/IFiles/#Upload" class="text-accent hover:underline">IFiles/Upload</a>; a form may also carry it as a part of the field's name
+                    or as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[10px]">attach://&lt;part&gt;</code>.
+                    See <a href="/guides/files/" class="text-accent hover:underline">Files &amp; Attachments</a>.
                   </p>
                 )}
                 <div class="type-grid">

@@ -1,5 +1,20 @@
 [
   {
+    "version": "1.12.0",
+    "date": "2026-09-28",
+    "title": "Files in Messages & Custom Emoji Reactions",
+    "changes": [
+      { "type": "added", "interface": "IMessages", "description": "POST /Send takes attachments — at most 10 per message, with AttachFiles: fileIds from IFiles/Upload with purpose attachment in a JSON body, or the same fields as a multipart request with parts named attachments or attach://<part> references (about 10 MiB of parts per request). The response lists them as attachments (fileId, url, fileName, size, contentType, width, height)" },
+      { "type": "added", "interface": "IMessages", "description": "Messages in History and in MessageCreate events carry attachments; the attachment entity carries its url" },
+      { "type": "added", "interface": "IMessages", "description": "Refusals of a message with files: 403 insufficient_permissions (no AttachFiles), 404 not_found (an unknown, expired or non-attachment upload), 400 validation_error (more than 10), 400 invalid_format (an empty file), 400 invalid_request (attach:// in a JSON body) and 413 too_large" },
+      { "type": "added", "interface": "IFiles", "description": "POST /Upload takes purpose attachment: any type up to 10 MiB, keeping the part's file name and content type; BotFileV1 gains fileName" },
+      { "type": "added", "interface": "IReactions", "description": "POST /AddCustom and POST /RemoveCustom — react with a custom emoji by itemId (spaceId, channelId, messageId, itemId). An emoji of the message's space works for every bot; another space's emoji only for verified bots (403 insufficient_permissions otherwise)" },
+      { "type": "added", "interface": "IReactions", "description": "Reactions in List, BatchGet, History and messages carry customEmojiId; a custom emoji's emoji reads :name:" },
+      { "type": "added", "interface": "IEvents", "description": "ReactionAdd and ReactionRemove carry customEmojiId, emojiName and emojiUrl for a custom emoji (emojiUrl is null once the emoji is deleted)" },
+      { "type": "fixed", "interface": "IReactions", "description": "GET /List found no message; it now answers from the channel's current reactions" }
+    ]
+  },
+  {
     "version": "1.11.0",
     "date": "2026-09-27",
     "title": "Stickers & Custom Emoji",
@@ -7,11 +22,11 @@
       { "type": "added", "interface": "IExpressions", "description": "New IExpressions/v1 interface — read a space's sticker and custom emoji packs and add to them" },
       { "type": "added", "interface": "IExpressions", "description": "GET /List (with the known version token: packs is null while current), GET /GetPack (by packId or slug), GET /GetQuota (packs, sticker and emoji slots by boost level)" },
       { "type": "added", "interface": "IExpressions", "description": "POST /CreatePack — idempotent by slug for the same bot; PATCH /UpdatePack — title and cover of the bot's own packs" },
-      { "type": "added", "interface": "IExpressions", "description": "POST /AddItem (multipart) — PNG, WEBP, TGS, Lottie JSON or WEBM with Telegram's limits; the file as a part, an attach:// reference or a fileId; thumb optional, the server draws first frames; PATCH /UpdateItem — name, emoji, keywords, textColor of the bot's own items" },
+      { "type": "added", "interface": "IExpressions", "description": "POST /AddItem (multipart) — PNG, WEBP, TGS, Lottie JSON or WEBM; the file as a part, an attach:// reference or a fileId; the server renders the preview of an animated item itself. PATCH /UpdateItem — name, emoji, keywords, textColor of the bot's own items" },
       { "type": "added", "interface": "IFiles", "description": "New IFiles/v1 interface — POST /Upload returns a fileId that AddItem takes for 24 hours (at most 100 unused per bot); GET /Get describes a file and gives its URL" },
-      { "type": "added", "description": "New CreateExpressions permission for bots. Bots change only the packs and items they made and never delete or reorder; spaces that installed a bot before it required CreateExpressions grant it once the owner approves" },
-      { "type": "added", "interface": "IEvents", "description": "New Expressions intent (bit 14 = 16384, non-privileged) and ExpressionsUpdate event — spaceId, version, baseVersion and a delta: packUpserted, packDeleted, itemUpserted, itemDeleted, packsReordered or itemsReordered" },
-      { "type": "added", "description": "New error codes: invalid_format, invalid_request, too_large (413), quota_exceeded and content_rejected (422), name_taken (409), and space_rate_limited (429, Retry-After: 60) for the per-space budget of 120 bot changes a minute" },
+      { "type": "added", "description": "New CreateExpressions permission for bots. Bots change only the packs and items they made and never delete or reorder" },
+      { "type": "added", "interface": "IEvents", "description": "New Expressions intent (bit 14 = 16384, one of the default intents) and ExpressionsUpdate event — spaceId, version, baseVersion and a delta: packUpserted, packDeleted, itemUpserted, itemDeleted, packsReordered or itemsReordered" },
+      { "type": "added", "description": "New error codes: invalid_format, invalid_request, too_large (413), quota_exceeded and content_rejected (422), name_taken (409), space_rate_limited (429, Retry-After: 60) for the per-space budget of 120 bot changes a minute, and render_unavailable (503) when the server cannot render an animated item right now" },
       { "type": "added", "description": "Rate limits: IExpressions 60 requests/min, IFiles 30 requests/min" }
     ]
   },

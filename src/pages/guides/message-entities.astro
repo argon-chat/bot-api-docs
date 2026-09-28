@@ -23,7 +23,7 @@ const entities = [
 
   { name: 'Quote', type: 'quote', extra: 'quotedUserId: string?', group: 'Content' },
 
-  { name: 'Attachment', type: 'attachment', extra: 'fileName: string, fileSize: number, contentType: string, width?: number, height?: number, thumbHash?: string', group: 'Content' },
+  { name: 'Attachment', type: 'attachment', extra: 'fileName: string, fileSize: number, contentType: string, width?: number, height?: number, thumbHash?: string, url?: string', group: 'Content' },
 
   { name: 'SystemCallStarted', type: 'systemCallStarted', extra: 'callerId: string?, callId: string?',                           group: 'System' },
   { name: 'SystemCallEnded',   type: 'systemCallEnded',   extra: 'callerId: string?, callId: string?, durationSeconds: number?',  group: 'System' },
@@ -214,7 +214,7 @@ const groups = ['Formatting', 'Mentions', 'Links', 'Content', 'System'];
         <ul class="text-sm text-text-secondary space-y-2">
           <li>Entities can overlap — for example, bold and italic on the same span.</li>
           <li>System entities (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">systemCall*</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">systemUserJoined</code>) are created by the server. Bots cannot send system entities.</li>
-          <li>Attachment entities contain file metadata (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileName</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileSize</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">contentType</code>). No internal file IDs are exposed.</li>
+          <li>Attachment entities contain file metadata (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileName</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileSize</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">contentType</code>) and the download <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">url</code>. The message's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachments</code> list describes the same files with their <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code>; bots send files through it, not as entities — see <a href="/guides/files/" class="text-accent hover:text-accent-hover">Files &amp; Attachments</a>.</li>
           <li>Entity objects are <strong>flattened</strong> — all possible extra fields exist on the same type, but only the fields relevant to the entity's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">type</code> are non-null.</li>
         </ul>
       </div>

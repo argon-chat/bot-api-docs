@@ -1590,19 +1590,6 @@
                   "variants": null
                 },
                 {
-                  "name": "thumbUrl",
-                  "type": "string",
-                  "isArray": false,
-                  "isNullable": true,
-                  "isCircular": false,
-                  "properties": null,
-                  "enumValues": null,
-                  "isUnion": false,
-                  "discriminatorField": null,
-                  "discriminatorType": null,
-                  "variants": null
-                },
-                {
                   "name": "url",
                   "type": "string",
                   "isArray": false,
@@ -1911,19 +1898,6 @@
                       "type": "boolean",
                       "isArray": false,
                       "isNullable": false,
-                      "isCircular": false,
-                      "properties": null,
-                      "enumValues": null,
-                      "isUnion": false,
-                      "discriminatorField": null,
-                      "discriminatorType": null,
-                      "variants": null
-                    },
-                    {
-                      "name": "thumbUrl",
-                      "type": "string",
-                      "isArray": false,
-                      "isNullable": true,
                       "isCircular": false,
                       "properties": null,
                       "enumValues": null,
@@ -2475,6 +2449,111 @@
           "isNullable": false,
           "isCircular": false,
           "properties": [
+            {
+              "name": "attachments",
+              "type": "BotAttachmentV1",
+              "isArray": true,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": [
+                {
+                  "name": "contentType",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "fileId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "fileName",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "height",
+                  "type": "int32",
+                  "isArray": false,
+                  "isNullable": true,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "size",
+                  "type": "int64",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "url",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": false,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
+                  "name": "width",
+                  "type": "int32",
+                  "isArray": false,
+                  "isNullable": true,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                }
+              ],
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
             {
               "name": "channelId",
               "type": "string",
@@ -3328,6 +3407,19 @@
                   "variants": null
                 },
                 {
+                  "name": "customEmojiId",
+                  "type": "string",
+                  "isArray": false,
+                  "isNullable": true,
+                  "isCircular": false,
+                  "properties": null,
+                  "enumValues": null,
+                  "isUnion": false,
+                  "discriminatorField": null,
+                  "discriminatorType": null,
+                  "variants": null
+                },
+                {
                   "name": "emoji",
                   "type": "string",
                   "isArray": false,
@@ -4156,7 +4248,7 @@
     {
       "name": "ReactionAdd",
       "intent": "Reactions",
-      "description": "A user added a reaction to a message.",
+      "description": "A user added a reaction to a message. For a custom emoji, customEmojiId is its item id, emoji reads :name:, and emojiName and emojiUrl describe it (emojiUrl is null once the emoji is deleted).",
       "category": "Reactions",
       "payloadTypeName": "ReactionAddEvent",
       "payloadTypeShape": [
@@ -4174,10 +4266,49 @@
           "variants": null
         },
         {
+          "name": "customEmojiId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
           "name": "emoji",
           "type": "string",
           "isArray": false,
           "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "emojiName",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "emojiUrl",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
           "isCircular": false,
           "properties": null,
           "enumValues": null,
@@ -4227,14 +4358,14 @@
         }
       ],
       "payloadVariants": null,
-      "computedHash": "e050fd9d91e43e65214c81fd6a1f558e698469f4f5ae82b238ad0402ecdf64a9",
+      "computedHash": "b7d7014dd55e47bd107334ab4a085fcbf682f54e320faed4093aa8a4ab7433fa",
       "declaredHash": null,
       "isStable": false
     },
     {
       "name": "ReactionRemove",
       "intent": "Reactions",
-      "description": "A user removed a reaction from a message.",
+      "description": "A user removed a reaction from a message. Custom emoji are described as in reactionAdd.",
       "category": "Reactions",
       "payloadTypeName": "ReactionRemoveEvent",
       "payloadTypeShape": [
@@ -4252,10 +4383,49 @@
           "variants": null
         },
         {
+          "name": "customEmojiId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
           "name": "emoji",
           "type": "string",
           "isArray": false,
           "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "emojiName",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "emojiUrl",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
           "isCircular": false,
           "properties": null,
           "enumValues": null,
@@ -4305,7 +4475,7 @@
         }
       ],
       "payloadVariants": null,
-      "computedHash": "051da26212c5d4c7c213ce1f7d2709da6d53adb8fcd95b6cfb11e651e322995c",
+      "computedHash": "e797320922fccd7834df2df53b95abec32c7912be9ac351c7e655e6ec359eb01",
       "declaredHash": null,
       "isStable": false
     },
@@ -5353,6 +5523,105 @@
       "changes": null
     },
     {
+      "name": "BotAttachmentV1",
+      "version": 1,
+      "shape": [
+        {
+          "name": "contentType",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "fileId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "fileName",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "height",
+          "type": "int32",
+          "isArray": false,
+          "isNullable": true,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "size",
+          "type": "int64",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "isArray": false,
+          "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "width",
+          "type": "int32",
+          "isArray": false,
+          "isNullable": true,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        }
+      ],
+      "previousVersionName": null,
+      "changes": null
+    },
+    {
       "name": "BotChannelBaseV1",
       "version": 1,
       "shape": [
@@ -6107,19 +6376,6 @@
           "variants": null
         },
         {
-          "name": "thumbUrl",
-          "type": "string",
-          "isArray": false,
-          "isNullable": true,
-          "isCircular": false,
-          "properties": null,
-          "enumValues": null,
-          "isUnion": false,
-          "discriminatorField": null,
-          "discriminatorType": null,
-          "variants": null
-        },
-        {
           "name": "url",
           "type": "string",
           "isArray": false,
@@ -6380,19 +6636,6 @@
               "type": "boolean",
               "isArray": false,
               "isNullable": false,
-              "isCircular": false,
-              "properties": null,
-              "enumValues": null,
-              "isUnion": false,
-              "discriminatorField": null,
-              "discriminatorType": null,
-              "variants": null
-            },
-            {
-              "name": "thumbUrl",
-              "type": "string",
-              "isArray": false,
-              "isNullable": true,
               "isCircular": false,
               "properties": null,
               "enumValues": null,
@@ -6733,19 +6976,6 @@
               "variants": null
             },
             {
-              "name": "thumbUrl",
-              "type": "string",
-              "isArray": false,
-              "isNullable": true,
-              "isCircular": false,
-              "properties": null,
-              "enumValues": null,
-              "isUnion": false,
-              "discriminatorField": null,
-              "discriminatorType": null,
-              "variants": null
-            },
-            {
               "name": "url",
               "type": "string",
               "isArray": false,
@@ -7063,19 +7293,6 @@
                   "variants": null
                 },
                 {
-                  "name": "thumbUrl",
-                  "type": "string",
-                  "isArray": false,
-                  "isNullable": true,
-                  "isCircular": false,
-                  "properties": null,
-                  "enumValues": null,
-                  "isUnion": false,
-                  "discriminatorField": null,
-                  "discriminatorType": null,
-                  "variants": null
-                },
-                {
                   "name": "url",
                   "type": "string",
                   "isArray": false,
@@ -7261,6 +7478,19 @@
           "type": "string",
           "isArray": false,
           "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "fileName",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
           "isCircular": false,
           "properties": null,
           "enumValues": null,
@@ -7746,6 +7976,111 @@
       "name": "BotMessageV1",
       "version": 1,
       "shape": [
+        {
+          "name": "attachments",
+          "type": "BotAttachmentV1",
+          "isArray": true,
+          "isNullable": true,
+          "isCircular": false,
+          "properties": [
+            {
+              "name": "contentType",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "fileId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "fileName",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "height",
+              "type": "int32",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "size",
+              "type": "int64",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "url",
+              "type": "string",
+              "isArray": false,
+              "isNullable": false,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
+              "name": "width",
+              "type": "int32",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            }
+          ],
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
         {
           "name": "channelId",
           "type": "string",
@@ -8599,6 +8934,19 @@
               "variants": null
             },
             {
+              "name": "customEmojiId",
+              "type": "string",
+              "isArray": false,
+              "isNullable": true,
+              "isCircular": false,
+              "properties": null,
+              "enumValues": null,
+              "isUnion": false,
+              "discriminatorField": null,
+              "discriminatorType": null,
+              "variants": null
+            },
+            {
               "name": "emoji",
               "type": "string",
               "isArray": false,
@@ -9151,6 +9499,19 @@
           "type": "int32",
           "isArray": false,
           "isNullable": false,
+          "isCircular": false,
+          "properties": null,
+          "enumValues": null,
+          "isUnion": false,
+          "discriminatorField": null,
+          "discriminatorType": null,
+          "variants": null
+        },
+        {
+          "name": "customEmojiId",
+          "type": "string",
+          "isArray": false,
+          "isNullable": true,
           "isCircular": false,
           "properties": null,
           "enumValues": null,

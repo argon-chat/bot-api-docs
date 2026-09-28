@@ -1,0 +1,456 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import fullManifest from '../../data/api-manifest.json';
+import { Paperclip, Upload, Send, Layers, Inbox, AlertTriangle, ShieldCheck } from 'lucide-astro';
+
+const limitOf = (name: string) => fullManifest.rateLimits.find((r: any) => r.interfaceName === name);
+const filesLimit = limitOf('IFiles');
+const messagesLimit = limitOf('IMessages');
+
+const uploadRequest = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -F "purpose=attachment" \
+     -F "file=@report.pdf;type=application/pdf" \
+     https://gateway.argon.zone/IFiles/v1/Upload`;
+
+const uploadResponse = `{
+  "fileId": "5f1d0c3a-...",
+  "size": 482113,
+  "contentType": "application/pdf",
+  "url": ".../files/5f1d0c3a-...",
+  "fileName": "report.pdf"
+}`;
+
+const sendJsonRequest = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"channelId":"c0ffee00-...","text":"Weekly report","randomId":7311,"attachments":["5f1d0c3a-..."]}' \
+     https://gateway.argon.zone/IMessages/v1/Send`;
+
+const sendResponse = `{
+  "messageId": 42,
+  "attachments": [
+    {
+      "fileId": "5f1d0c3a-...",
+      "url": ".../files/5f1d0c3a-...",
+      "fileName": "report.pdf",
+      "size": 482113,
+      "contentType": "application/pdf",
+      "width": null,
+      "height": null
+    }
+  ]
+}`;
+
+const sendFormRequest = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -F "channelId=c0ffee00-..." \
+     -F "text=Chart, report and raw data" \
+     -F "randomId=7312" \
+     -F "attachments=attach://chart" \
+     -F "attachments=5f1d0c3a-..." \
+     -F "chart=@chart.png;type=image/png" \
+     -F "attachments=@data.csv;type=text/csv" \
+     https://gateway.argon.zone/IMessages/v1/Send`;
+
+const messageExample = `{
+  "spaceId": "aaaabbbb-...",
+  "channelId": "c0ffee00-...",
+  "message": {
+    "messageId": 44,
+    "text": "This week's chart",
+    "attachments": [
+      {
+        "fileId": "9e8d7c6b-...",
+        "url": ".../files/9e8d7c6b-...",
+        "fileName": "chart.png",
+        "size": 48211,
+        "contentType": "image/png",
+        "width": 1200,
+        "height": 800
+      }
+    ]
+  }
+}`;
+---
+
+<DocsLayout title="Files & Attachments — Argon Bot API" current="/guides/files/" toc={[
+  { id: "overview", title: "Overview" },
+  { id: "upload", title: "Uploading with IFiles" },
+  { id: "send-by-id", title: "Sending by fileId" },
+  { id: "multipart", title: "Multipart Requests" },
+  { id: "reading", title: "Reading Attachments" },
+  { id: "errors", title: "Errors" },
+  { id: "limits", title: "Limits & Permissions" },
+]}>
+  <div class="animate-fade-in-up">
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Files &amp; Attachments</h1>
+    <p class="text-text-secondary text-lg">
+      Send files with a message: upload them once through <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles</code> and name them by
+      <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code>, or carry them as parts of the
+      <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IMessages/Send</code> request itself.
+    </p>
+  </div>
+
+  <div class="mt-10 space-y-12 animate-fade-in-up-delay-1">
+
+    <!-- Overview -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Paperclip class="size-5 text-accent" />
+        <h2 id="overview" class="text-xl font-semibold">Overview <a href="#overview" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          A message carries up to <strong class="text-text-primary">10 attachments</strong> of any type, each up to <strong class="text-text-primary">10 MiB</strong>.
+          The bot needs <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AttachFiles</code> in the channel on top of
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">SendMessages</code>. There are two ways to hand the files over:
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1.2fr 2fr">
+              <span>Way</span>
+              <span>When</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="text-[12px] text-text-primary"><a href="#upload" class="text-accent hover:underline">Upload</a>, then <a href="#send-by-id" class="text-accent hover:underline">send by fileId</a></span>
+              <span class="text-text-secondary text-[12px]">The message stays a plain JSON request. An upload can go into any number of messages for 24 hours, and a set of files larger than one request holds goes up a file at a time.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="text-[12px] text-text-primary"><a href="#multipart" class="text-accent hover:underline">One multipart Send</a></span>
+              <span class="text-text-secondary text-[12px]">One request for the message and its files, up to about 10 MiB of parts in total.</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-sm text-text-muted">
+          Only <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IMessages/Send</code> takes attachments;
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IInteractions/Reply</code> does not.
+          Sticker and emoji files go through the same <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles/Upload</code> with another purpose —
+          see <a href="/guides/stickers-and-emoji/#files" class="text-accent hover:underline">Stickers &amp; Custom Emoji → Files</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Upload -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Upload class="size-5 text-accent" />
+        <h2 id="upload" class="text-xl font-semibold">Uploading with IFiles <a href="#upload" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">POST /IFiles/v1/Upload</code> is a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">multipart/form-data</code>
+          request with a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">file</code> part and
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">purpose=attachment</code>. Any type is taken, up to 10 MiB.
+          The part's file name and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Content-Type</code> are kept as the attachment's
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileName</code> and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">contentType</code>
+          (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">application/octet-stream</code> when the part declares none).
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Upload</h4>
+          <CodeBlock code={uploadRequest} lang="bash" />
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response (BotFileV1)</h4>
+          <CodeBlock code={uploadResponse} lang="json" />
+        </div>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-accent">
+          <p class="text-sm text-text-secondary">
+            <strong>An upload lives 24 hours.</strong> Within them its <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code> can go into any number of messages;
+            a sent message keeps its files after that. A bot holds at most <strong>100 unused uploads</strong> at a time — the next returns
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">422 quota_exceeded</code> — and an upload stops counting once a message carries it.
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IFiles/v1/Get?fileId=…</code> describes an upload again.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Send by fileId -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Send class="size-5 text-accent" />
+        <h2 id="send-by-id" class="text-xl font-semibold">Sending by fileId <a href="#send-by-id" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Name the uploads in the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachments</code> list of an ordinary JSON
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IMessages/v1/Send</code>. Only uploads of this bot with purpose
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachment</code> are taken; a sticker or emoji upload is <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">404 not_found</code> here.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <CodeBlock code={sendJsonRequest} lang="bash" />
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response</h4>
+          <CodeBlock code={sendResponse} lang="json" />
+        </div>
+
+        <p class="text-text-secondary">
+          The response describes every attachment in the order given (<a href="#reading" class="text-accent hover:underline">BotAttachmentV1</a>), so the bot has the file URLs without reading the message back.
+        </p>
+      </div>
+    </section>
+
+    <!-- Multipart -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Layers class="size-5 text-accent" />
+        <h2 id="multipart" class="text-xl font-semibold">Multipart Requests <a href="#multipart" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IMessages/v1/Send</code> also takes <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">multipart/form-data</code>
+          with the same fields. Every field is a text part; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">entities</code> and
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">controls</code> are one field holding their JSON. The
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachments</code> field is repeated once per file, and each file can be given three ways:
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1.2fr 2fr">
+              <span>You send</span>
+              <span>Meaning</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="font-mono text-[12px] text-text-secondary">a file part named <span class="type-property">attachments</span></span>
+              <span class="text-text-secondary text-[12px]">The part is the file. Repeat it for more files.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-property">attachments</span>=<span class="text-accent-2">attach://chart</span></span>
+              <span class="text-text-secondary text-[12px]">A text field naming another part of the same request (<code>chart</code>). A name that matches no part returns <code>400 invalid_request</code>.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.2fr 2fr">
+              <span class="font-mono text-[12px]"><span class="type-property">attachments</span>=<span class="text-accent-2">5f1d0c3a-...</span></span>
+              <span class="text-text-secondary text-[12px]">The <code>fileId</code> of an earlier <a href="#upload" class="text-accent hover:underline">upload</a>, as in JSON.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Three files: a named part, an upload and a part of its own</h4>
+          <CodeBlock code={sendFormRequest} lang="bash" />
+        </div>
+
+        <p class="text-text-secondary">
+          The text fields come first in the message, in their order, then the parts named <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachments</code>:
+          the example sends <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">chart.png</code>, the uploaded report and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">data.csv</code>.
+          A part sent this way does not count against the 100 unused uploads.
+        </p>
+
+        <div class="glass rounded-2xl p-5 border-l-2 border-status-degraded">
+          <p class="text-sm text-text-secondary">
+            <strong>One multipart request carries about 10 MiB of parts in total</strong> — one file at its largest — and more is refused with
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">413 too_large</code>. Upload larger sets first and send them by
+            <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code>. An <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attach://</code>
+            reference in a JSON body is <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">400 invalid_request</code>: there are no parts to name.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reading -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Inbox class="size-5 text-accent" />
+        <h2 id="reading" class="text-xl font-semibold">Reading Attachments <a href="#reading" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Messages carry their files as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachments</code> — in
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IMessages/v1/History</code>, in the
+          <a href="/guides/events/#messageCreate" class="text-accent hover:underline"><code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">messageCreate</code></a> event
+          and in the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Send</code> response — whoever sent them. On a message without files it is
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">null</code> (an empty list in the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Send</code> response).
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span>Field</span>
+              <span>Type</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">fileId</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">The file's ID.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">url</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">Where to download it.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">fileName</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">The name it was sent with, without any directory; at most 255 characters.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">size</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">int64</span></span>
+              <span class="text-text-secondary text-[12px]">In bytes.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">contentType</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">The media type it was sent with.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">width, height</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">int32</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+              <span class="text-text-secondary text-[12px]">Set for an image the server could read; <code>null</code> for anything else.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">SSE example — event: messageCreate, data: (excerpt)</h4>
+          <CodeBlock code={messageExample} lang="json" />
+        </div>
+
+        <p class="text-sm text-text-muted">
+          The message's <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachment</code> entities describe the same files and carry the same
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">url</code> — see <a href="/guides/message-entities/" class="text-accent hover:underline">Message Entities</a>.
+          Read <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachments</code>; it is the simpler of the two.
+        </p>
+      </div>
+    </section>
+
+    <!-- Errors -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <AlertTriangle class="size-5 text-accent" />
+        <h2 id="errors" class="text-xl font-semibold">Errors <a href="#errors" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          Besides the refusals every message can get (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">cannot_send</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">slow_mode</code>, …),
+          a message with files, or an upload, can be refused with these. Nothing is sent when one of them comes back.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span>Status</span>
+              <span>Code</span>
+              <span>Meaning</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">400</span>
+              <span class="font-mono text-[12px] text-red-300">validation_error</span>
+              <span class="text-text-secondary text-[12px]">More than 10 attachments in one message.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">400</span>
+              <span class="font-mono text-[12px] text-red-300">invalid_format</span>
+              <span class="text-text-secondary text-[12px]">A file is empty.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">400</span>
+              <span class="font-mono text-[12px] text-red-300">invalid_request</span>
+              <span class="text-text-secondary text-[12px]">The body could not be read: a field is missing or malformed, an <code>attach://</code> names no part, or an <code>attach://</code> is in a JSON body.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">403</span>
+              <span class="font-mono text-[12px] text-red-300">insufficient_permissions</span>
+              <span class="text-text-secondary text-[12px]">The bot has no <code>AttachFiles</code> in this channel.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">404</span>
+              <span class="font-mono text-[12px] text-red-300">not_found</span>
+              <span class="text-text-secondary text-[12px]">A <code>fileId</code> names no attachment upload of this bot: it is unknown, over 24 hours old, or was uploaded for a sticker or emoji.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">413</span>
+              <span class="font-mono text-[12px] text-red-300">too_large</span>
+              <span class="text-text-secondary text-[12px]">A file is over 10 MiB, or the request over its limit.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">422</span>
+              <span class="font-mono text-[12px] text-red-300">quota_exceeded</span>
+              <span class="text-text-secondary text-[12px]"><code>IFiles/Upload</code> only: the bot holds 100 unused uploads. Send some, or wait for them to expire.</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-sm text-text-muted">
+          Branch on the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">error</code> code, not the status — see <a href="/guides/error-handling/" class="text-accent hover:underline">Error Handling</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Limits & Permissions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <ShieldCheck class="size-5 text-accent" />
+        <h2 id="limits" class="text-xl font-semibold">Limits &amp; Permissions <a href="#limits" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="type-grid">
+          <div class="type-grid-header" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span>Limit</span>
+            <span>Value</span>
+            <span>Description</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Attachments per message</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">10</span></span>
+            <span class="text-text-secondary text-[12px]">More is <code>validation_error</code>.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">File size</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">10 MiB</span></span>
+            <span class="text-text-secondary text-[12px]">Any type.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Request size</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">≈ 10 MiB</span></span>
+            <span class="text-text-secondary text-[12px]">A multipart <code>Send</code> or <code>IFiles/Upload</code>: 10 MiB of parts plus the form around them.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Uploads</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">100 · 24 h</span></span>
+            <span class="text-text-secondary text-[12px]">Unused uploads a bot may hold, and how long an upload can be sent.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Rate limit</span>
+            <span class="font-mono text-[12px]"><span class="type-keyword">{filesLimit?.permitLimit}/min · {messagesLimit?.permitLimit}/min</span></span>
+            <span class="text-text-secondary text-[12px]"><code>IFiles</code> · <code>IMessages</code>, sliding window per bot.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+            <span class="type-property font-mono text-[12px]">Required permission</span>
+            <span class="font-mono text-[12px]"><span class="type-enum">AttachFiles</span></span>
+            <span class="text-text-secondary text-[12px]">In the channel, for a message with attachments. Uploading needs none.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section class="glass rounded-2xl p-6">
+      <h3 class="font-semibold mb-3">Next Steps</h3>
+      <div class="flex flex-col gap-2">
+        <a href="/docs/IFiles/" class="text-sm text-accent hover:underline">→ IFiles API Reference — Upload and Get</a>
+        <a href="/docs/IMessages/" class="text-sm text-accent hover:underline">→ IMessages API Reference — Send and History</a>
+        <a href="/guides/stickers-and-emoji/#files" class="text-sm text-accent hover:underline">→ Stickers &amp; Custom Emoji — files for stickers and emoji</a>
+      </div>
+    </section>
+
+  </div>
+</DocsLayout>

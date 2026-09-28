@@ -30,6 +30,7 @@ Retry-After: 60
   { id: "per-interface-limits", title: "Per-Interface Limits" },
   { id: "handling-429", title: "Handling 429 Responses" },
   { id: "space-budget", title: "Space Budget for Stickers & Emoji" },
+  { id: "request-size", title: "Request Size" },
   { id: "verified-bot-limits", title: "Verified Bot Limits" },
 ]}>
   <div class="animate-fade-in-up">
@@ -179,9 +180,46 @@ Retry-After: 60
             (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_format</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">too_large</code>,
             <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">content_rejected</code>) has already counted. Branch on the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">error</code>
             code, not the status: both limits answer <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">429</code>, and both are waited out the same way.
-            See <a href="/guides/stickers-and-emoji/#import-errors" class="text-accent hover:underline">Stickers &amp; Custom Emoji</a>.
+            See <a href="/guides/stickers-and-emoji/#errors" class="text-accent hover:underline">Stickers &amp; Custom Emoji</a>.
           </p>
         </div>
+      </div>
+    </section>
+
+    <!-- Request size -->
+    <section>
+      <h2 id="request-size" class="text-xl font-semibold mb-4">Request Size <a href="#request-size" class="anchor-link">#</a></h2>
+      <div class="space-y-3">
+        <p class="text-text-secondary">
+          Routes that take files also cap the body. Past the cap the server answers <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">413 too_large</code>.
+        </p>
+
+        <div class="type-grid">
+          <div class="type-grid-header" style="grid-template-columns: 1.5fr 1fr 2fr">
+            <span>Route</span>
+            <span>Body</span>
+            <span>Largest file</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.5fr 1fr 2fr">
+            <span class="font-mono text-[12px] text-accent">IFiles/Upload</span>
+            <span class="font-mono text-[12px] text-text-secondary">≈ 10 MiB</span>
+            <span class="text-[12px] text-text-secondary">10 MiB for an attachment; 4 MiB for a sticker or emoji file.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.5fr 1fr 2fr">
+            <span class="font-mono text-[12px] text-accent">IMessages/Send</span>
+            <span class="font-mono text-[12px] text-text-secondary">≈ 10 MiB</span>
+            <span class="text-[12px] text-text-secondary">10 MiB; the parts of one multipart request share the body. Larger sets go through <code>IFiles/Upload</code> first.</span>
+          </div>
+          <div class="type-grid-row" style="grid-template-columns: 1.5fr 1fr 2fr">
+            <span class="font-mono text-[12px] text-accent">IExpressions/AddItem</span>
+            <span class="font-mono text-[12px] text-text-secondary">5 MiB</span>
+            <span class="text-[12px] text-text-secondary">By format — see <a href="/guides/stickers-and-emoji/#formats" class="text-accent hover:underline">Formats &amp; Limits</a>.</span>
+          </div>
+        </div>
+
+        <p class="text-sm text-text-muted">
+          ≈ 10 MiB is 10 MiB of file plus 256 KiB for the form around it.
+        </p>
       </div>
     </section>
 

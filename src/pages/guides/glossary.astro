@@ -1,6 +1,6 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
-import { BookOpen, Server, Shield, Radio, Hash, Key, Star, Crown, Zap, Sticker } from 'lucide-astro';
+import { BookOpen, Server, Shield, Radio, Hash, Key, Star, Crown, Zap, Sticker, Paperclip } from 'lucide-astro';
 
 const terms = [
   {
@@ -35,7 +35,7 @@ const terms = [
     group: 'Data & IDs',
     icon: 'Hash',
     items: [
-      { term: 'File ID', definition: 'A UUID referencing an uploaded file (image, audio, document). File IDs are opaque. <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles/Upload</code> returns one for a sticker, emoji or thumbnail file, which <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IExpressions/AddItem</code> takes for 24 hours; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles/Get</code> describes a file and gives its download URL.' },
+      { term: 'File ID', definition: 'A UUID referencing an uploaded file (image, audio, document). File IDs are opaque. <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles/Upload</code> returns one for a sticker, emoji or attachment file, which <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IExpressions/AddItem</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IMessages/Send</code> takes for 24 hours; <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles/Get</code> describes a file and gives its download URL.' },
       { term: 'Message ID', definition: 'A monotonically increasing <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">int64</code> (snowflake) identifying a message within a channel. In JavaScript, use <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">BigInt</code> since these values exceed <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Number.MAX_SAFE_INTEGER</code>.' },
       { term: 'Random ID', definition: 'A client-generated <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">int64</code> used for message deduplication. If the server receives a message with the same random ID from the same bot, it returns the existing message instead of creating a duplicate.' },
       { term: 'Argon Epoch', definition: 'The reference point for all Argon timestamps: <strong>January 1, 2025 00:00:00 UTC</strong>. Heartbeat timestamps and other time values are expressed as milliseconds since this epoch. To convert to a standard timestamp: <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">new Date(argonMs + 1735689600000)</code> where <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">1735689600000</code> is the Unix timestamp of the Argon Epoch.' },
@@ -49,8 +49,17 @@ const terms = [
       { term: 'Pack', definition: 'A named set of expressions of one kind (<code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">sticker</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">emoji</code>) in a space, with a title and a slug unique in the space. A space holds up to 10.' },
       { term: 'Item', definition: 'One sticker or emoji in a pack. Carries its file as a URL, its associated emoji and keywords, and — for an emoji — the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">:name:</code> used in text.' },
       { term: 'Slug', definition: 'A pack\'s short <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">[a-z0-9_]</code> name, unique in the space. Creating a pack again with the slug of one the bot made returns that pack.' },
+      { term: 'Custom Emoji Reaction', definition: 'A reaction with an emoji item instead of a Unicode emoji, added with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IReactions/AddCustom</code> by its <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">itemId</code>. It reads <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">:name:</code> and carries the item ID as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">customEmojiId</code>. Any bot may use an emoji of the space the message is in; an emoji of another space takes a verified bot. See <a href="/guides/reactions/#custom-emoji" class="text-accent hover:underline">Reactions</a>.' },
       { term: 'Version Token', definition: 'An opaque string standing for a space\'s packs as they are. <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IExpressions/List</code> returns it; passed back as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">known</code>, the packs are left out while it is still current. <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">expressionsUpdate</code> events carry the token before and after each change.' },
-      { term: 'attach://', definition: 'In a multipart request, a text field holding <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attach://&lt;part&gt;</code> points a file field at another part of the same request, the way Telegram\'s Bot API does.' },
+    ]
+  },
+  {
+    group: 'Files',
+    icon: 'Paperclip',
+    items: [
+      { term: 'Upload', definition: 'A file sent to <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IFiles/Upload</code> with a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">purpose</code> — <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">sticker</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">emoji</code> or <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachment</code> — and taken by its <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code> for 24 hours. A bot holds at most 100 unused uploads.' },
+      { term: 'Attachment', definition: 'A file sent with a message: any type, up to 10 MiB, at most 10 per message, and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AttachFiles</code> to send. Messages list them as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attachments</code> — <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileId</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">url</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">fileName</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">size</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">contentType</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">width</code>, <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">height</code>. See <a href="/guides/files/" class="text-accent hover:underline">Files &amp; Attachments</a>.' },
+      { term: 'attach://', definition: 'In a multipart request, a text field holding <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">attach://&lt;part&gt;</code> points a file field at another part of the same request. Only a multipart body has parts: in JSON it is refused with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">invalid_request</code>.' },
     ]
   },
   {
@@ -64,7 +73,7 @@ const terms = [
   },
 ];
 
-const iconMap: Record<string, any> = { Server, Key, Radio, Hash, Star, Sticker };
+const iconMap: Record<string, any> = { Server, Key, Radio, Hash, Star, Sticker, Paperclip };
 ---
 
 <DocsLayout title="Glossary — Argon Bot API" current="/guides/glossary/">

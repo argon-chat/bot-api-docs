@@ -52,6 +52,10 @@ const normalIntents = intents.filter((i: any) => !i.isPrivileged);
               <span class="text-[12px] text-text-secondary">Sending messages in channels</span>
             </div>
             <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
+              <span class="font-mono text-[12px] text-amber-400">AttachFiles</span>
+              <span class="text-[12px] text-text-secondary">Sending messages with <a href="/guides/files/" class="text-accent hover:underline">attachments</a>. Uploading with <code>IFiles/Upload</code> needs no permission.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 2fr">
               <span class="font-mono text-[12px] text-amber-400">ReadMessages</span>
               <span class="text-[12px] text-text-secondary">Reading message history from channels</span>
             </div>
@@ -80,17 +84,6 @@ const normalIntents = intents.filter((i: any) => !i.isPrivileged);
               <span class="text-[12px] text-text-secondary">For people: editing, deleting and reordering anyone's packs and items. Grants a bot nothing more — bots never delete or reorder, and change only what they made.</span>
             </div>
           </div>
-        </div>
-
-        <div class="glass rounded-xl p-4">
-          <p class="text-sm text-text-secondary">
-            <strong class="text-text-primary">Adding a permission later.</strong> The bot's role in a space holds the <strong class="text-text-primary">required entitlements</strong> it had when it was installed.
-            When you add one — <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">CreateExpressions</code>, say — new installs get it at once, but spaces that installed the bot earlier
-            only after the space owner approves the bot again. Until then the endpoint returns <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">403</code>.
-            On connect, the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">ready</code> event marks those spaces with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">pendingApproval</code>
-            and a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">botEntitlementsUpdated</code> event follows for each.
-            See <a href="/guides/stickers-and-emoji/#access" class="text-accent hover:underline">Stickers &amp; Custom Emoji</a>.
-          </p>
         </div>
       </div>
     </section>

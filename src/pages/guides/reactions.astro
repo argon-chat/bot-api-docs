@@ -1,6 +1,149 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
-import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import { SmilePlus, Sticker, Zap, Code, Database, ShieldCheck } from 'lucide-astro';
+
+const messageWithReactions = `{
+  "messageId": 42,
+  "text": "Hello everyone!",
+  "reactions": [
+    {
+      "emoji": "👍",
+      "count": 128,
+      "userIds": ["d3b07384-...", "a1b2c3d4-...", "e5f6a7b8-..."],
+      "customEmojiId": null
+    },
+    {
+      "emoji": ":party:",
+      "count": 3,
+      "userIds": ["d3b07384-...", "a1b2c3d4-...", "e5f6a7b8-..."],
+      "customEmojiId": "9b2f4a1e-..."
+    }
+  ]
+}`;
+
+const addRequest = `POST /IReactions/v1/Add
+Authorization: Bot YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "channelId": "c0ffee00-...",
+  "messageId": 42,
+  "emoji": "👍"
+}`;
+
+const removeRequest = `DELETE /IReactions/v1/Remove
+Authorization: Bot YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "channelId": "c0ffee00-...",
+  "messageId": 42,
+  "emoji": "👍"
+}`;
+
+const addCustomRequest = String.raw`curl -X POST \
+     -H "Authorization: Bot YOUR_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"spaceId":"aaaabbbb-...","channelId":"c0ffee00-...","messageId":42,"itemId":"9b2f4a1e-..."}' \
+     https://gateway.argon.zone/IReactions/v1/AddCustom`;
+
+const listRequest = `GET /IReactions/v1/List?channelId=c0ffee00-...&messageId=42
+Authorization: Bot YOUR_TOKEN`;
+
+const listResponse = `{
+  "reactions": [
+    {
+      "emoji": "👍",
+      "count": 42,
+      "userIds": ["d3b07384-...", "a1b2c3d4-...", "e5f6a7b8-..."],
+      "customEmojiId": null
+    },
+    {
+      "emoji": ":party:",
+      "count": 1,
+      "userIds": ["d3b07384-..."],
+      "customEmojiId": "9b2f4a1e-..."
+    }
+  ]
+}`;
+
+const batchRequest = `POST /IReactions/v1/BatchGet
+Authorization: Bot YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "channelId": "c0ffee00-...",
+  "messageIds": [42, 43, 44, 45, 46]
+}`;
+
+const batchResponse = `{
+  "messages": [
+    {
+      "messageId": 42,
+      "reactions": [
+        { "emoji": "👍", "count": 128, "userIds": ["...", "...", "..."], "customEmojiId": null }
+      ]
+    },
+    {
+      "messageId": 43,
+      "reactions": []
+    }
+  ]
+}`;
+
+const batchClient = String.raw`// On reconnect or visibilitychange → "visible"
+async function refreshVisibleReactions(channelId: string, visibleIds: number[]) {
+  const res = await fetch("https://gateway.argon.zone/IReactions/v1/BatchGet", {
+    method: "POST",
+    headers: { Authorization: "Bot " + token, "Content-Type": "application/json" },
+    body: JSON.stringify({ channelId, messageIds: visibleIds }),
+  });
+  const { messages } = await res.json();
+  // Replace local reaction state for each returned message
+  for (const { messageId, reactions } of messages) {
+    store.setReactions(messageId, reactions);
+  }
+}`;
+
+const historyResponse = `{
+  "messages": [
+    {
+      "messageId": 42,
+      "text": "Ship it!",
+      "creatorId": "...",
+      "reactions": [
+        { "emoji": "🚀", "count": 15, "userIds": ["...", "...", "..."], "customEmojiId": null }
+      ]
+    }
+  ]
+}`;
+
+const eventExample = `{
+  "spaceId": "aaaabbbb-...",
+  "channelId": "c0ffee00-...",
+  "messageId": 42,
+  "userId": "d3b07384-...",
+  "emoji": ":party:",
+  "customEmojiId": "9b2f4a1e-...",
+  "emojiName": "party",
+  "emojiUrl": ".../files/0d6c1f2e-..."
+}`;
+
+const eventHandling = String.raw`// One reaction per emoji: a unicode one by its text, a custom one by its item ID.
+const keyOf = (r: { emoji: string; customEmojiId?: string | null }) => r.customEmojiId ?? r.emoji;
+
+es.addEventListener("reactionAdd", (e) => {
+  const data = JSON.parse(e.data);
+  // Increment the count for keyOf(data) on data.messageId and add data.userId to the preview.
+  // Draw a custom emoji from data.emojiUrl; once the emoji is deleted it is null, so show data.emoji (":name:").
+});
+
+es.addEventListener("reactionRemove", (e) => {
+  const data = JSON.parse(e.data);
+  // Decrement the count for keyOf(data) on data.messageId and remove data.userId from the preview.
+  // If the count reaches 0, remove the reaction entirely.
+});`;
 ---
 
 <DocsLayout title="Reactions — Argon Bot API" current="/guides/reactions/" toc={[
@@ -8,6 +151,7 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
   { id: "reaction-schema", title: "Reaction Schema" },
   { id: "adding-reactions", title: "Adding Reactions" },
   { id: "removing-reactions", title: "Removing Reactions" },
+  { id: "custom-emoji", title: "Custom Emoji Reactions" },
   { id: "listing-reactions", title: "Listing Reactions" },
   { id: "batch-refresh", title: "Batch Refresh" },
   { id: "reactions-in-messages", title: "Reactions in Messages" },
@@ -17,7 +161,7 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
   <div class="animate-fade-in-up">
     <h1 class="text-3xl font-bold tracking-tight mb-2">Reactions</h1>
     <p class="text-text-secondary text-lg">
-      Add emoji reactions to messages. Users and bots can react with standard Unicode emoji.
+      Add emoji reactions to messages — standard Unicode emoji or a space's custom emoji.
       Reactions are delivered in real time via the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Reactions</code> intent.
     </p>
   </div>
@@ -32,7 +176,8 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
       </div>
       <div class="space-y-4">
         <p class="text-text-secondary">
-          Any user or bot with the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddReactions</code> permission can react to a message with a Unicode emoji.
+          Any user or bot with the <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddReactions</code> permission can react to a message with a Unicode emoji
+          or with a <a href="#custom-emoji" class="text-accent hover:underline">custom emoji</a>.
           Each message supports up to <strong>20 unique emoji</strong>. Each user can react once per emoji — attempting to react twice returns
           <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">already_reacted</code>.
         </p>
@@ -61,49 +206,37 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
 
         <div class="glass rounded-2xl overflow-hidden">
           <div class="type-grid">
-            <div class="type-grid-header">
+            <div class="type-grid-header" style="grid-template-columns: 1fr 1.3fr 2fr">
               <span>Field</span>
               <span>Type</span>
               <span>Description</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
               <span class="type-property font-mono text-[12px]">emoji</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
-              <span class="text-text-secondary text-[12px]">Unicode emoji (e.g. "👍", "🔥").</span>
+              <span class="text-text-secondary text-[12px]">Unicode emoji (e.g. "👍", "🔥"), or <code>:name:</code> for a custom emoji.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
               <span class="type-property font-mono text-[12px]">count</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">number</span></span>
               <span class="text-text-secondary text-[12px]">Total number of users who reacted with this emoji.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
               <span class="type-property font-mono text-[12px]">userIds</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">string[]</span></span>
               <span class="text-text-secondary text-[12px]">Preview of user IDs (up to 3). Use <code>count</code> for the real total.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">customEmojiId</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+              <span class="text-text-secondary text-[12px]">For a custom emoji, its item ID; <code>null</code> for a Unicode emoji.</span>
             </div>
           </div>
         </div>
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example — message with reactions</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`{
-  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
-  <span class="text-accent-2">"text"</span>: <span class="text-accent-2">"Hello everyone!"</span>,
-  <span class="text-accent-2">"reactions"</span>: [
-    {
-      <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>,
-      <span class="text-accent-2">"count"</span>: <span class="type-keyword">128</span>,
-      <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"d3b07384-..."</span>, <span class="text-accent-2">"a1b2c3d4-..."</span>, <span class="text-accent-2">"e5f6a7b8-..."</span>]
-    },
-    {
-      <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"🔥"</span>,
-      <span class="text-accent-2">"count"</span>: <span class="type-keyword">3</span>,
-      <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"d3b07384-..."</span>, <span class="text-accent-2">"a1b2c3d4-..."</span>, <span class="text-accent-2">"e5f6a7b8-..."</span>]
-    }
-  ]
-}`} />
-          </div>
+          <CodeBlock code={messageWithReactions} lang="json" />
         </div>
 
         <div class="glass rounded-2xl p-5 border-l-2 border-status-degraded">
@@ -125,52 +258,47 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
       <div class="space-y-4">
         <p class="text-text-secondary">
           Send a <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">POST</code> to <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">/IReactions/v1/Add</code>
-          with the channel, message, and emoji.
+          with the channel, message, and Unicode emoji.
         </p>
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="type-property">POST</span> /IReactions/v1/Add
-<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>
-<span class="text-text-muted">Content-Type: application/json</span>
-
-{
-  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
-  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
-  <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>
-}`} />
-          </div>
+          <CodeBlock code={addRequest} lang="http" />
         </div>
 
         <div class="glass rounded-2xl overflow-hidden">
           <div class="type-grid">
-            <div class="type-grid-header">
+            <div class="type-grid-header" style="grid-template-columns: 60px 1.2fr 2.2fr">
               <span>Status</span>
               <span>Code</span>
               <span>Description</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
               <span class="font-mono text-[12px] text-emerald-400">200</span>
               <span class="font-mono text-[12px]">—</span>
               <span class="text-text-secondary text-[12px]">Reaction added successfully.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
               <span class="font-mono text-[12px] text-amber-400">403</span>
               <span class="font-mono text-[12px]">insufficient_permissions</span>
               <span class="text-text-secondary text-[12px]">Bot lacks <code>AddReactions</code> permission.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">403</span>
+              <span class="font-mono text-[12px]">reactions_disabled</span>
+              <span class="text-text-secondary text-[12px]">Reactions are turned off in this announcement channel.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
               <span class="font-mono text-[12px] text-amber-400">404</span>
               <span class="font-mono text-[12px]">message_not_found</span>
               <span class="text-text-secondary text-[12px]">Message doesn't exist in this channel.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
               <span class="font-mono text-[12px] text-amber-400">409</span>
               <span class="font-mono text-[12px]">already_reacted</span>
               <span class="text-text-secondary text-[12px]">Bot already reacted with this emoji.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
               <span class="font-mono text-[12px] text-amber-400">422</span>
               <span class="font-mono text-[12px]">reaction_limit_reached</span>
               <span class="text-text-secondary text-[12px]">Message already has 20 unique emoji.</span>
@@ -195,16 +323,96 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="type-property">DELETE</span> /IReactions/v1/Remove
-<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>
-<span class="text-text-muted">Content-Type: application/json</span>
+          <CodeBlock code={removeRequest} lang="http" />
+        </div>
+      </div>
+    </section>
 
-{
-  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
-  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
-  <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>
-}`} />
+    <!-- Custom Emoji Reactions -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <Sticker class="size-5 text-accent" />
+        <h2 id="custom-emoji" class="text-xl font-semibold">Custom Emoji Reactions <a href="#custom-emoji" class="anchor-link">#</a></h2>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">POST /IReactions/v1/AddCustom</code> reacts with a custom emoji, named by its
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">itemId</code> — an emoji item from
+          <a href="/guides/stickers-and-emoji/#reading" class="text-accent hover:underline"><code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">IExpressions/List</code></a>.
+          The body is <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">spaceId</code> (the space the message is in), <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">channelId</code>,
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">messageId</code> and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">itemId</code>.
+          The reaction then reads <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">:name:</code> as its <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">emoji</code>
+          and carries the item ID as <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">customEmojiId</code>.
+        </p>
+
+        <div class="glass rounded-2xl p-5">
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
+          <CodeBlock code={addCustomRequest} lang="bash" />
+        </div>
+
+        <div class="space-y-3">
+          <div class="glass rounded-xl p-4">
+            <p class="text-sm text-text-secondary">
+              <strong class="text-text-primary">An emoji of the message's space</strong> — any bot with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">AddReactions</code> may use it.
+            </p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-sm text-text-secondary">
+              <strong class="text-text-primary">An emoji of another space</strong> — only a <a href="/guides/what-are-bots/#verified-bots" class="text-accent hover:underline">verified bot</a> may use it;
+              any other bot gets <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">403 insufficient_permissions</code>.
+            </p>
+          </div>
+        </div>
+
+        <p class="text-text-secondary">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">POST /IReactions/v1/RemoveCustom</code> takes the same body and removes the bot's own custom reaction —
+          also after the emoji was deleted. <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">Remove</code> with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">:name:</code>
+          does not reach a custom reaction; it answers <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">reaction_not_found</code>.
+        </p>
+
+        <div class="glass rounded-2xl overflow-hidden">
+          <div class="type-grid">
+            <div class="type-grid-header" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span>Status</span>
+              <span>Code</span>
+              <span>Description</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">403</span>
+              <span class="font-mono text-[12px]">insufficient_permissions</span>
+              <span class="text-text-secondary text-[12px]">Bot lacks <code>AddReactions</code>, or the emoji belongs to another space and the bot is not verified.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">403</span>
+              <span class="font-mono text-[12px]">reactions_disabled</span>
+              <span class="text-text-secondary text-[12px]">Reactions are turned off in this announcement channel.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">404</span>
+              <span class="font-mono text-[12px]">not_found</span>
+              <span class="text-text-secondary text-[12px]">The emoji does not exist or was deleted, or the channel takes no reactions.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">404</span>
+              <span class="font-mono text-[12px]">message_not_found</span>
+              <span class="text-text-secondary text-[12px]">Message doesn't exist in this channel.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">404</span>
+              <span class="font-mono text-[12px]">reaction_not_found</span>
+              <span class="text-text-secondary text-[12px]"><code>RemoveCustom</code>: the bot has not reacted with this emoji.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">409</span>
+              <span class="font-mono text-[12px]">already_reacted</span>
+              <span class="text-text-secondary text-[12px]">Bot already reacted with this emoji.</span>
+            </div>
+            <div class="type-grid-row error-grid-row" style="grid-template-columns: 60px 1.2fr 2.2fr">
+              <span class="font-mono text-[12px] text-amber-400">422</span>
+              <span class="font-mono text-[12px]">reaction_limit_reached</span>
+              <span class="text-text-secondary text-[12px]">Message already has 20 unique emoji; custom ones count too.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -220,29 +428,17 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
       <div class="space-y-4">
         <p class="text-text-secondary">
           Query all reactions on a specific message with <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IReactions/v1/List</code>.
+          A custom emoji comes with its <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">customEmojiId</code>.
         </p>
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="type-property">GET</span> /IReactions/v1/List?channelId=<span class="text-accent">c0ffee00-...</span>&messageId=<span class="text-accent">42</span>
-<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>`} />
-          </div>
+          <CodeBlock code={listRequest} lang="http" />
         </div>
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`{
-  <span class="text-accent-2">"reactions"</span>: [
-    {
-      <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>,
-      <span class="text-accent-2">"count"</span>: <span class="type-keyword">42</span>,
-      <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"d3b07384-..."</span>, <span class="text-accent-2">"a1b2c3d4-..."</span>, <span class="text-accent-2">"e5f6a7b8-..."</span>]
-    }
-  ]
-}`} />
-          </div>
+          <CodeBlock code={listResponse} lang="json" />
         </div>
       </div>
     </section>
@@ -272,55 +468,17 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Request</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="type-property">POST</span> /IReactions/v1/BatchGet
-<span class="text-text-muted">Authorization: Bot YOUR_TOKEN</span>
-<span class="text-text-muted">Content-Type: application/json</span>
-
-{
-  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
-  <span class="text-accent-2">"messageIds"</span>: [<span class="type-keyword">42</span>, <span class="type-keyword">43</span>, <span class="type-keyword">44</span>, <span class="type-keyword">45</span>, <span class="type-keyword">46</span>]
-}`} />
-          </div>
+          <CodeBlock code={batchRequest} lang="http" />
         </div>
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Response</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`{
-  <span class="text-accent-2">"messages"</span>: [
-    {
-      <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
-      <span class="text-accent-2">"reactions"</span>: [
-        { <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>, <span class="text-accent-2">"count"</span>: <span class="type-keyword">128</span>, <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>] }
-      ]
-    },
-    {
-      <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">43</span>,
-      <span class="text-accent-2">"reactions"</span>: []
-    }
-  ]
-}`} />
-          </div>
+          <CodeBlock code={batchResponse} lang="json" />
         </div>
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Recommended client pattern (TypeScript)</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="text-text-muted">// On reconnect or visibilitychange → "visible"</span>
-<span class="type-keyword">async function</span> refreshVisibleReactions(channelId: string, visibleIds: number[]) {
-  <span class="type-keyword">const</span> res = <span class="type-keyword">await</span> fetch(<span class="text-accent-2">"/IReactions/v1/BatchGet"</span>, {
-    method: <span class="text-accent-2">"POST"</span>,
-    headers: { <span class="text-accent-2">"Authorization"</span>: <span class="text-accent-2">"Bot " + token</span>, <span class="text-accent-2">"Content-Type"</span>: <span class="text-accent-2">"application/json"</span> },
-    body: JSON.stringify({ channelId, messageIds: visibleIds })
-  });
-  <span class="type-keyword">const</span> { messages } = <span class="type-keyword">await</span> res.json();
-  <span class="text-text-muted">// Replace local reaction state for each returned message</span>
-  <span class="type-keyword">for</span> (<span class="type-keyword">const</span> { messageId, reactions } of messages) {
-    store.setReactions(messageId, reactions);
-  }
-}`} />
-          </div>
+          <CodeBlock code={batchClient} lang="ts" />
         </div>
       </div>
     </section>
@@ -335,29 +493,14 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
       <div class="space-y-4">
         <p class="text-text-secondary">
           Reactions are included automatically when fetching messages via <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">GET /IMessages/v1/History</code>
-          and in <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">MessageCreate</code> events.
+          and in <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">MessageCreate</code> events, custom ones with their
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">customEmojiId</code>.
           No extra API call needed — reactions travel with the message.
         </p>
 
         <div class="glass rounded-2xl p-5">
-          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example — message history with reactions</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="type-property">GET</span> /IMessages/v1/History?channelId=<span class="text-accent">c0ffee00-...</span>&limit=<span class="text-accent">1</span>
-
-<span class="text-text-muted">// Response includes reactions on each message</span>
-{
-  <span class="text-accent-2">"messages"</span>: [
-    {
-      <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
-      <span class="text-accent-2">"text"</span>: <span class="text-accent-2">"Ship it!"</span>,
-      <span class="text-accent-2">"creatorId"</span>: <span class="text-accent-2">"..."</span>,
-      <span class="text-accent-2">"reactions"</span>: [
-        { <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"🚀"</span>, <span class="text-accent-2">"count"</span>: <span class="type-keyword">15</span>, <span class="text-accent-2">"userIds"</span>: [<span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>, <span class="text-accent-2">"..."</span>] }
-      ]
-    }
-  ]
-}`} />
-          </div>
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Example — GET /IMessages/v1/History?channelId=c0ffee00-...&amp;limit=1</h4>
+          <CodeBlock code={historyResponse} lang="json" />
         </div>
       </div>
     </section>
@@ -378,56 +521,62 @@ import { SmilePlus, Zap, Code, Database, ShieldCheck, ArrowRight } from 'lucide-
 
         <div class="glass rounded-2xl overflow-hidden">
           <div class="type-grid">
-            <div class="type-grid-header">
-              <span>Event</span>
-              <span>Fields</span>
+            <div class="type-grid-header" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span>Field</span>
+              <span>Type</span>
               <span>Description</span>
             </div>
-            <div class="type-grid-row">
-              <span class="type-property font-mono text-[12px]">ReactionAdd</span>
-              <span class="font-mono text-[12px] text-text-secondary">spaceId, channelId, messageId, userId, emoji</span>
-              <span class="text-text-secondary text-[12px]">Fired when any user adds a reaction.</span>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">spaceId, channelId</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">Where the message is.</span>
             </div>
-            <div class="type-grid-row">
-              <span class="type-property font-mono text-[12px]">ReactionRemove</span>
-              <span class="font-mono text-[12px] text-text-secondary">spaceId, channelId, messageId, userId, emoji</span>
-              <span class="text-text-secondary text-[12px]">Fired when any user removes a reaction.</span>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">messageId</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">int64</span></span>
+              <span class="text-text-secondary text-[12px]">The message reacted to.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">userId</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">Who added or removed the reaction.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">emoji</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span></span>
+              <span class="text-text-secondary text-[12px]">The Unicode emoji, or <code>:name:</code> for a custom one.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">customEmojiId</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+              <span class="text-text-secondary text-[12px]">The custom emoji's item ID; <code>null</code> for a Unicode emoji.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">emojiName</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+              <span class="text-text-secondary text-[12px]">The custom emoji's name, without colons.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1fr 1.3fr 2fr">
+              <span class="type-property font-mono text-[12px]">emojiUrl</span>
+              <span class="font-mono text-[12px]"><span class="type-keyword">string</span> <span class="type-punct">|</span> <span class="type-keyword">null</span></span>
+              <span class="text-text-secondary text-[12px]">The custom emoji's file; <code>null</code> once the emoji is deleted.</span>
             </div>
           </div>
         </div>
 
+        <p class="text-sm text-text-muted">
+          <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">reactionAdd</code> and <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">reactionRemove</code> carry the same fields.
+          For a Unicode emoji the last three are <code class="bg-oled-elevated px-1 py-0.5 rounded font-mono text-[11px]">null</code>.
+        </p>
+
         <div class="glass rounded-2xl p-5">
-          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">SSE example</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="text-text-muted">id:</span> 128
-<span class="text-text-muted">event:</span> reactionAdd
-<span class="text-text-muted">data:</span> {
-  <span class="text-accent-2">"spaceId"</span>: <span class="text-accent-2">"aaaabbbb-..."</span>,
-  <span class="text-accent-2">"channelId"</span>: <span class="text-accent-2">"c0ffee00-..."</span>,
-  <span class="text-accent-2">"messageId"</span>: <span class="type-keyword">42</span>,
-  <span class="text-accent-2">"userId"</span>: <span class="text-accent-2">"d3b07384-..."</span>,
-  <span class="text-accent-2">"emoji"</span>: <span class="text-accent-2">"👍"</span>
-}`} />
-          </div>
+          <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">SSE example — event: reactionAdd, data:</h4>
+          <CodeBlock code={eventExample} lang="json" />
         </div>
 
         <div class="glass rounded-2xl p-5">
           <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Handling reaction events (TypeScript)</h4>
-          <div class="code-block text-[12px]">
-            <pre set:html={`<span class="text-text-muted">// Update local reaction count from delta events</span>
-eventSource.addEventListener(<span class="text-accent-2">'reactionAdd'</span>, (e) => {
-  <span class="type-keyword">const</span> data = JSON.parse(e.data);
-  <span class="text-text-muted">// Increment local count for data.emoji on data.messageId</span>
-  <span class="text-text-muted">// Add data.userId to the user preview list</span>
-});
-
-eventSource.addEventListener(<span class="text-accent-2">'reactionRemove'</span>, (e) => {
-  <span class="type-keyword">const</span> data = JSON.parse(e.data);
-  <span class="text-text-muted">// Decrement local count for data.emoji on data.messageId</span>
-  <span class="text-text-muted">// Remove data.userId from the user preview list</span>
-  <span class="text-text-muted">// If count reaches 0, remove the reaction group entirely</span>
-});`} />
-          </div>
+          <CodeBlock code={eventHandling} lang="ts" />
         </div>
       </div>
     </section>
@@ -436,48 +585,53 @@ eventSource.addEventListener(<span class="text-accent-2">'reactionRemove'</span>
     <section>
       <div class="flex items-center gap-3 mb-4">
         <ShieldCheck class="size-5 text-accent" />
-        <h2 id="limits" class="text-xl font-semibold">Limits & Permissions <a href="#limits" class="anchor-link">#</a></h2>
+        <h2 id="limits" class="text-xl font-semibold">Limits &amp; Permissions <a href="#limits" class="anchor-link">#</a></h2>
       </div>
 
       <div class="space-y-4">
         <div class="glass rounded-2xl overflow-hidden">
           <div class="type-grid">
-            <div class="type-grid-header">
+            <div class="type-grid-header" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span>Limit</span>
               <span>Value</span>
               <span>Description</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span class="type-property font-mono text-[12px]">Unique emoji per message</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">20</span></span>
-              <span class="text-text-secondary text-[12px]">Maximum distinct emoji on a single message.</span>
+              <span class="text-text-secondary text-[12px]">Maximum distinct emoji on a single message, custom ones included.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span class="type-property font-mono text-[12px]">Reactions per user per emoji</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">1</span></span>
               <span class="text-text-secondary text-[12px]">Each user can react once with the same emoji. Duplicates return 409.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span class="type-property font-mono text-[12px]">userIds preview</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">3</span></span>
               <span class="text-text-secondary text-[12px]">Max user IDs returned per reaction. Use <code>count</code> for the real total.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span class="type-property font-mono text-[12px]">Rate limit</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">60/min</span></span>
               <span class="text-text-secondary text-[12px]">Sliding window per bot.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span class="type-property font-mono text-[12px]">BatchGet max messages</span>
               <span class="font-mono text-[12px]"><span class="type-keyword">50</span></span>
               <span class="text-text-secondary text-[12px]">Maximum message IDs per <code>/BatchGet</code> request. Excess IDs are silently truncated.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span class="type-property font-mono text-[12px]">Required permission</span>
               <span class="font-mono text-[12px]"><span class="type-enum">AddReactions</span></span>
-              <span class="text-text-secondary text-[12px]">Checked on /Add. Removing own reaction has no permission requirement.</span>
+              <span class="text-text-secondary text-[12px]">Checked on <code>/Add</code> and <code>/AddCustom</code>. Removing own reaction has no permission requirement.</span>
             </div>
-            <div class="type-grid-row">
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
+              <span class="type-property font-mono text-[12px]">Another space's emoji</span>
+              <span class="font-mono text-[12px]"><span class="type-enum">verified bots</span></span>
+              <span class="text-text-secondary text-[12px]">An emoji of the message's space works for every bot.</span>
+            </div>
+            <div class="type-grid-row" style="grid-template-columns: 1.3fr 1fr 2fr">
               <span class="type-property font-mono text-[12px]">SSE intent</span>
               <span class="font-mono text-[12px]"><span class="type-enum">Reactions</span> (bit 3 = 8)</span>
               <span class="text-text-secondary text-[12px]">Required to receive ReactionAdd / ReactionRemove events.</span>
