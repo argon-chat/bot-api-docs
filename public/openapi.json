@@ -5569,6 +5569,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/MessageEntityUrl"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityVideo"
                 }
               ]
             }
@@ -7388,6 +7391,219 @@
           }
         }
       },
+      "MessageEntityVideo": {
+        "required": [
+          "type",
+          "offset",
+          "length",
+          "version",
+          "fileId",
+          "fileName",
+          "fileSize",
+          "contentType",
+          "width",
+          "height",
+          "durationMs",
+          "hasAudio",
+          "codec",
+          "thumbHash",
+          "posterFileId",
+          "storyboardFileId",
+          "storyboard",
+          "preloadPrefixSize",
+          "variants",
+          "downloadUrl",
+          "posterUrl",
+          "storyboardUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "width": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "height": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "durationMs": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "hasAudio": {
+            "type": "boolean"
+          },
+          "codec": {
+            "type": "string",
+            "nullable": true
+          },
+          "thumbHash": {
+            "type": "string",
+            "nullable": true
+          },
+          "posterFileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "storyboardFileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "storyboard": {
+            "oneOf": [
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              },
+              {
+                "$ref": "#/components/schemas/VideoStoryboard"
+              }
+            ]
+          },
+          "preloadPrefixSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "int64",
+            "nullable": true
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoVariant"
+            }
+          },
+          "downloadUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "storyboardUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "unionIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "uint32"
+          }
+        }
+      },
       "MessageHistoryResponse": {
         "required": [
           "messages"
@@ -7906,6 +8122,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/MessageEntityUrl"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityVideo"
                 }
               ]
             },
@@ -8112,6 +8331,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/MessageEntityUrl"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEntityVideo"
                 }
               ]
             },
@@ -8342,6 +8564,152 @@
           "coverItemId": {
             "type": "string",
             "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "VideoStoryboard": {
+        "required": [
+          "frameWidth",
+          "frameHeight",
+          "columns",
+          "frameCount",
+          "intervalMs"
+        ],
+        "type": "object",
+        "properties": {
+          "frameWidth": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "frameHeight": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "columns": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "frameCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "intervalMs": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "VideoVariant": {
+        "required": [
+          "fileId",
+          "width",
+          "height",
+          "fileSize",
+          "codec",
+          "bitrate",
+          "downloadUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "width": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "height": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "fileSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int64"
+          },
+          "codec": {
+            "type": "string",
+            "nullable": true
+          },
+          "bitrate": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "downloadUrl": {
+            "type": "string",
             "nullable": true
           }
         }
